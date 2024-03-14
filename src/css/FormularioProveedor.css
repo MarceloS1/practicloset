@@ -1,0 +1,48 @@
+.form-container {
+    border: 1px solid #000;
+    padding: 20px;
+    margin: 20px;
+    width: 60%; /* Ajusta la anchura según tu preferencia */
+    background-color: #f8f8f8; /* Color de fondo del formulario */
+  }
+  
+  .provider-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Ajusta las columnas para los inputs */
+    gap: 10px;
+    align-items: end;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .input-group label {
+    font-weight: bold;
+  }
+  
+  .input-group input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px; /* Bordes redondeados para los inputs */
+  }
+  
+  .button-group {
+    grid-column: 1 / -1; /* Los botones ocuparán toda la fila */
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .button-group .btn {
+    padding: 10px 20px;
+    border: 1px solid #000; /* Borde para los botones */
+    background-color: #fff; /* Fondo blanco para los botones */
+    cursor: pointer;
+  }
+  
+  .button-group .btn:hover {
+    background-color: #e8e8e8; /* Efecto hover para los botones */
+  }
+  
