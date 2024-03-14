@@ -14,19 +14,18 @@ const FormularioProveedor = ({ onSubmit, proveedorActual, onReset }) => {
   // Nuevo estado para almacenar la lista de proveedores
   const [listaProveedores, setListaProveedores] = useState([]);
 
-  // Efecto para cargar los proveedores cuando el componente se monta
+  const cargarProveedores = async () => {
+    try {
+      const respuesta = await axios.get('http://25.5.98.175:5000/proveedores');
+      setListaProveedores(respuesta.data);
+    } catch (error) {
+      console.error('Error al obtener los proveedores: ', error);
+    }
+  };
   useEffect(() => {
-    const cargarProveedores = async () => {
-      try {
-        const respuesta = await axios.get('http://25.5.98.175:5000/proveedores');
-        setListaProveedores(respuesta.data);
-      } catch (error) {
-        console.error('Error al obtener los proveedores: ', error);
-      }
-    };
-
     cargarProveedores();
   }, []);
+
 
   // Carga los datos del proveedor en el formulario para editar
   useEffect(() => {
@@ -40,6 +39,15 @@ const FormularioProveedor = ({ onSubmit, proveedorActual, onReset }) => {
     }
     
   },[proveedorActual]);
+
+  const eliminarProveedor = async (id) => {
+    try {
+      await axios.delete(`http://25.5.98.175:5000/proveedores/${id}`);
+      setListaProveedores(listaProveedores.filter((proveedor) => proveedor.id !== id));
+    } catch (error) {
+      console.error('Error al eliminar el proveedor', error);
+    }
+  };
 
 
   // Función asíncrona para manejar el envío del formulario
@@ -58,15 +66,21 @@ const FormularioProveedor = ({ onSubmit, proveedorActual, onReset }) => {
     try {
       let response;
       if (proveedorActual) {
-        // URL del endpoint de actualización
-        response = await axios.put(`/api/proveedores/${proveedorActual.id}`, proveedorData);
+        // Corregir la URL agregando la barra antes del ID
+        response = await axios.put(`http://25.5.98.175:5000/proveedores/${proveedorActual.id}`, proveedorData);
       } else {
-        // URL del endpoint de creación
-        response = await axios.post('/api/proveedores', proveedorData);
+        response = await axios.post('http://25.5.98.175:5000/proveedores', proveedorData);
       }
-
-      console.log(response.data); // Respuesta del servidor
-      onReset(); // Limpia el formulario
+      setNombre('');
+      setTelefono('');
+      setEmail('');
+      setTiempoEntregaEstimado('');
+      setDireccion('');
+      setComentario('');
+      // Resetea los campos del formulario aquí
+      handleReset();
+      // Recarga la lista de proveedores solo después de que se haya completado la operación de POST o PUT
+      await cargarProveedores(); 
     } catch (error) {
       console.error('Error al procesar la solicitud', error);
     }
@@ -84,7 +98,7 @@ const FormularioProveedor = ({ onSubmit, proveedorActual, onReset }) => {
   };
 
   return (
-    <div className="form-container">
+    <div className="form-container"style={{ marginLeft: '20%' }}> {/* Ajuste de estilo */} 
       <h2>Proveedores</h2>
       <form onSubmit={handleFormSubmit} className="provider-form">
         {/* Los inputs para los campos del formulario */}
@@ -134,26 +148,19 @@ const FormularioProveedor = ({ onSubmit, proveedorActual, onReset }) => {
       </form>
       {/* Lista de proveedores */}
       <div className="proveedores-lista">
-        <h3>Lista de Proveedores</h3>
-        {listaProveedores.length > 0 ? (
-          <ul>
-            {listaProveedores.map((proveedor) => (
-              <li key={proveedor.id}>
-                {proveedor.nombre} - {proveedor.telefono} - {proveedor.email}
-                {/* Añade aquí más detalles si es necesario */}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No hay proveedores para mostrar.</p>
-        )}
+      <h3>Lista de Proveedores</h3>
+        <ul>
+          {listaProveedores.map((proveedor) => (
+            <li key={proveedor.id}>
+              {`${proveedor.nombre} - ${proveedor.telefono} - ${proveedor.email}`}
+              {/* Botón para eliminar el proveedor específico */}
+              <button onClick={() => eliminarProveedor(proveedor.id)}>Eliminar</button>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
-    
-
   );
-  
-  
 };
 
 export default FormularioProveedor;
