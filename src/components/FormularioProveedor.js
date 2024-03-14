@@ -73,6 +73,7 @@ const FormularioProveedor = ({ onSubmit, proveedorActual, onReset }) => {
         response = await axios.put(`http://25.5.98.175:5000/proveedores/${proveedorActual.id}`, proveedorData);
       } else {
         response = await axios.post('http://25.5.98.175:5000/proveedores', proveedorData);
+        setListaProveedores([...listaProveedores, response.data]);
       }
       setNombre('');
       setTelefono('');
