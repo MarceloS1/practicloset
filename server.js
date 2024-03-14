@@ -13,7 +13,7 @@ app.use(express.json()); // Permite que el servidor acepte JSON.
 // Configura la conexión a PostgreSQL
 const pool = new Pool({
   user: 'Marcelo',
-  host: 'localhost',
+  host: '25.56.40.70',
   database: 'practicloset_db',
   password: 'Passw0rd',
   port: 5433,

@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 const pool = new Pool({
   user: 'Marcelo',
-  host: 'localhost',
+  host: '25.56.40.70',
   database: 'practicloset_db',
   password: 'Passw0rd',
   port: 5433,
@@ -63,6 +63,10 @@ exports.crearProveedor = async (req, res) => {
 
   exports.eliminarProveedor = async (req, res) => {
     const id = parseInt(req.params.proveedor_id);
+
+    if (isNaN(id)) {
+      return res.status(400).send("El ID del proveedor debe ser un número entero.");
+    }
   
     try {
       const resultado = await pool.query('DELETE FROM proveedores WHERE proveedor_id = $1', [id]);
