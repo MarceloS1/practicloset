@@ -40,15 +40,18 @@ const FormularioProveedor = ({ onSubmit, proveedorActual, onReset }) => {
     
   },[proveedorActual]);
 
-  const eliminarProveedor = async (id) => {
+  const handleEliminarProveedor = async (proveedorId) => {
     try {
-      await axios.delete(`http://25.5.98.175:5000/proveedores/${id}`);
-      setListaProveedores(listaProveedores.filter((proveedor) => proveedor.id !== id));
+      const response = await axios.delete(`http://25.5.98.175:5000/proveedores/${proveedorId}`);
+      if (response.status === 204) {
+        console.log('Proveedor eliminado exitosamente');
+        // Elimina el proveedor de la lista en el estado
+        setListaProveedores(listaProveedores.filter((proveedor) => proveedor.proveedor_id !== proveedorId));
+      }
     } catch (error) {
-      console.error('Error al eliminar el proveedor', error);
+      console.error('Error al eliminar el proveedor:', error);
     }
   };
-
 
   // Función asíncrona para manejar el envío del formulario
   const handleFormSubmit = async (event) => {
@@ -151,10 +154,10 @@ const FormularioProveedor = ({ onSubmit, proveedorActual, onReset }) => {
       <h3>Lista de Proveedores</h3>
         <ul>
           {listaProveedores.map((proveedor) => (
-            <li key={proveedor.id}>
+            <li key={proveedor.proveedor_id || proveedor.id}>
               {`${proveedor.nombre} - ${proveedor.telefono} - ${proveedor.email}`}
               {/* Botón para eliminar el proveedor específico */}
-              <button onClick={() => eliminarProveedor(proveedor.id)}>Eliminar</button>
+              <button onClick={() => handleEliminarProveedor(proveedor.proveedor_id || proveedor.id)}>Eliminar</button>
             </li>
           ))}
         </ul>
