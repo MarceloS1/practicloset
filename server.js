@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const proveedoresRoutes = require('./routes/proveedoresRoutes');
+const articulosRoutes = require('./routes/articulosRoutes');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -25,6 +26,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/proveedores', proveedoresRoutes);
+app.use('/articulos', articulosRoutes);
 
 // Iniciar el servidor
 app.listen(port, () => {
