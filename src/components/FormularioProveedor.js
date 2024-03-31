@@ -176,15 +176,17 @@ const FormularioProveedor = ({ onSubmit, proveedorActual, onReset }) => {
           <td>
             {/* Botón de modificar */}
             <button 
-            className="modify-button"
+            className="action-button modify-button" 
             onClick={() => handleModificarProveedor(proveedor.proveedor_id || proveedor.id)}>
-              Modificar
+              <FontAwesomeIcon icon={faCog} />
+              
             </button>
             {/* Botón de eliminar */}
             <button 
-            
-            onClick={() => handleEliminarProveedor(proveedor.proveedor_id || proveedor.id)} className="delete-button">
-              <span className="delete-icon">&#128465;</span> {/* Este es un símbolo de papelera en Unicode */}
+            className="action-button delete-button"
+            onClick={() => handleEliminarProveedor(proveedor.proveedor_id || proveedor.id)} >
+              <FontAwesomeIcon icon={faTrash} />
+             
             </button>
           </td>
         </tr>
