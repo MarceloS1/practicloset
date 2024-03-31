@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../css/FormularioProveedor.css';
 
+
+
+
 const FormularioProveedor = ({ onSubmit, proveedorActual, onReset }) => {
   // Estados para cada campo del formulario
   const [nombre, setNombre] = useState('');
@@ -153,16 +156,40 @@ const FormularioProveedor = ({ onSubmit, proveedorActual, onReset }) => {
       {/* Lista de proveedores */}
       <div className="proveedores-lista">
       <h3>Lista de Proveedores</h3>
-        <ul>
-          {listaProveedores.map((proveedor) => (
-            <li key={proveedor.proveedor_id || proveedor.id}>
-              {`${proveedor.nombre} - ${proveedor.telefono} - ${proveedor.email}`}
-              {/* Botón para eliminar el proveedor específico */}
-              <button onClick={() => handleEliminarProveedor(proveedor.proveedor_id || proveedor.id)}>Eliminar</button>
-            </li>
-          ))}
-        </ul>
-      </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+        <th>Email</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {listaProveedores.map((proveedor) => (
+        <tr key={proveedor.proveedor_id || proveedor.id}>
+          <td>{proveedor.nombre}</td>
+          <td>{proveedor.telefono}</td>
+          <td>{proveedor.email}</td>
+          <td>
+            {/* Botón de modificar */}
+            <button 
+            className="modify-button"
+            onClick={() => handleModificarProveedor(proveedor.proveedor_id || proveedor.id)}>
+              Modificar
+            </button>
+            {/* Botón de eliminar */}
+            <button 
+            
+            onClick={() => handleEliminarProveedor(proveedor.proveedor_id || proveedor.id)} className="delete-button">
+              <span className="delete-icon">&#128465;</span> {/* Este es un símbolo de papelera en Unicode */}
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  </div>
     </div>
   );
 };
