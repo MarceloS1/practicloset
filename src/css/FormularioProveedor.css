@@ -1,143 +1,132 @@
-
+/* Estilos generales para contenedores de formulario */
 .form-container {
-    border: 1px solid #000;
-    padding: 20px;
-    margin: 20px;
-    width: 60%; /* Ajusta la anchura según tu preferencia */
-    background-color: #f8f8f8; /* Color de fondo del formulario */
-  }
-  
-  .provider-form {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Ajusta las columnas para los inputs */
-    gap: 10px;
-    align-items: end;
-  }
-  
-  .input-group {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .input-group label {
-    font-weight: bold;
-  }
-  
-  .input-group input {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px; /* Bordes redondeados para los inputs */
-  }
-  
-  .button-group {
-    grid-column: 1 / -1; /* Los botones ocuparán toda la fila */
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-  }
-  
-  .button-group .btn {
-    padding: 10px 20px;
-    border: 1px solid #000; /* Borde para los botones */
-    background-color: #fff; /* Fondo blanco para los botones */
-    cursor: pointer;
-  }
-  
-  .button-group .btn:hover {
-    background-color: #e8e8e8; /* Efecto hover para los botones */
-  }
-/* Styles for the table */
-.proveedores-lista table {
+  border: 1px solid #000;
+  padding: 20px;
+  margin: 20px auto; /* Centrado y espacio alrededor */
+  width: 80%; /* Ancho ajustable */
+  background-color: #f8f8f8;
+}
+
+/* Estilos para el formulario */
+.provider-form,
+.article-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  align-items: end;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-weight: bold;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Estilos para botones */
+.button-group {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.button-group .btn {
+  padding: 10px 20px;
+  border: 1px solid #000;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.button-group .btn:hover {
+  background-color: #e8e8e8;
+}
+
+/* Estilos para las tablas */
+.proveedores-lista,
+.articulos-lista {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px; /* Adjust spacing above the table as needed */
+  margin-top: 20px;
 }
 
 .proveedores-lista th,
-.proveedores-lista td {
-  border: 1px solid #ccc; /* Adds border to each cell */
-  padding: 8px; /* Adjust cell padding as needed */
-  text-align: left; /* Align text to the left; adjust as needed */
+.proveedores-lista td,
+.articulos-lista th,
+.articulos-lista td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
 }
 
-.proveedores-lista th {
-  background-color: #f2f2f2; /* Color for header cells */
+.proveedores-lista th,
+.articulos-lista th {
+  background-color: #f2f2f2;
 }
 
-/* Styles for buttons */
-.proveedores-lista td .delete-button,
-.proveedores-lista td .modify-button {
+/* Estilos para los botones de acción en las tablas */
+.action-button {
   margin: 0 5px;
   border: none;
   background-color: transparent;
   cursor: pointer;
-  padding: 5px;
 }
 
-/* Using FontAwesome icons for better visuals */
-.delete-button::before {
-  content: "\f1f8"; /* FontAwesome trash icon */
-  font-family: "Font Awesome 5 Free"; /* Adjust based on your FontAwesome version */
-  font-weight: 900;
-}
-
-.modify-button::before {
-  content: "\f044"; /* FontAwesome edit icon */
-  font-family: "Font Awesome 5 Free"; /* Adjust based on your FontAwesome version */
-  font-weight: 900;
-}
-
-/* Hover effects */
-.delete-button:hover,
-.modify-button:hover {
-  opacity: 0.7;
-}
-
-/* Ensure the buttons float to the right */
-.proveedores-lista td {
-  position: relative;
-  padding-right: 80px; /* Provide enough space for buttons */
-}
-
-/* Style the delete button with a red trash icon */
+/* Usar FontAwesome para los íconos */
 .delete-button {
   color: red;
 }
 
-.delete-button::before {
-  content: "\f1f8"; /* FontAwesome trash icon */
-  /* ... other styles */
-}
-
-/* Style the modify button with a green settings icon */
 .modify-button {
   color: green;
 }
 
-.modify-button::before {
-  content: "\f013"; /* FontAwesome cog icon for settings */
-  /* ... other styles */
-}
-
-/* Positioning the buttons next to each other */
-.proveedores-lista td .button-container {
-  position: absolute;
-  right: 10px; /* Adjust as needed */
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  gap: 5px; /* Space between buttons */
-}
-
-/* Specific button styles */
-.proveedores-lista td .button-container button {
-  border: none;
-  background: none;
-  cursor: pointer;
-  padding: 5px;
-}
-
-/* Hover effects for icons */
-.proveedores-lista td .button-container button:hover {
+/* Efectos hover para los botones */
+.action-button:hover {
   opacity: 0.7;
 }
+
+/* Botones alineados a la derecha dentro de las celdas de la tabla */
+.proveedores-lista td .button-container,
+.articulos-lista td .button-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* Utilizar FontAwesome para los íconos */
+/* Asegúrate de agregar la clase correspondiente a tus botones en el JSX */
+.delete-button::before,
+.modify-button::before {
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* FontAwesome trash icon */
+.delete-button::before {
+  content: '\f1f8';
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+}
+
+/* FontAwesome cog icon */
+.modify-button::before {
+  content: '\f013';
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+}
+
+/* Puedes agregar otros estilos que consideres necesarios a continuación */

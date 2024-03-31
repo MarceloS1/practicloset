@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faCog } from '@fortawesome/free-solid-svg-icons';
 import '../css/FormularioProveedor.css';
 
 const Articulo = () => {
@@ -102,7 +104,8 @@ const Articulo = () => {
         </select>
         <button type="submit">Guardar</button>
         </form>
-      <h2>Lista de Artículos</h2>
+        <div className="articulos-lista">
+      <h3>Lista de Artículos</h3>
       <table>
         <thead>
           <tr>
@@ -120,14 +123,19 @@ const Articulo = () => {
               <td>{articulo.tipo}</td>
               <td>
                 {/* Botones de acciones */}
-                <button onClick={() => handleModificar(articulo.articulo_id)}>Modificar</button>
-                <button onClick={() => handleEliminar(articulo.articulo_id)}>Eliminar</button>
+                <button className="action-button modify-button" onClick={() => handleModificar(articulo.articulo_id)}>
+                    <FontAwesomeIcon icon={faCog} />
+                </button>
+                <button className="action-button delete-button"onClick={() => handleEliminar(articulo.articulo_id)}>
+                    <FontAwesomeIcon icon={faTrash} />
+                </button>
               </td>
            
             </tr>
           ))}
         </tbody>
       </table>
+    </div>
     </div>
   );
 };
