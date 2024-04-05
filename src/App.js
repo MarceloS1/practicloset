@@ -5,6 +5,9 @@ import Proveedores from './components/FormularioProveedor';
 import Inicio from './components/Inicio';
 import Articulos from './components/Articulos';
 import OrdenesDeCompra from './components/ordenesdecompra';
+import FormularioTrabajador from './components/trabajadores';
+
+
 
 import './App.css';
 
@@ -19,6 +22,7 @@ const App = () => {
           <Route path="/Proveedores" element={<Proveedores />} />
           <Route path="/articulos" element={<Articulos />} />
           <Route path="/ordenes-de-compra" element={<OrdenesDeCompra/>} />
+          <Route path="/trabajadores" element={<FormularioTrabajador/>} />
 
           {/* ... otras rutas */}
         </Routes>
