@@ -5,6 +5,7 @@ const proveedoresRoutes = require('./routes/proveedoresRoutes');
 const articulosRoutes = require('./routes/articulosRoutes');
 const ordenesRoutes = require('./routes/ordenesRoutes');
 const trabajadoresRoutes = require("./routes/trabajadoresRoutes");
+const clientesRoutes = require('./routes/clientesRoutes');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -31,6 +32,7 @@ app.use('/proveedores', proveedoresRoutes);
 app.use('/articulos', articulosRoutes);
 app.use('/ordenes', ordenesRoutes);
 app.use('/trabajadores', trabajadoresRoutes);
+app.use('/clientes', clientesRoutes);
 
 // Iniciar el servidor
 app.listen(port, () => {
