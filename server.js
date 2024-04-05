@@ -4,7 +4,7 @@ const { Pool } = require('pg');
 const proveedoresRoutes = require('./routes/proveedoresRoutes');
 const articulosRoutes = require('./routes/articulosRoutes');
 const ordenesRoutes = require('./routes/ordenesRoutes');
-
+const trabajadoresRoutes = require("./routes/trabajadoresRoutes");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -30,6 +30,7 @@ app.get('/', (req, res) => {
 app.use('/proveedores', proveedoresRoutes);
 app.use('/articulos', articulosRoutes);
 app.use('/ordenes', ordenesRoutes);
+app.use('/trabajadores', trabajadoresRoutes);
 
 // Iniciar el servidor
 app.listen(port, () => {
