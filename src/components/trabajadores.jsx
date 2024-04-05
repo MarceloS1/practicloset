@@ -74,7 +74,7 @@ const FormularioTrabajador = ({ onReset, trabajadorActual }) => {
   // Maneja el envío del formulario
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    const datosTrabajador = { nombre,apellido, email, telefono, cedula, cargo, fechaIngreso, salario };
+    const datosTrabajador = { nombre,apellido, email, telefono, cedula, cargo,  fecha_ingreso: fechaIngreso + "T04:00:00.000Z",  salario };
   
     // Imprimir en consola los datos que se enviarán
     console.log('Enviando datos del trabajador:', datosTrabajador);
