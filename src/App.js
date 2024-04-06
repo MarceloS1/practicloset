@@ -6,6 +6,7 @@ import Inicio from './components/Inicio';
 import Articulos from './components/Articulos';
 import OrdenesDeCompra from './components/ordenesdecompra';
 import FormularioTrabajador from './components/trabajadores';
+import GestionClientes from './components/clientes';
 
 
 
@@ -23,6 +24,7 @@ const App = () => {
           <Route path="/articulos" element={<Articulos />} />
           <Route path="/ordenes-de-compra" element={<OrdenesDeCompra/>} />
           <Route path="/trabajadores" element={<FormularioTrabajador/>} />
+          <Route path="/Clientes" element={<GestionClientes/>} />
 
           {/* ... otras rutas */}
         </Routes>

@@ -19,6 +19,7 @@ const NavBar = () => {
           <li><Link to="/articulos">Artículos</Link></li>
           <li>  <Link to="/ordenes-de-compra">Órdenes de Compra</Link></li>
           <li>  <Link to="/trabajadores">trabajadores</Link></li>
+          <li>  <Link to="/Clientes">Gestion Clientes</Link></li>
 
           {/* ... más enlaces si son necesarios */}
         </ul>
