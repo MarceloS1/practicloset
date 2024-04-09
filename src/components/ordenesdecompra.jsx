@@ -4,11 +4,11 @@ import axios from 'axios';
 const OrdenesDeCompra = () => {
   const [ordenes, setOrdenes] = useState([]);
   const [proveedores, setProveedores] = useState([]);
-  const [articulos, setArticulos] = useState([]);
   const [ordenData, setOrdenData] = useState({
+    orden_id: '',
     fecha: '',
     proveedor_id: '',
-    estado: 'Pendiente' // Estado inicial de la orden
+    estado: 'Pendiente'
   });
 
   useEffect(() => {
@@ -16,10 +16,8 @@ const OrdenesDeCompra = () => {
       try {
         const resOrdenes = await axios.get('http://25.5.98.175:5000/ordenes');
         const resProveedores = await axios.get('http://25.5.98.175:5000/proveedores');
-        const resArticulos = await axios.get('http://25.5.98.175:5000/articulos');
         setOrdenes(resOrdenes.data);
         setProveedores(resProveedores.data);
-        setArticulos(resArticulos.data);
       } catch (error) {
         console.error('Error al obtener datos iniciales:', error);
       }
@@ -38,26 +36,47 @@ const OrdenesDeCompra = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://25.5.98.175:5000/ordenes', ordenData);
-      // Limpia el formulario después de la creación
+      if (ordenData.orden_id) {
+        const response = await axios.put(`http://25.5.98.175:5000/ordenes/${ordenData.orden_id}`, ordenData);
+        console.log('Orden actualizada:', response.data);
+        setOrdenes(ordenes.map((orden) => (orden.orden_id === ordenData.orden_id ? response.data : orden)));
+      } else {
+        const response = await axios.post('http://25.5.98.175:5000/ordenes', ordenData);
+        console.log('Orden creada:', response.data);
+        setOrdenes([...ordenes, response.data]);
+      }
       setOrdenData({
+        orden_id: '',
         fecha: '',
         proveedor_id: '',
         estado: 'Pendiente'
       });
-      // Refrescar la lista de órdenes
-      const resOrdenes = await axios.get('http://25.5.98.175:5000/ordenes');
-      setOrdenes(resOrdenes.data);
     } catch (error) {
-      console.error('Error al crear la orden:', error);
+      console.error('Error al guardar la orden:', error);
     }
   };
 
-  // Aquí puedes agregar las funciones para modificar y eliminar órdenes y detalles
+  const handleModificar = (orden) => {
+    setOrdenData({
+      orden_id: orden.orden_id,
+      fecha: orden.fecha,
+      proveedor_id: orden.proveedor_id,
+      estado: orden.estado
+    });
+  };
+
+  const handleEliminar = async (ordenId) => {
+    try {
+      await axios.delete(`http://25.5.98.175:5000/ordenes/${ordenId}`);
+      setOrdenes(ordenes.filter((orden) => orden.orden_id !== ordenId));
+    } catch (error) {
+      console.error('Error al eliminar la orden:', error);
+    }
+  };
 
   return (
     <div>
-      <h2>Crear Orden de Compra</h2>
+      <h2>Crear/Editar Orden de Compra</h2>
       <form onSubmit={handleSubmit}>
         <input type="date" name="fecha" value={ordenData.fecha} onChange={handleInputChange} required />
         <select name="proveedor_id" value={ordenData.proveedor_id} onChange={handleInputChange} required>
@@ -68,14 +87,20 @@ const OrdenesDeCompra = () => {
             </option>
           ))}
         </select>
-        <input type="text" name="estado" value={ordenData.estado} onChange={handleInputChange} required />
-        <button type="submit">Crear Orden</button>
+        <select name="estado" value={ordenData.estado} onChange={handleInputChange} required>
+        <option value="">Seleccione un estado</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="En proceso">En proceso</option>
+        <option value="Completado">Completado</option>
+        </select>
+
+        <button type="submit">Guardar Orden</button>
       </form>
       <h2>Lista de Órdenes</h2>
       <table>
         <thead>
           <tr>
-            <th>ID</th>
+            
             <th>Fecha</th>
             <th>Proveedor</th>
             <th>Estado</th>
@@ -85,20 +110,20 @@ const OrdenesDeCompra = () => {
         <tbody>
           {ordenes.map(orden => (
             <tr key={orden.orden_id}>
-              <td>{orden.orden_id}</td>
-              <td>{orden.fecha}</td>
+              
+              <td>{new Date(orden.fecha).toLocaleDateString()}</td>
               <td>
                 {proveedores.find(proveedor => proveedor.proveedor_id === orden.proveedor_id)?.nombre || 'Proveedor no encontrado'}
               </td>
               <td>{orden.estado}</td>
               <td>
-                {/* Botones para modificar y eliminar */}
+                <button onClick={() => handleModificar(orden)}>Modificar</button>
+                <button onClick={() => handleEliminar(orden.orden_id)}>Eliminar</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      {/* Aquí puedes implementar la funcionalidad para añadir detalles a la orden y listarlos */}
     </div>
   );
 };
