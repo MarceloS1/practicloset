@@ -3,7 +3,7 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 
-const FormularioTrabajador = ({ onReset, trabajadorActual }) => {
+const FormularioTrabajador = ({ onReset }) => {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
@@ -12,7 +12,11 @@ const FormularioTrabajador = ({ onReset, trabajadorActual }) => {
   const [cargo, setCargo] = useState('');
   const [fechaIngreso, setFechaIngreso] = useState('');
   const [salario, setSalario] = useState('');
+  const [trabajadorActual, setTrabajadorActual] = useState(null);
   const [listaTrabajadores, setListaTrabajadores] = useState([]);
+
+
+
 
   const cargarTrabajadores = async () => {
     try {
@@ -35,69 +39,67 @@ const FormularioTrabajador = ({ onReset, trabajadorActual }) => {
       setTelefono(trabajadorActual.telefono);
       setCedula(trabajadorActual.cedula);
       setCargo(trabajadorActual.cargo);
-      setFechaIngreso(trabajadorActual.fecha_ingreso);
+      setFechaIngreso(trabajadorActual.fechaingreso);
       setSalario(trabajadorActual.salario);
     }
   }, [trabajadorActual]);
 
-  const handleEditarTrabajador = async (trabajadorId) => {
+  const handleEditarTrabajador = (trabajadorId) => {
     try {
       const trabajadorParaEditar = listaTrabajadores.find(trabajador => trabajador.trabajador_id === trabajadorId);
       if (!trabajadorParaEditar) {
         console.log('Trabajador no encontrado');
         return;
       }
-      setNombre(trabajadorParaEditar.nombre);
-      setApellido(trabajadorParaEditar.apellido);
-      setEmail(trabajadorParaEditar.email);
-      setTelefono(trabajadorParaEditar.telefono);
-      setCedula(trabajadorParaEditar.cedula);
-      setCargo(trabajadorParaEditar.cargo);
-      setFechaIngreso(trabajadorParaEditar.fecha_ingreso);
-      setSalario(trabajadorParaEditar.salario);
+      setTrabajadorActual(trabajadorParaEditar); // Establecer el trabajador actual
     } catch (error) {
       console.error('Error al editar el trabajador:', error);
+      
     }
   };
-
-  const handleEliminarTrabajador = async (trabajadorId) => {
-    try {
-      await axios.delete(`http://25.5.98.175:5000/trabajadores/${trabajadorId}`);
-      cargarTrabajadores();
-    } catch (error) {
-      console.error('Error al eliminar el trabajador:', error);
-    }
-  };
-
+  
   const handleFormSubmit = async (event) => {
     event.preventDefault();
     const datosTrabajador = {
+      trabajador_id: trabajadorActual ? trabajadorActual.trabajador_id : null,
       nombre,
       apellido,
       email,
       telefono,
       cedula,
       cargo,
-      fecha_ingreso: fechaIngreso,
+      fecha_ingreso: new Date(fechaIngreso).toISOString(),
       salario
     };
-
+  
     try {
       let response;
       if (trabajadorActual) {
         console.log(`Actualizando trabajador con ID: ${trabajadorActual.trabajador_id}`);
+        console.log(datosTrabajador);
+        // Usar solicitud PUT para actualizar un trabajador existente
         response = await axios.put(`http://25.5.98.175:5000/trabajadores/${trabajadorActual.trabajador_id}`, datosTrabajador);
+        
+        // Actualizar la lista de trabajadores con el trabajador actualizado
+        setListaTrabajadores(listaTrabajadores.map(trabajador =>
+          trabajador.trabajador_id === trabajadorActual.trabajador_id ? response.data : trabajador
+        ));
       } else {
         console.log('Agregando nuevo trabajador');
+        // Usar solicitud POST para agregar un nuevo trabajador
         response = await axios.post('http://25.5.98.175:5000/trabajadores', datosTrabajador);
+        if (response.data) {
+          setListaTrabajadores([...listaTrabajadores, response.data]);
+        }
       }
       console.log('Respuesta del servidor:', response.data);
+  
       handleReset();
-      cargarTrabajadores();
     } catch (error) {
       console.error('Error al procesar la solicitud:', error);
     }
   };
+  
 
   const handleReset = () => {
     setNombre('');
@@ -110,6 +112,7 @@ const FormularioTrabajador = ({ onReset, trabajadorActual }) => {
     setSalario('');
     if (onReset) onReset();
   };
+
 
   return (
     <div style={{ padding: '20px' }}>
@@ -222,7 +225,7 @@ const FormularioTrabajador = ({ onReset, trabajadorActual }) => {
                 <td>{trabajador.telefono}</td>
                 <td>{trabajador.cedula}</td>
                 <td>{trabajador.cargo}</td>
-                <td>{trabajador.fecha_ingreso ? new Date(trabajador.fecha_ingreso).toLocaleDateString() : ''}</td>
+                <td>{trabajador.fechaingreso ? new Date(trabajador.fechaingreso).toLocaleDateString() : ''}</td>
                 <td>{trabajador.salario}</td>
                 <td>
                   <button onClick={() => handleEditarTrabajador(trabajador.trabajador_id)}>
