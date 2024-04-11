@@ -6,6 +6,9 @@ const articulosRoutes = require('./routes/articulosRoutes');
 const ordenesRoutes = require('./routes/ordenesRoutes');
 const trabajadoresRoutes = require("./routes/trabajadoresRoutes");
 const clientesRoutes = require('./routes/clientesRoutes');
+const productosRoutes = require('./routes/productosRoutes');
+const categoriasController = require('./routes/categoriasRoutes');
+const stockController = require('./routes/stockRoutes');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -33,6 +36,9 @@ app.use('/articulos', articulosRoutes);
 app.use('/ordenes', ordenesRoutes);
 app.use('/trabajadores', trabajadoresRoutes);
 app.use('/clientes', clientesRoutes);
+app.use('/productos', productosRoutes);
+app.use('/categorias', categoriasController);
+app.use('/stock', stockController);
 
 // Iniciar el servidor
 app.listen(port, () => {
