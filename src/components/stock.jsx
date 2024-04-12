@@ -9,6 +9,8 @@ const GestionStock = () => {
   const [cantidadDisponible, setCantidadDisponible] = useState('');
   const [cantidadReservada, setCantidadReservada] = useState('');
   const [productoId, setProductoId] = useState(null);
+  const [categorias, setCategorias] = useState([]);
+
 
   // Función para cargar los productos
   const cargarProductos = async () => {
@@ -19,9 +21,18 @@ const GestionStock = () => {
       console.error('Error al obtener los productos:', error);
     }
   };
+  const cargarCategorias = async () => {
+    try {
+        const respuesta = await axios.get('http://25.5.98.175:5000/categorias');
+        setCategorias(respuesta.data);
+    } catch (error) {
+        console.error('Error al obtener las categorías:', error);
+    }
+};
 
   useEffect(() => {
     cargarProductos();
+    cargarCategorias();
   }, []);
 
   // Función para agregar un nuevo producto
@@ -43,6 +54,7 @@ const GestionStock = () => {
       setCategoriaId('');
       setCantidadDisponible('');
       setCantidadReservada('');
+      setProductoId(null);
     } catch (error) {
       console.error('Error al agregar el producto:', error);
     }
@@ -51,29 +63,48 @@ const GestionStock = () => {
   // Función para editar un producto existente
   const editarProducto = async (e) => {
     e.preventDefault();
+    
+    // Datos del producto que se van a editar
     const datosProducto = {
-      nombre,
-      descripcion,
-      categoria_id: categoriaId,
-      cantidad_disponible: cantidadDisponible,
-      cantidad_reservada: cantidadReservada,
+        nombre,
+        descripcion,
+        categoria_id: categoriaId,
+        cantidad_disponible: cantidadDisponible,
+        cantidad_reservada: cantidadReservada,
     };
+
+    console.log('Enviando datos de edición:', datosProducto);
+
     try {
-      const respuesta = await axios.put(`http://25.5.98.175:5000/productos/${productoId}`, datosProducto);
-      setProductos(productos.map((producto) =>
-        producto.producto_id === productoId ? respuesta.data : producto
-      ));
-      // Restablece los campos del formulario
-      setNombre('');
-      setDescripcion('');
-      setCategoriaId('');
-      setCantidadDisponible('');
-      setCantidadReservada('');
-      setProductoId(null);
+        // Realiza la solicitud PUT para editar el producto
+        const respuesta = await axios.put(`http://25.5.98.175:5000/productos/${productoId}`, datosProducto);
+        
+        console.log('Respuesta del servidor:', respuesta);
+        
+        // Verifica si la respuesta fue exitosa y actualiza la lista de productos
+        if (respuesta.status === 200) {
+            const productoEditado = respuesta.data;
+            setProductos(productos.map((producto) =>
+                producto.producto_id === productoId ? productoEditado : producto
+            ));
+        } else {
+            console.error('Error en la respuesta del servidor:', respuesta);
+        }
+
+        // Restablece el formulario después de la edición
+        setNombre('');
+        setDescripcion('');
+        setCategoriaId('');
+        setCantidadDisponible('');
+        setCantidadReservada('');
+        setProductoId(null);
+
     } catch (error) {
-      console.error('Error al editar el producto:', error);
+        console.error('Error al editar el producto:', error);
     }
-  };
+};
+
+
 
   // Función para eliminar un producto
   const eliminarProducto = async (productoId) => {
@@ -109,14 +140,20 @@ const GestionStock = () => {
           />
         </div>
         <div>
-          <label>Categoría ID:</label>
-          <input
-            type="number"
-            value={categoriaId}
-            onChange={(e) => setCategoriaId(Number(e.target.value))}
-            required
-          />
-        </div>
+            <label>Categoría:</label>
+            <select
+                value={categoriaId}
+                onChange={(e) => setCategoriaId(Number(e.target.value))}
+                required
+            >
+                <option value="">Selecciona una categoría</option>
+                {categorias.map((categoria) => (
+                <option key={categoria.categoria_id} value={categoria.categoria_id}>
+                    {categoria.nombre}
+                </option>
+                ))}
+                </select>
+                </div>
         <div>
           <label>Cantidad Disponible:</label>
           <input
@@ -144,22 +181,38 @@ const GestionStock = () => {
       </form>
       
       <h3>Lista de Productos</h3>
-      <ul>
+      <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Cantidad Disponible</th>
+          <th>Cantidad Reservada</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
         {productos.map((producto) => (
-          <li key={producto.producto_id}>
-            <span>{producto.nombre} - Descripción: {producto.descripcion}, Cantidad Disponible: {producto.cantidad_disponible}, Cantidad Reservada: {producto.cantidad_reservada}</span>
-            <button onClick={() => {
-              setNombre(producto.nombre);
-              setDescripcion(producto.descripcion);
-              setCategoriaId(producto.categoria_id);
-              setCantidadDisponible(producto.cantidad_disponible);
-              setCantidadReservada(producto.cantidad_reservada);
-              setProductoId(producto.producto_id);
-            }}>Editar</button>
-            <button onClick={() => eliminarProducto(producto.producto_id)}>Eliminar</button>
-          </li>
+          <tr key={producto.producto_id}>
+            <td>{producto.nombre}</td>
+            <td>{producto.descripcion}</td>
+            <td>{producto.cantidad_disponible}</td>
+            <td>{producto.cantidad_reservada}</td>
+            <td>
+              <button onClick={() => {
+                setNombre(producto.nombre);
+                setDescripcion(producto.descripcion);
+                setCategoriaId(producto.categoria_id);
+                setCantidadDisponible(producto.cantidad_disponible);
+                setCantidadReservada(producto.cantidad_reservada);
+                setProductoId(producto.producto_id);
+              }}>Editar</button>
+              <button onClick={() => eliminarProducto(producto.producto_id)}>Eliminar</button>
+            </td>
+          </tr>
         ))}
-      </ul>
+      </tbody>
+    </table>
     </div>
   );
 };
