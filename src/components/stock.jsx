@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import TransaccionForm from './transaccionForm';
 
 const GestionStock = () => {
     const [productos, setProductos] = useState([]);
@@ -10,6 +11,7 @@ const GestionStock = () => {
     const [cantidadReservada, setCantidadReservada] = useState('');
     const [productoId, setProductoId] = useState(null);
     const [categorias, setCategorias] = useState([]);
+
 
 
     
@@ -253,6 +255,10 @@ const GestionStock = () => {
                     ))}
                 </tbody>
             </table>
+            <TransaccionForm
+                productos={productos}
+                onTransaccionRealizada={cargarProductos}
+            />
         </div>
     );
 };
