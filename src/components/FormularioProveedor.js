@@ -122,8 +122,8 @@ const FormularioProveedor = ({ onSubmit, onReset }) => {
     onReset(); // Limpia el estado del componente padre
   };
 
-  return (
-    <div className="form-container" style={{ marginLeft: '20%' }}>
+  return (    
+    <div className="form-container" style={{ marginLeft: '15% ', marginRight: '0%' }}>
       <h2>Proveedores</h2>
       <form onSubmit={handleFormSubmit} className="provider-form">
         {/* Los inputs para los campos del formulario */}

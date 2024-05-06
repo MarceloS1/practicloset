@@ -1,7 +1,7 @@
 /* Colores y fuentes base */
 @import url('FormularioProveedor.css');
 :root {
-    --color-primario: #283593; /* Azul oscuro, similar al de la página */
+    --color-primario: #5876ae; /* Azul oscuro, similar al de la página */
     --color-secundario: #ffffff; /* Blanco para contrastar */
     --fuente-principal: 'Arial', sans-serif;
     --fondo-madera: url('https://cdn.pixabay.com/photo/2014/02/11/01/56/wood-263802_1280.jpg');
@@ -59,7 +59,7 @@
   
   /* Botones y enlaces */
   button, .button {
-    background-color: #5c6bc0; /* Un azul más claro para los botones */
+    background-color: #5876ae; /* Un azul más claro para los botones */
     color: white;
     border: none;
     padding: 10px 20px;
@@ -68,7 +68,7 @@
   }
   
   button:hover, .button:hover {
-    background-color: #3949ab;
+    background-color: #5876ae;
   }
   
   /* Formularios y entradas */
