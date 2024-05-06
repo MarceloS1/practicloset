@@ -123,7 +123,7 @@ const FormularioProveedor = ({ onSubmit, onReset }) => {
   };
 
   return (    
-    <div className="form-container" style={{ marginLeft: '15% ', marginRight: '0%' }}>
+    <div className="form-container" style={{ marginLeft: '10px auto ', marginRight: '0%' }}>
       <h2>Proveedores</h2>
       <form onSubmit={handleFormSubmit} className="provider-form">
         {/* Los inputs para los campos del formulario */}
