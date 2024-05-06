@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faCog } from '@fortawesome/free-solid-svg-icons';
-import '../css/FormularioProveedor.css';
+
+import '../css/base.css';
+
+
 
 const baseUrl = 'http://25.5.98.175:5000';
 
@@ -90,9 +93,9 @@ const Articulo = () => {
   };
 
   return (
-    <div>
+    <div className="form-container" style={{ marginLeft: '20%' }}>
       <h2>Registrar Artículo</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className='"provider-form'>
         <input
           name="nombre"
           value={formulario.nombre}

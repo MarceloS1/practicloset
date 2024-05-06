@@ -149,7 +149,7 @@ const GestionStock = () => {
     };
 
     return (
-        <div>
+        <div className="form-container" style={{ marginLeft: '20%' }}>
             <h2>Gestión de Stock</h2>
 
             <form onSubmit={(e) => {

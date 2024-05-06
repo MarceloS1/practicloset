@@ -75,7 +75,7 @@ const OrdenesDeCompra = () => {
   };
 
   return (
-    <div>
+    <div className="form-container" style={{ marginLeft: '20%' }}>
       <h2>Crear/Editar Orden de Compra</h2>
       <form onSubmit={handleSubmit}>
         <input type="date" name="fecha" value={ordenData.fecha} onChange={handleInputChange} required />

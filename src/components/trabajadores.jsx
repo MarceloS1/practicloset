@@ -115,7 +115,7 @@ const FormularioTrabajador = ({ onReset }) => {
 
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div className="form-container" style={{ marginLeft: '20%' }}>
       <h2>Gestión de Trabajadores</h2>
       <form onSubmit={handleFormSubmit} style={{ margin: '20px 0' }}>
         <div>

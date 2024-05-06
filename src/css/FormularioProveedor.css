@@ -2,9 +2,13 @@
 .form-container {
   border: 1px solid #000;
   padding: 20px;
-  margin: 20px auto; /* Centrado y espacio alrededor */
-  width: 80%; /* Ancho ajustable */
+  margin: 20px auto; /* Asegura centrado y espacio alrededor */
+  width: 80%; /* Puedes ajustar esto según necesites */
   background-color: #f8f8f8;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.2); /* Opcional: Agrega sombra para resaltar el formulario */
+  display: flex;
+  flex-direction: column;
+  
 }
 
 /* Estilos para el formulario */

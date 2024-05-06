@@ -8,6 +8,7 @@ import OrdenesDeCompra from './components/ordenesdecompra';
 import FormularioTrabajador from './components/trabajadores';
 import GestionClientes from './components/clientes';
 import GestionStock from './components/stock';
+import '../src/css/base.css';
 
 
 

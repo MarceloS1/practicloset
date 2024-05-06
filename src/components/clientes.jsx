@@ -81,7 +81,7 @@ const GestionClientes = () => {
   };
 
   return (
-    <div className="gestion-clientes-container">
+    <div className="form-container" style={{ marginLeft: '20%' }}>
       <h2>Gestión de Clientes</h2>
       <form onSubmit={handleSubmit} className="cliente-form">
         <div className="form-group">
