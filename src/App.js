@@ -13,6 +13,7 @@ import '../src/css/base.css';
 
 
 import './App.css';
+import FormularioModelo from './components/modelos';
 
 
 const App = () => {
@@ -28,6 +29,7 @@ const App = () => {
           <Route path="/trabajadores" element={<FormularioTrabajador/>} />
           <Route path="/Clientes" element={<GestionClientes/>} />
           <Route path="/Stock" element={<GestionStock/>} />
+          <Route path="/Modelos" element={<FormularioModelo/>} />
 
           {/* ... otras rutas */}
         </Routes>
