@@ -10,8 +10,7 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
   const [tipo, setTipo] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [material, setMaterial] = useState('');
-  const [alto, setAlto] = useState('');
-  const [ancho, setAncho] = useState('');
+  const [medida, setMedida] = useState('');
   const [precio, setPrecio] = useState('');
   const [imagenUrl, setImagenUrl] = useState('');
   const [modeloActual, setModeloActual] = useState(null);
@@ -36,8 +35,7 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
       setTipo(modeloActual.tipo);
       setDescripcion(modeloActual.descripcion);
       setMaterial(modeloActual.material);
-      setAlto(modeloActual.alto);
-      setAncho(modeloActual.ancho);
+      setMedida(modeloActual.alto + ' x ' + modeloActual.ancho);
       setPrecio(modeloActual.precio);
       setImagenUrl(modeloActual.imagen_url);
     }
@@ -62,8 +60,7 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
       setTipo(modeloSeleccionado.tipo);
       setDescripcion(modeloSeleccionado.descripcion);
       setMaterial(modeloSeleccionado.material);
-      setAlto(modeloSeleccionado.alto);
-      setAncho(modeloSeleccionado.ancho);
+      setMedida(modeloSeleccionado.alto + ' x ' + modeloSeleccionado.ancho);
       setPrecio(modeloSeleccionado.precio);
       setImagenUrl(modeloSeleccionado.imagen_url);
       setModeloActual(modeloSeleccionado);
@@ -77,8 +74,8 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
       tipo,
       descripcion,
       material,
-      alto,
-      ancho,
+      alto: medida.split(' x ')[0],
+      ancho: medida.split(' x ')[1],
       precio,
       imagen_url: imagenUrl,
     };
@@ -110,15 +107,14 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
     setTipo('');
     setDescripcion('');
     setMaterial('');
-    setAlto('');
-    setAncho('');
+    setMedida('');
     setPrecio('');
     setImagenUrl('');
     onReset();
   };
 
   return (
-    <div className="form-container" style={{marginLeft: '20%'}}>
+    <div className="form-container" style={{ marginLeft: '20%' }}>
       <h2>Modelos</h2>
       <form onSubmit={handleFormSubmit} className="model-form">
         <input
@@ -128,13 +124,15 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
           placeholder="Nombre"
           required
         />
-        <input
-          type="text"
+        <select
           value={tipo}
           onChange={(e) => setTipo(e.target.value)}
-          placeholder="Tipo"
           required
-        />
+        >
+          <option value="">Selecciona un tipo</option>
+          <option value="Mueble">Mueble</option>
+          <option value="Rejilla">Rejilla</option>
+        </select>
         <input
           type="text"
           value={descripcion}
@@ -151,16 +149,9 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
         />
         <input
           type="text"
-          value={alto}
-          onChange={(e) => setAlto(e.target.value)}
-          placeholder="Alto"
-          required
-        />
-        <input
-          type="text"
-          value={ancho}
-          onChange={(e) => setAncho(e.target.value)}
-          placeholder="Ancho"
+          value={medida}
+          onChange={(e) => setMedida(e.target.value)}
+          placeholder="Medida (Alto x Ancho)"
           required
         />
         <input
@@ -180,7 +171,7 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
         <button type="submit">Guardar</button>
         <button type="button" onClick={handleReset}>Cancelar</button>
       </form>
-      <div className="model-list">
+      <div className="modelos-lista">
         <h3>Lista de Modelos</h3>
         <table>
           <thead>
@@ -189,6 +180,9 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
               <th>Tipo</th>
               <th>Descripción</th>
               <th>Material</th>
+              <th>Medida</th>
+              <th>Precio</th>
+              <th>Imagen</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -199,6 +193,9 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
                 <td>{modelo.tipo}</td>
                 <td>{modelo.descripcion}</td>
                 <td>{modelo.material}</td>
+                <td>{modelo.alto} x {modelo.ancho}</td>
+                <td>{modelo.precio}</td>
+                <td><img src={modelo.imagen_url} alt={modelo.nombre} style={{ width: '100px', height: '100px' }} /></td>
                 <td>
                   <button
                     className="action-button modify-button"
