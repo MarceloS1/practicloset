@@ -1,11 +1,4 @@
-const { Pool } = require('pg');
-const pool = new Pool({
-  user: 'Marcelo',
-  host: '25.56.40.70',
-  database: 'practicloset_db',
-  password: 'Passw0rd',
-  port: 5433,
-});
+const pool = require('../db');
 
 // Crear una nueva orden de compra
 exports.crearOrden = async (req, res) => {
