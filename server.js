@@ -1,16 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
-const proveedoresRoutes = require('./routes/proveedoresRoutes');
-const articulosRoutes = require('./routes/articulosRoutes');
-const ordenesRoutes = require('./routes/ordenesRoutes');
-const trabajadoresRoutes = require("./routes/trabajadoresRoutes");
-const clientesRoutes = require('./routes/clientesRoutes');
-const productosRoutes = require('./routes/productosRoutes');
-const categoriasController = require('./routes/categoriasRoutes');
-const stockController = require('./routes/stockRoutes');
-const transaccionesInvController = require('./routes/transaccionesInvRoutes');
-const modelosController = require('./routes/modelosRoutes');
+const routes = require('./indexRoutes')
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -25,16 +16,8 @@ app.get('/', (req, res) => {
   res.send('El servidor está funcionando');
 });
 
-app.use('/proveedores', proveedoresRoutes);
-app.use('/articulos', articulosRoutes);
-app.use('/ordenes', ordenesRoutes);
-app.use('/trabajadores', trabajadoresRoutes);
-app.use('/clientes', clientesRoutes);
-app.use('/productos', productosRoutes);
-app.use('/categorias', categoriasController);
-app.use('/stock', stockController);
-app.use('/transaccion', transaccionesInvController);
-app.use('/modelos', modelosController);
+//Rutas
+app.use('/', routes);
 
 // Iniciar el servidor
 app.listen(port, () => {
