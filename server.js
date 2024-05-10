@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { Pool } = require('pg');
+const pool = require('./db');
 const proveedoresRoutes = require('./routes/proveedoresRoutes');
 const articulosRoutes = require('./routes/articulosRoutes');
 const ordenesRoutes = require('./routes/ordenesRoutes');
@@ -19,8 +19,6 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json()); // Permite que el servidor acepte JSON.
 
-// Configura la conexión a PostgreSQL
-const pool = require('../db');
 
 // Ruta de prueba para verificar que el servidor está funcionando
 app.get('/', (req, res) => {
