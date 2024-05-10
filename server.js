@@ -19,6 +19,13 @@ app.get('/', (req, res) => {
 //Rutas
 app.use('/', routes);
 
+// Middleware de manejo de errores
+app.use((error, req, res, next) => {
+  console.error(error);  // Registro del error para depuración interna
+  const respuesta = ResponseFactory.createErrorResponse(error);
+  res.status(respuesta.status).json(respuesta.body);
+});
+
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
