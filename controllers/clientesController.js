@@ -1,6 +1,7 @@
 const pool = require('../db');
+const ResponseFactory = require('../helpers/ResponseFactory');
 
-exports.agregarCliente = async (req, res) => {
+exports.agregarCliente = async (req, res, next) => {
     const { nombre, apellido, cedula, email, telefono, direccion } = req.body;
     try {
         const consultaSQL = `
@@ -9,24 +10,26 @@ exports.agregarCliente = async (req, res) => {
         `;
         const valores = [nombre, apellido, cedula, email, telefono, direccion];
         const resultado = await pool.query(consultaSQL, valores);
-        res.status(201).json(resultado.rows[0]);
+        const respuesta = ResponseFactory.createSuccessResponse(resultado.rows[0], 'Cliente agregado exitosamente');
+        res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
-        console.error('Error al agregar cliente:', error.message);
-        res.status(500).send('Error al agregar cliente');
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al agregar cliente');
+        res.status(respuesta.status).json(respuesta.body);
     }
 };
 
-exports.obtenerClientes = async (req, res) => {
+exports.obtenerClientes = async (req, res, next) => {
     try {
         const resultado = await pool.query('SELECT * FROM clientes');
-        res.status(200).json(resultado.rows);
+        const respuesta = ResponseFactory.createSuccessResponse(resultado.rows, 'Clientes obtenidos exitosamente');
+        res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
-        console.error('Error al obtener clientes:', error.message);
-        res.status(500).send('Error al obtener clientes');
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al obtener clientes');
+        res.status(respuesta.status).json(respuesta.body);
     }
 };
 
-exports.actualizarCliente = async (req, res) => {
+exports.actualizarCliente = async (req, res, next) => {
     const { clienteId } = req.params;
     const actualizaciones = Object.keys(req.body)
         .map((key, index) => `${key} = $${index + 1}`)
@@ -37,27 +40,31 @@ exports.actualizarCliente = async (req, res) => {
         const consultaSQL = `UPDATE clientes SET ${actualizaciones} WHERE cliente_id = $${valores.length} RETURNING *`;
         const resultado = await pool.query(consultaSQL, valores);
         if (resultado.rows.length > 0) {
-            res.status(200).json(resultado.rows[0]);
+            const respuesta = ResponseFactory.createSuccessResponse(resultado.rows[0], 'Cliente actualizado exitosamente');
+            res.status(respuesta.status).json(respuesta.body);
         } else {
-            res.status(404).send('Cliente no encontrado');
+            const respuesta = ResponseFactory.createNotFoundResponse('Cliente no encontrado');
+            res.status(respuesta.status).json(respuesta.body);
         }
     } catch (error) {
-        console.error('Error al actualizar cliente:', error.message);
-        res.status(500).send('Error al actualizar cliente');
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al actualizar cliente');
+        res.status(respuesta.status).json(respuesta.body);
     }
 };
 
-exports.eliminarCliente = async (req, res) => {
+exports.eliminarCliente = async (req, res, next) => {
     const { clienteId } = req.params;
     try {
         const resultado = await pool.query('DELETE FROM clientes WHERE cliente_id = $1', [clienteId]);
         if (resultado.rowCount > 0) {
-            res.status(204).send(); // No content
+            const respuesta = ResponseFactory.createSuccessResponse(null, 'Cliente eliminado exitosamente');
+            res.status(respuesta.status).json(respuesta.body);
         } else {
-            res.status(404).send('Cliente no encontrado');
+            const respuesta = ResponseFactory.createNotFoundResponse('Cliente no encontrado');
+            res.status(respuesta.status).json(respuesta.body);
         }
     } catch (error) {
-        console.error('Error al eliminar cliente:', error.message);
-        res.status(500).send('Error al eliminar cliente');
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al eliminar cliente');
+        res.status(respuesta.status).json(respuesta.body);
     }
 };

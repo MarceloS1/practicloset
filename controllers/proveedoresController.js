@@ -1,70 +1,87 @@
 const pool = require('../db');
+const ResponseFactory = require('../helpers/ResponseFactory');
 
 // Obtener todos los proveedores
-exports.obtenerProveedores = async (req, res) => {
+exports.obtenerProveedores = async (req, res, next) => {
     try {
         const resultado = await pool.query('SELECT * FROM proveedores');
-        res.status(200).json(resultado.rows);
+        const respuesta = ResponseFactory.createSuccessResponse(resultado.rows, 'Proveedores obtenidos exitosamente');
+        res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
-        console.error('Error al obtener proveedores:', error.message);
-        res.status(500).send('Error al obtener proveedores');
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al obtener proveedores');
+        res.status(respuesta.status).json(respuesta.body);
     }
 };
 
-exports.crearProveedor = async (req, res) => {
-    const campos = Object.keys(req.body);
-    const valores = Object.values(req.body);
-    const parametros = campos.map((_, index) => `$${index + 1}`).join(', ');
-
-    const consultaSQL = `INSERT INTO proveedores (${campos.join(', ')}) VALUES (${parametros}) RETURNING *`;
+// Crear un nuevo proveedor
+exports.crearProveedor = async (req, res, next) => {
+    const { nombre, direccion, telefono, email, comentario, tiempo_entrega_estimado } = req.body;
 
     try {
+        const consultaSQL = `
+            INSERT INTO proveedores (nombre, direccion, telefono, email, comentario, tiempo_entrega_estimado)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *;
+        `;
+        const valores = [nombre, direccion, telefono, email, comentario, tiempo_entrega_estimado];
         const resultado = await pool.query(consultaSQL, valores);
-        res.status(201).json(resultado.rows[0]);
+        const respuesta = ResponseFactory.createSuccessResponse(resultado.rows[0], 'Proveedor creado exitosamente');
+        res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
-        console.error('Error al crear proveedor:', error.message);
-        res.status(500).send('Error al crear proveedor');
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al crear proveedor');
+        res.status(respuesta.status).json(respuesta.body);
     }
 };
 
-exports.actualizarProveedor = async (req, res) => {
-    const id = parseInt(req.params.proveedor_id);
-    const actualizaciones = Object.entries(req.body)
-        .map(([campo, valor], index) => `${campo} = $${index + 1}`)
-        .join(', ');
-    const valores = [...Object.values(req.body), id];
-
-    if (isNaN(id)) {
-        return res.status(400).send("El ID del proveedor debe ser un número entero.");
-    }
-
-    const consultaSQL = `UPDATE proveedores SET ${actualizaciones} WHERE proveedor_id = $${valores.length} RETURNING *`;
+// Actualizar un proveedor existente
+exports.actualizarProveedor = async (req, res, next) => {
+    const { proveedor_id } = req.params;
+    const { nombre, direccion, telefono, email, comentario, tiempo_entrega_estimado } = req.body;
 
     try {
+        const consultaSQL = `
+            UPDATE proveedores
+            SET nombre = COALESCE($1, nombre),
+                direccion = COALESCE($2, direccion),
+                telefono = COALESCE($3, telefono),
+                email = COALESCE($4, email),
+                comentario = COALESCE($5, comentario),
+                tiempo_entrega_estimado = COALESCE($6, tiempo_entrega_estimado)
+            WHERE proveedor_id = $7
+            RETURNING *;
+        `;
+        const valores = [nombre, direccion, telefono, email, comentario, tiempo_entrega_estimado, proveedor_id];
         const resultado = await pool.query(consultaSQL, valores);
+
         if (resultado.rows.length > 0) {
-            res.status(200).json(resultado.rows[0]);
+            const respuesta = ResponseFactory.createSuccessResponse(resultado.rows[0], 'Proveedor actualizado exitosamente');
+            res.status(respuesta.status).json(respuesta.body);
         } else {
-            res.status(404).send('Proveedor no encontrado');
+            const respuesta = ResponseFactory.createNotFoundResponse('Proveedor no encontrado');
+            res.status(respuesta.status).json(respuesta.body);
         }
     } catch (error) {
-        console.error('Error al actualizar proveedor:', error.message);
-        res.status(500).send('Error al actualizar proveedor');
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al actualizar proveedor');
+        res.status(respuesta.status).json(respuesta.body);
     }
 };
 
-exports.eliminarProveedor = async (req, res) => {
-    const id = parseInt(req.params.proveedor_id);
+// Eliminar un proveedor
+exports.eliminarProveedor = async (req, res, next) => {
+    const { proveedor_id } = req.params;
 
     try {
-        const resultado = await pool.query('DELETE FROM proveedores WHERE proveedor_id = $1', [id]);
+        const resultado = await pool.query('DELETE FROM proveedores WHERE proveedor_id = $1 RETURNING *', [proveedor_id]);
+
         if (resultado.rowCount > 0) {
-            res.status(204).send();
+            const respuesta = ResponseFactory.createSuccessResponse(null, 'Proveedor eliminado exitosamente');
+            res.status(respuesta.status).json(respuesta.body);
         } else {
-            res.status(404).send('Proveedor no encontrado');
+            const respuesta = ResponseFactory.createNotFoundResponse('Proveedor no encontrado');
+            res.status(respuesta.status).json(respuesta.body);
         }
     } catch (error) {
-        console.error('Error al eliminar proveedor:', error.message);
-        res.status(500).send('Error al eliminar proveedor');
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al eliminar proveedor');
+        res.status(respuesta.status).json(respuesta.body);
     }
 };

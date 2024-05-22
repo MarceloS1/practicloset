@@ -1,6 +1,8 @@
 const pool = require('../db');
+const ResponseFactory = require('../helpers/ResponseFactory');
 
-exports.actualizarStock = async (req, res) => {
+// Actualizar stock
+exports.actualizarStock = async (req, res, next) => {
     const { producto_id } = req.params;
     const { cantidad_disponible, cantidad_reservada } = req.body;
 
@@ -14,17 +16,20 @@ exports.actualizarStock = async (req, res) => {
         const resultado = await pool.query(consultaSQL, [cantidad_disponible, cantidad_reservada, producto_id]);
 
         if (resultado.rows.length > 0) {
-            res.status(200).json(resultado.rows[0]);
+            const respuesta = ResponseFactory.createSuccessResponse(resultado.rows[0], 'Stock actualizado exitosamente');
+            res.status(respuesta.status).json(respuesta.body);
         } else {
-            res.status(404).send('Stock no encontrado');
+            const respuesta = ResponseFactory.createNotFoundResponse('Stock no encontrado');
+            res.status(respuesta.status).json(respuesta.body);
         }
     } catch (error) {
-        console.error('Error al actualizar stock:', error);
-        res.status(500).send('Error al actualizar stock');
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al actualizar stock');
+        res.status(respuesta.status).json(respuesta.body);
     }
 };
 
-exports.eliminarStock = async (req, res) => {
+// Eliminar stock
+exports.eliminarStock = async (req, res, next) => {
     const { producto_id } = req.params;
 
     try {
@@ -36,12 +41,14 @@ exports.eliminarStock = async (req, res) => {
         const resultado = await pool.query(consultaSQL, [producto_id]);
 
         if (resultado.rowCount > 0) {
-            res.status(204).send(); // No Content
+            const respuesta = ResponseFactory.createSuccessResponse(null, 'Stock eliminado exitosamente');
+            res.status(respuesta.status).json(respuesta.body);
         } else {
-            res.status(404).send('Stock no encontrado');
+            const respuesta = ResponseFactory.createNotFoundResponse('Stock no encontrado');
+            res.status(respuesta.status).json(respuesta.body);
         }
     } catch (error) {
-        console.error('Error al eliminar stock:', error);
-        res.status(500).send('Error al eliminar stock');
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al eliminar stock');
+        res.status(respuesta.status).json(respuesta.body);
     }
 };

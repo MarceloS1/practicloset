@@ -12,3 +12,4 @@ exports.obtenerCategorias = async (req, res) => {
         res.status(respuesta.status).json(respuesta.body);
     }
 };
+
