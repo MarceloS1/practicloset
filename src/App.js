@@ -14,6 +14,7 @@ import '../src/css/base.css';
 
 import './App.css';
 import FormularioModelo from './components/modelos';
+import OrdenesCompra from './components/ordenesdecompra';
 
 
 const App = () => {
@@ -25,7 +26,7 @@ const App = () => {
           <Route path="/Inicio" element={<Inicio />} />
           <Route path="/Proveedores" element={<Proveedores />} />
           <Route path="/articulos" element={<Articulos />} />
-          <Route path="/ordenes-de-compra" element={<OrdenesDeCompra/>} />
+          <Route path="/ordenes-de-compra" element={<OrdenesCompra/>} />
           <Route path="/trabajadores" element={<FormularioTrabajador/>} />
           <Route path="/Clientes" element={<GestionClientes/>} />
           <Route path="/Stock" element={<GestionStock/>} />

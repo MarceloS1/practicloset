@@ -1,123 +1,223 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const OrdenesDeCompra = () => {
+const baseUrl = 'http://25.5.98.175:5000';
+
+const OrdenesCompra = () => {
   const [ordenes, setOrdenes] = useState([]);
   const [proveedores, setProveedores] = useState([]);
-  const [ordenData, setOrdenData] = useState({
-    orden_id: '',
-    fecha: '',
+  const [articulos, setArticulos] = useState([]);
+  const [formulario, setFormulario] = useState({
     proveedor_id: '',
-    estado: 'Pendiente'
+    fecha: '',
+    estado: '',
+    detalles: []
   });
+  const [ordenActual, setOrdenActual] = useState(null);
 
   useEffect(() => {
-    const fetchInicialData = async () => {
-      try {
-        const resOrdenes = await axios.get('http://25.5.98.175:5000/ordenes');
-        const resProveedores = await axios.get('http://25.5.98.175:5000/proveedores');
-        setOrdenes(resOrdenes.data);
-        setProveedores(resProveedores.data);
-      } catch (error) {
-        console.error('Error al obtener datos iniciales:', error);
-      }
-    };
-    fetchInicialData();
+    cargarOrdenes();
+    cargarProveedores();
+    cargarArticulos();
   }, []);
 
-  const handleInputChange = (e) => {
+  const cargarOrdenes = async () => {
+    try {
+      const respuesta = await axios.get(`${baseUrl}/ordenes`);
+      setOrdenes(respuesta.data.data);
+    } catch (error) {
+      console.error('Error al obtener las órdenes:', error);
+    }
+  };
+
+  const cargarProveedores = async () => {
+    try {
+      const respuesta = await axios.get(`${baseUrl}/proveedores`);
+      setProveedores(respuesta.data.data);
+    } catch (error) {
+      console.error('Error al obtener los proveedores:', error);
+    }
+  };
+
+  const cargarArticulos = async () => {
+    try {
+      const respuesta = await axios.get(`${baseUrl}/articulos`);
+      setArticulos(respuesta.data.data);
+    } catch (error) {
+      console.error('Error al obtener los artículos:', error);
+    }
+  };
+
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setOrdenData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+    setFormulario({ ...formulario, [name]: value });
+  };
+
+  const handleDetalleChange = (index, e) => {
+    const { name, value } = e.target;
+    const detalles = [...formulario.detalles];
+    detalles[index][name] = value;
+    setFormulario({ ...formulario, detalles });
+  };
+
+  const agregarDetalle = () => {
+    setFormulario({
+      ...formulario,
+      detalles: [...formulario.detalles, { articulo_id: '', cantidad: '' }]
+    });
+  };
+
+  const eliminarDetalle = (index) => {
+    const detalles = [...formulario.detalles];
+    detalles.splice(index, 1);
+    setFormulario({ ...formulario, detalles });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (ordenData.orden_id) {
-        const response = await axios.put(`http://25.5.98.175:5000/ordenes/${ordenData.orden_id}`, ordenData);
-        console.log('Orden actualizada:', response.data);
-        setOrdenes(ordenes.map((orden) => (orden.orden_id === ordenData.orden_id ? response.data : orden)));
+      if (ordenActual) {
+        await axios.put(`${baseUrl}/ordenes/${ordenActual.orden_id}`, formulario);
       } else {
-        const response = await axios.post('http://25.5.98.175:5000/ordenes', ordenData);
-        console.log('Orden creada:', response.data);
-        setOrdenes([...ordenes, response.data]);
+        await axios.post(`${baseUrl}/ordenes`, formulario);
       }
-      setOrdenData({
-        orden_id: '',
-        fecha: '',
-        proveedor_id: '',
-        estado: 'Pendiente'
-      });
+      cargarOrdenes();
+      resetFormulario();
     } catch (error) {
       console.error('Error al guardar la orden:', error);
     }
   };
 
-  const handleModificar = (orden) => {
-    setOrdenData({
-      orden_id: orden.orden_id,
-      fecha: orden.fecha,
-      proveedor_id: orden.proveedor_id,
-      estado: orden.estado
-    });
-  };
-
   const handleEliminar = async (ordenId) => {
     try {
-      await axios.delete(`http://25.5.98.175:5000/ordenes/${ordenId}`);
-      setOrdenes(ordenes.filter((orden) => orden.orden_id !== ordenId));
+      await axios.delete(`${baseUrl}/ordenes/${ordenId}`);
+      cargarOrdenes();
     } catch (error) {
       console.error('Error al eliminar la orden:', error);
     }
   };
 
+  const handleModificar = (orden) => {
+    setOrdenActual(orden);
+    setFormulario({
+      proveedor_id: orden.proveedor_id,
+      fecha: orden.fecha.split('T')[0],
+      estado: orden.estado,
+      detalles: orden.detalles.map(detalle => ({
+        articulo_id: detalle.articulo_id,
+        cantidad: detalle.cantidad
+      }))
+    });
+  };
+
+  const resetFormulario = () => {
+    setFormulario({
+      proveedor_id: '',
+      fecha: '',
+      estado: '',
+      detalles: []
+    });
+    setOrdenActual(null);
+  };
+
   return (
     <div className="form-container" style={{ marginLeft: '20%' }}>
-      <h2>Crear/Editar Orden de Compra</h2>
+      <h2>Gestión de Órdenes de Compra</h2>
       <form onSubmit={handleSubmit}>
-        <input type="date" name="fecha" value={ordenData.fecha} onChange={handleInputChange} required />
-        <select name="proveedor_id" value={ordenData.proveedor_id} onChange={handleInputChange} required>
-          <option value="">Seleccione un proveedor</option>
-          {proveedores.map(proveedor => (
-            <option key={proveedor.proveedor_id} value={proveedor.proveedor_id}>
-              {proveedor.nombre}
-            </option>
-          ))}
-        </select>
-        <select name="estado" value={ordenData.estado} onChange={handleInputChange} required>
-        <option value="">Seleccione un estado</option>
-        <option value="Pendiente">Pendiente</option>
-        <option value="En proceso">En proceso</option>
-        <option value="Completado">Completado</option>
-        </select>
-
-        <button type="submit">Guardar Orden</button>
+        <div>
+          <label>Proveedor:</label>
+          <select
+            name="proveedor_id"
+            value={formulario.proveedor_id}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Seleccione un proveedor</option>
+            {proveedores.map((proveedor) => (
+              <option key={proveedor.proveedor_id} value={proveedor.proveedor_id}>
+                {proveedor.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label>Fecha:</label>
+          <input
+            type="date"
+            name="fecha"
+            value={formulario.fecha}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label>Estado:</label>
+          <input
+            type="text"
+            name="estado"
+            value={formulario.estado}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <h4>Detalles</h4>
+        {formulario.detalles.map((detalle, index) => (
+          <div key={index}>
+            <label>Artículo:</label>
+            <select
+              name="articulo_id"
+              value={detalle.articulo_id}
+              onChange={(e) => handleDetalleChange(index, e)}
+              required
+            >
+              <option value="">Seleccione un artículo</option>
+              {articulos.map((articulo) => (
+                <option key={articulo.articulo_id} value={articulo.articulo_id}>
+                  {articulo.nombre}
+                </option>
+              ))}
+            </select>
+            <label>Cantidad:</label>
+            <input
+              type="number"
+              name="cantidad"
+              value={detalle.cantidad}
+              onChange={(e) => handleDetalleChange(index, e)}
+              required
+            />
+            <button type="button" onClick={() => eliminarDetalle(index)}>Eliminar</button>
+          </div>
+        ))}
+        <button type="button" onClick={agregarDetalle}>Agregar Articulo</button>
+        <button type="submit">{ordenActual ? 'Guardar Cambios' : 'Crear Orden'}</button>
+        {ordenActual && <button type="button" onClick={resetFormulario}>Cancelar</button>}
       </form>
-      <h2>Lista de Órdenes</h2>
+      <h3>Lista de Órdenes</h3>
       <table>
         <thead>
           <tr>
-            
-            <th>Fecha</th>
             <th>Proveedor</th>
+            <th>Fecha</th>
             <th>Estado</th>
+            <th>Detalles</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {ordenes.map(orden => (
+          {ordenes.map((orden) => (
             <tr key={orden.orden_id}>
-              
-              <td>{new Date(orden.fecha).toLocaleDateString()}</td>
-              <td>
-                {proveedores.find(proveedor => proveedor.proveedor_id === orden.proveedor_id)?.nombre || 'Proveedor no encontrado'}
-              </td>
+              <td>{proveedores.find(p => p.proveedor_id === orden.proveedor_id)?.nombre}</td>
+              <td>{orden.fecha.split('T')[0]}</td>
               <td>{orden.estado}</td>
               <td>
-                <button onClick={() => handleModificar(orden)}>Modificar</button>
+                {orden.detalles.map((detalle, index) => (
+                  <div key={index}>
+                    {detalle.nombre_articulo} - {detalle.cantidad}
+                  </div>
+                ))}
+              </td>
+              <td>
+                <button onClick={() => handleModificar(orden)}>Editar</button>
                 <button onClick={() => handleEliminar(orden.orden_id)}>Eliminar</button>
               </td>
             </tr>
@@ -128,4 +228,4 @@ const OrdenesDeCompra = () => {
   );
 };
 
-export default OrdenesDeCompra;
+export default OrdenesCompra;

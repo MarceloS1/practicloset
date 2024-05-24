@@ -14,7 +14,6 @@ const GestionStock = () => {
     const [productoId, setProductoId] = useState(null);
     const [categorias, setCategorias] = useState([]);
 
-    // Cargar productos y categorías
     useEffect(() => {
         cargarProductos();
         cargarCategorias();
@@ -23,7 +22,7 @@ const GestionStock = () => {
     const cargarProductos = async () => {
         try {
             const respuesta = await axios.get(`${baseUrl}/productos`);
-            setProductos(respuesta.data.data); // Ajustar para obtener los datos correctamente
+            setProductos(respuesta.data.data);
         } catch (error) {
             console.error('Error al obtener los productos:', error);
         }
@@ -32,7 +31,7 @@ const GestionStock = () => {
     const cargarCategorias = async () => {
         try {
             const respuesta = await axios.get(`${baseUrl}/categorias`);
-            setCategorias(respuesta.data.data); // Ajustar para obtener los datos correctamente
+            setCategorias(respuesta.data.data);
         } catch (error) {
             console.error('Error al obtener las categorías:', error);
         }
@@ -58,7 +57,7 @@ const GestionStock = () => {
         };
         try {
             const respuesta = await axios.post(`${baseUrl}/productos`, datosProducto);
-            setProductos([...productos, respuesta.data.data]); // Ajustar para obtener los datos correctamente
+            setProductos([...productos, respuesta.data.data]);
             resetFormulario();
         } catch (error) {
             console.error('Error al agregar el producto:', error);
@@ -80,12 +79,12 @@ const GestionStock = () => {
             const respuesta = await axios.put(`${baseUrl}/productos/${productoId}`, datosProducto);
 
             if (respuesta.status === 200) {
-                const productoEditado = respuesta.data.data; // Ajustar para obtener los datos correctamente
+                const productoEditado = respuesta.data.data;
                 setProductos(productos.map((producto) =>
                     producto.producto_id === productoId ? productoEditado : producto
                 ));
                 resetFormulario();
-                cargarProductos(); // Recargar los productos para asegurarse de que estén actualizados
+                cargarProductos();
             } else {
                 console.error('Error en la respuesta del servidor:', respuesta);
             }
@@ -104,7 +103,7 @@ const GestionStock = () => {
             const respuesta = await axios.put(`${baseUrl}/stock/${productoId}`, datosStock);
 
             if (respuesta.status === 200) {
-                const stockEditado = respuesta.data.data; // Ajustar para obtener los datos correctamente
+                const stockEditado = respuesta.data.data;
                 setProductos(productos.map((producto) => {
                     if (producto.producto_id === productoId) {
                         return {
@@ -127,7 +126,7 @@ const GestionStock = () => {
     const eliminarProducto = async (productoId) => {
         try {
             await axios.delete(`${baseUrl}/productos/${productoId}`);
-            cargarProductos(); // Recargar los productos después de eliminar
+            cargarProductos();
         } catch (error) {
             console.error('Error al eliminar el producto:', error);
         }
