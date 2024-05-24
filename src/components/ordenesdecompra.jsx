@@ -7,10 +7,11 @@ const OrdenesCompra = () => {
   const [ordenes, setOrdenes] = useState([]);
   const [proveedores, setProveedores] = useState([]);
   const [articulos, setArticulos] = useState([]);
+  const [articulosFiltrados, setArticulosFiltrados] = useState([]);
   const [formulario, setFormulario] = useState({
     proveedor_id: '',
     fecha: '',
-    estado: '',
+    estado: 'en_proceso',
     detalles: []
   });
   const [ordenActual, setOrdenActual] = useState(null);
@@ -48,9 +49,18 @@ const OrdenesCompra = () => {
     }
   };
 
+  const filtrarArticulosPorProveedor = (proveedorId) => {
+    const articulosFiltrados = articulos.filter(articulo => articulo.proveedor_id === proveedorId);
+    setArticulosFiltrados(articulosFiltrados);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormulario({ ...formulario, [name]: value });
+
+    if (name === 'proveedor_id') {
+      filtrarArticulosPorProveedor(Number(value));
+    }
   };
 
   const handleDetalleChange = (index, e) => {
@@ -108,16 +118,18 @@ const OrdenesCompra = () => {
         cantidad: detalle.cantidad
       }))
     });
+    filtrarArticulosPorProveedor(orden.proveedor_id);
   };
 
   const resetFormulario = () => {
     setFormulario({
       proveedor_id: '',
       fecha: '',
-      estado: '',
+      estado: 'en_proceso',
       detalles: []
     });
     setOrdenActual(null);
+    setArticulosFiltrados([]);
   };
 
   return (
@@ -152,13 +164,15 @@ const OrdenesCompra = () => {
         </div>
         <div>
           <label>Estado:</label>
-          <input
-            type="text"
+          <select
             name="estado"
             value={formulario.estado}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="en_proceso">En Proceso</option>
+            <option value="completado">Completado</option>
+          </select>
         </div>
         <h4>Detalles</h4>
         {formulario.detalles.map((detalle, index) => (
@@ -171,7 +185,7 @@ const OrdenesCompra = () => {
               required
             >
               <option value="">Seleccione un artículo</option>
-              {articulos.map((articulo) => (
+              {articulosFiltrados.map((articulo) => (
                 <option key={articulo.articulo_id} value={articulo.articulo_id}>
                   {articulo.nombre}
                 </option>
@@ -188,7 +202,7 @@ const OrdenesCompra = () => {
             <button type="button" onClick={() => eliminarDetalle(index)}>Eliminar</button>
           </div>
         ))}
-        <button type="button" onClick={agregarDetalle}>Agregar Articulo</button>
+        <button type="button" onClick={agregarDetalle}>Agregar Detalle</button>
         <button type="submit">{ordenActual ? 'Guardar Cambios' : 'Crear Orden'}</button>
         {ordenActual && <button type="button" onClick={resetFormulario}>Cancelar</button>}
       </form>
@@ -208,7 +222,7 @@ const OrdenesCompra = () => {
             <tr key={orden.orden_id}>
               <td>{proveedores.find(p => p.proveedor_id === orden.proveedor_id)?.nombre}</td>
               <td>{orden.fecha.split('T')[0]}</td>
-              <td>{orden.estado}</td>
+              <td>{orden.estado === 'en_proceso' ? 'En Proceso' : 'Completado'}</td>
               <td>
                 {orden.detalles.map((detalle, index) => (
                   <div key={index}>
