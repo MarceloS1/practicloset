@@ -10,6 +10,7 @@ const categoriasRoutes = require('./routes/categoriasRoutes');
 const stockRoutes = require('./routes/stockRoutes');
 const transaccionesInvRoutes = require('./routes/transaccionesInvRoutes');
 const modelosRoutes = require('./routes/modelosRoutes');
+const pedidosRoutes = require('./routes/pedidosRoutes');
 
 const router = express.Router();
 
@@ -23,5 +24,6 @@ router.use('/categorias', categoriasRoutes);
 router.use('/stock', stockRoutes);
 router.use('/transaccion', transaccionesInvRoutes);
 router.use('/modelos', modelosRoutes);
+router.use('/pedidos', pedidosRoutes);
 
 module.exports = router;
