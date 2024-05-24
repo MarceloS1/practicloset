@@ -11,6 +11,7 @@ const stockRoutes = require('./routes/stockRoutes');
 const transaccionesInvRoutes = require('./routes/transaccionesInvRoutes');
 const modelosRoutes = require('./routes/modelosRoutes');
 const pedidosRoutes = require('./routes/pedidosRoutes');
+const pagosRoutes = require('./routes/pagosRoutes');
 
 const router = express.Router();
 
@@ -25,5 +26,6 @@ router.use('/stock', stockRoutes);
 router.use('/transaccion', transaccionesInvRoutes);
 router.use('/modelos', modelosRoutes);
 router.use('/pedidos', pedidosRoutes);
+router.use('/pagos', pagosRoutes);
 
 module.exports = router;
