@@ -9,12 +9,10 @@ import FormularioTrabajador from './components/trabajadores';
 import GestionClientes from './components/clientes';
 import GestionStock from './components/stock';
 import '../src/css/base.css';
-
-
-
 import './App.css';
 import FormularioModelo from './components/modelos';
 import OrdenesCompra from './components/ordenesdecompra';
+import GestionPedidosYPagos from './components/gestionPagos';
 
 
 const App = () => {
@@ -31,6 +29,7 @@ const App = () => {
           <Route path="/Clientes" element={<GestionClientes/>} />
           <Route path="/Stock" element={<GestionStock/>} />
           <Route path="/Modelos" element={<FormularioModelo/>} />
+          <Route path="/Pedidos" element={<GestionPedidosYPagos/>} />
 
           {/* ... otras rutas */}
         </Routes>
