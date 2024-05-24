@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const baseUrl = 'http://25.5.98.175:5000';
+const baseUrl = 'http://25.41.163.224:5000';
 
 const Pedidos = () => {
     const [pedidos, setPedidos] = useState([]);

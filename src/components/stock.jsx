@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TransaccionForm from './transaccionForm';
 
-const baseUrl = 'http://25.5.98.175:5000';
+const baseUrl = 'http://25.41.163.224:5000';
 
 const GestionStock = () => {
     const [productos, setProductos] = useState([]);
