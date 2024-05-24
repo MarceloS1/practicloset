@@ -23,7 +23,7 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
   const cargarModelos = async () => {
     try {
       const respuesta = await axios.get(`${baseUrl}/modelos`);
-      setListaModelos(respuesta.data);
+      setListaModelos(respuesta.data.data); // Ajuste para obtener los datos correctamente
     } catch (error) {
       console.error('Error al obtener los modelos: ', error);
     }
@@ -86,13 +86,13 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
         response = await axios.put(`${baseUrl}/modelos/${modeloActual.modelo_id}`, modeloData);
         setListaModelos(listaModelos.map((modelo) => {
           if (modelo.modelo_id === modeloActual.modelo_id) {
-            return response.data;
+            return response.data.data; // Ajuste para obtener los datos correctamente
           }
           return modelo;
         }));
       } else {
         response = await axios.post(`${baseUrl}/modelos`, modeloData);
-        setListaModelos([...listaModelos, response.data]);
+        setListaModelos([...listaModelos, response.data.data]); // Ajuste para obtener los datos correctamente
       }
       setModeloActual(null);
       handleReset();

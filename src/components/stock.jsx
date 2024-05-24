@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TransaccionForm from './transaccionForm';
 
+const baseUrl = 'http://25.5.98.175:5000';
+
 const GestionStock = () => {
     const [productos, setProductos] = useState([]);
     const [nombre, setNombre] = useState('');
@@ -12,10 +14,6 @@ const GestionStock = () => {
     const [productoId, setProductoId] = useState(null);
     const [categorias, setCategorias] = useState([]);
 
-
-
-    
-
     // Cargar productos y categorías
     useEffect(() => {
         cargarProductos();
@@ -24,8 +22,8 @@ const GestionStock = () => {
 
     const cargarProductos = async () => {
         try {
-            const respuesta = await axios.get('http://25.5.98.175:5000/productos');
-            setProductos(respuesta.data);
+            const respuesta = await axios.get(`${baseUrl}/productos`);
+            setProductos(respuesta.data.data); // Ajustar para obtener los datos correctamente
         } catch (error) {
             console.error('Error al obtener los productos:', error);
         }
@@ -33,8 +31,8 @@ const GestionStock = () => {
 
     const cargarCategorias = async () => {
         try {
-            const respuesta = await axios.get('http://25.5.98.175:5000/categorias');
-            setCategorias(respuesta.data);
+            const respuesta = await axios.get(`${baseUrl}/categorias`);
+            setCategorias(respuesta.data.data); // Ajustar para obtener los datos correctamente
         } catch (error) {
             console.error('Error al obtener las categorías:', error);
         }
@@ -59,8 +57,8 @@ const GestionStock = () => {
             cantidad_reservada: cantidadReservada,
         };
         try {
-            const respuesta = await axios.post('http://25.5.98.175:5000/productos', datosProducto);
-            setProductos([...productos, respuesta.data]);
+            const respuesta = await axios.post(`${baseUrl}/productos`, datosProducto);
+            setProductos([...productos, respuesta.data.data]); // Ajustar para obtener los datos correctamente
             resetFormulario();
         } catch (error) {
             console.error('Error al agregar el producto:', error);
@@ -78,21 +76,16 @@ const GestionStock = () => {
             cantidad_reservada: cantidadReservada,
         };
 
-        console.log('Enviando datos de edición:', datosProducto);
-
         try {
-            const respuesta = await axios.put(`http://25.5.98.175:5000/productos/${productoId}`, datosProducto);
-
-            console.log('Respuesta del servidor:', respuesta);
+            const respuesta = await axios.put(`${baseUrl}/productos/${productoId}`, datosProducto);
 
             if (respuesta.status === 200) {
-                const productoEditado = respuesta.data;
+                const productoEditado = respuesta.data.data; // Ajustar para obtener los datos correctamente
                 setProductos(productos.map((producto) =>
                     producto.producto_id === productoId ? productoEditado : producto
                 ));
                 resetFormulario();
                 cargarProductos(); // Recargar los productos para asegurarse de que estén actualizados
-                console.log('Producto editado con éxito:', productoEditado);
             } else {
                 console.error('Error en la respuesta del servidor:', respuesta);
             }
@@ -100,48 +93,40 @@ const GestionStock = () => {
             console.error('Error al editar el producto:', error);
         }
     };
+
     const editarCantidades = async () => {
-      const datosStock = {
-          cantidad_disponible: cantidadDisponible,
-          cantidad_reservada: cantidadReservada,
-      };
-  
-      console.log('Enviando datos de edición de stock:', datosStock);
-  
-      try {
-          const respuesta = await axios.put(`http://25.5.98.175:5000/stock/${productoId}`, datosStock);
-          console.log('Respuesta del servidor:', respuesta);
-  
-          if (respuesta.status === 200) {
-              const stockEditado = respuesta.data;
-              console.log('Stock editado con éxito:', stockEditado);
-  
-              // Actualiza los campos de cantidad disponible y reservada del producto correspondiente
-              setProductos(productos.map((producto) => {
-                  if (producto.producto_id === productoId) {
-                      return {
-                          ...producto,
-                          cantidad_disponible: stockEditado.cantidad_disponible,
-                          cantidad_reservada: stockEditado.cantidad_reservada,
-                      };
-                  }
-                  return producto;
-              }));
-  
-              // Restablece el formulario después de la edición de cantidades
-              resetFormulario();
-          } else {
-              console.error('Error en la respuesta del servidor:', respuesta);
-          }
-      } catch (error) {
-          console.error('Error al editar el stock del producto:', error);
-      }
-  };
-  
+        const datosStock = {
+            cantidad_disponible: cantidadDisponible,
+            cantidad_reservada: cantidadReservada,
+        };
+
+        try {
+            const respuesta = await axios.put(`${baseUrl}/stock/${productoId}`, datosStock);
+
+            if (respuesta.status === 200) {
+                const stockEditado = respuesta.data.data; // Ajustar para obtener los datos correctamente
+                setProductos(productos.map((producto) => {
+                    if (producto.producto_id === productoId) {
+                        return {
+                            ...producto,
+                            cantidad_disponible: stockEditado.cantidad_disponible,
+                            cantidad_reservada: stockEditado.cantidad_reservada,
+                        };
+                    }
+                    return producto;
+                }));
+                resetFormulario();
+            } else {
+                console.error('Error en la respuesta del servidor:', respuesta);
+            }
+        } catch (error) {
+            console.error('Error al editar el stock del producto:', error);
+        }
+    };
 
     const eliminarProducto = async (productoId) => {
         try {
-            await axios.delete(`http://25.5.98.175:5000/productos/${productoId}`);
+            await axios.delete(`${baseUrl}/productos/${productoId}`);
             cargarProductos(); // Recargar los productos después de eliminar
         } catch (error) {
             console.error('Error al eliminar el producto:', error);
@@ -153,14 +138,14 @@ const GestionStock = () => {
             <h2>Gestión de Stock</h2>
 
             <form onSubmit={(e) => {
-                    e.preventDefault();
-                    if (productoId) {
-                        editarProducto(e);
-                        editarCantidades();
-                    } else {
-                        agregarProducto(e);
-                    }
-                }}>
+                e.preventDefault();
+                if (productoId) {
+                    editarProducto(e);
+                    editarCantidades();
+                } else {
+                    agregarProducto(e);
+                }
+            }}>
                 <div>
                     <label>Nombre:</label>
                     <input

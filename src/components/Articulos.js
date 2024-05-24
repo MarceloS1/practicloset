@@ -5,8 +5,6 @@ import { faTrash, faCog } from '@fortawesome/free-solid-svg-icons';
 
 import '../css/base.css';
 
-
-
 const baseUrl = 'http://25.5.98.175:5000';
 
 const Articulo = () => {
@@ -23,10 +21,10 @@ const Articulo = () => {
     const cargarDatos = async () => {
       try {
         const resProveedores = await axios.get(`${baseUrl}/proveedores`);
-        setProveedores(resProveedores.data);
+        setProveedores(resProveedores.data.data);
 
         const resArticulos = await axios.get(`${baseUrl}/articulos`);
-        setArticulos(resArticulos.data);
+        setArticulos(resArticulos.data.data);
       } catch (error) {
         console.error('Error cargando datos:', error);
       }
@@ -43,19 +41,12 @@ const Articulo = () => {
     e.preventDefault();
     try {
       if (formulario.articulo_id) {
-        // Si hay un artículo seleccionado para editar, enviar una solicitud de actualización
         const response = await axios.put(`${baseUrl}/articulos/${formulario.articulo_id}`, formulario);
-        console.log('Artículo actualizado:', response.data);
-        // Actualizar la lista de artículos
-        setArticulos(articulos.map((articulo) => (articulo.articulo_id === formulario.articulo_id ? response.data : articulo)));
+        setArticulos(articulos.map((articulo) => (articulo.articulo_id === formulario.articulo_id ? response.data.data : articulo)));
       } else {
-        // Si no hay ningún artículo seleccionado, enviar una solicitud de creación
         const response = await axios.post(`${baseUrl}/articulos`, formulario);
-        console.log('Artículo creado:', response.data);
-        // Actualizar la lista de artículos
-        setArticulos([...articulos, response.data]);
+        setArticulos([...articulos, response.data.data]);
       }
-      // Limpiar formulario
       setFormulario({
         nombre: '',
         precio: '',
@@ -66,13 +57,10 @@ const Articulo = () => {
       console.error('Error al guardar el artículo:', error);
     }
   };
-  
 
   const handleEliminar = async (articuloId) => {
-    // Aquí pondrías la lógica para manejar la eliminación.
     try {
       await axios.delete(`${baseUrl}/articulos/${articuloId}`);
-      // Actualizar la lista de artículos
       setArticulos(articulos.filter((articulo) => articulo.articulo_id !== articuloId));
     } catch (error) {
       console.error('Error al eliminar el artículo:', error);
@@ -80,7 +68,6 @@ const Articulo = () => {
   };
 
   const handleModificar = (articuloId) => {
-    // Aquí puedes implementar la lógica para seleccionar un artículo y cargar sus datos en el formulario para modificar.
     const articuloSeleccionado = articulos.find((articulo) => articulo.articulo_id === articuloId);
     if (articuloSeleccionado) {
       setFormulario(articuloSeleccionado);
@@ -95,7 +82,7 @@ const Articulo = () => {
   return (
     <div className="form-container" style={{ marginLeft: '20%' }}>
       <h2>Registrar Artículo</h2>
-      <form onSubmit={handleSubmit} className='"provider-form'>
+      <form onSubmit={handleSubmit} className="provider-form">
         <input
           name="nombre"
           value={formulario.nombre}
@@ -153,7 +140,6 @@ const Articulo = () => {
                 <td>{articulo.tipo}</td>
                 <td>{obtenerNombreProveedor(articulo.proveedor_id)}</td>
                 <td>
-                  {/* Botones de acciones */}
                   <button className="action-button modify-button" onClick={() => handleModificar(articulo.articulo_id)}>
                     <FontAwesomeIcon icon={faCog} />
                   </button>

@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+const baseUrl = 'http://25.5.98.175:5000';
 
 const TransaccionForm = ({ productos, onTransaccionRealizada }) => {
     const [productoId, setProductoId] = useState('');
     const [tipoTransaccion, setTipoTransaccion] = useState('entrada'); // Puede ser 'entrada' o 'salida'
     const [cantidad, setCantidad] = useState(0);
     const [nota, setNota] = useState('');
-    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Crear el objeto JSON con los datos de la transacción
         const transaccionData = {
             producto_id: productoId,
             tipo_transaccion: tipoTransaccion,
@@ -21,17 +20,11 @@ const TransaccionForm = ({ productos, onTransaccionRealizada }) => {
         };
 
         try {
-            // Realizar la solicitud POST a la URL de transacción
-            const respuesta = await axios.post('http://25.5.98.175:5000/transaccion', transaccionData);
+            const respuesta = await axios.post(`${baseUrl}/transaccion`, transaccionData);
 
-            // Verificar si la respuesta es exitosa
             if (respuesta.status === 201) {
                 console.log('Transacción y actualización de stock realizadas con éxito');
-                
-                // Invoca la función onTransaccionRealizada para recargar los productos
                 onTransaccionRealizada();
-                
-                // Limpia el formulario después de la transacción
                 setProductoId('');
                 setTipoTransaccion('entrada');
                 setCantidad(0);
@@ -91,10 +84,7 @@ const TransaccionForm = ({ productos, onTransaccionRealizada }) => {
                 />
             </div>
             <button type="submit">Realizar Transacción</button>
-            
         </form>
-        
-        
     );
 };
 

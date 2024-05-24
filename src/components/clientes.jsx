@@ -13,7 +13,7 @@ const api = {
   },
   obtenerClientes: async () => {
     const response = await axios.get(`${baseUrl}/clientes`);
-    return response.data;
+    return response.data.data; // Ajustar para obtener los datos correctamente
   },
   actualizarCliente: async (clienteId, cambios) => {
     const response = await axios.put(`${baseUrl}/clientes/${clienteId}`, cambios);
@@ -21,7 +21,7 @@ const api = {
   },
   eliminarCliente: async (clienteId) => {
     const response = await axios.delete(`${baseUrl}/clientes/${clienteId}`);
-    return response.status === 200;
+    return response.status === 204; // Ajustar para verificar el estado correcto
   },
 };
 
@@ -43,9 +43,13 @@ const GestionClientes = () => {
   }, []);
 
   const cargarClientes = async () => {
-    const clientesData = await api.obtenerClientes();
-    setClientes(clientesData);
-    setClienteActual(null);
+    try {
+      const clientesData = await api.obtenerClientes();
+      setClientes(clientesData);
+      setClienteActual(null);
+    } catch (error) {
+      console.error('Error al cargar clientes:', error);
+    }
   };
 
   const handleChange = (e) => {
@@ -54,25 +58,33 @@ const GestionClientes = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (clienteActual) {
-      await api.actualizarCliente(clienteActual, formData);
-    } else {
-      await api.agregarCliente(formData);
+    try {
+      if (clienteActual) {
+        await api.actualizarCliente(clienteActual, formData);
+      } else {
+        await api.agregarCliente(formData);
+      }
+      cargarClientes();
+      setFormData({
+        nombre: '',
+        apellido: '',
+        cedula: '',
+        email: '',
+        telefono: '',
+        direccion: '',
+      });
+    } catch (error) {
+      console.error('Error al guardar el cliente:', error);
     }
-    cargarClientes();
-    setFormData({
-      nombre: '',
-      apellido: '',
-      cedula: '',
-      email: '',
-      telefono: '',
-      direccion: '',
-    });
   };
 
   const handleEliminar = async (clienteId) => {
-    await api.eliminarCliente(clienteId);
-    cargarClientes();
+    try {
+      await api.eliminarCliente(clienteId);
+      cargarClientes();
+    } catch (error) {
+      console.error('Error al eliminar el cliente:', error);
+    }
   };
 
   const seleccionarCliente = (cliente) => {
@@ -86,30 +98,74 @@ const GestionClientes = () => {
       <form onSubmit={handleSubmit} className="cliente-form">
         <div className="form-group">
           <label htmlFor="nombre">Nombre:</label>
-          <input id="nombre" name="nombre" value={formData.nombre} onChange={handleChange} placeholder="Nombre" />
+          <input
+            id="nombre"
+            name="nombre"
+            value={formData.nombre}
+            onChange={handleChange}
+            placeholder="Nombre"
+            required
+          />
         </div>
         <div className="form-group">
           <label htmlFor="apellido">Apellido:</label>
-          <input id="apellido" name="apellido" value={formData.apellido} onChange={handleChange} placeholder="Apellido" />
+          <input
+            id="apellido"
+            name="apellido"
+            value={formData.apellido}
+            onChange={handleChange}
+            placeholder="Apellido"
+            required
+          />
         </div>
         <div className="form-group">
           <label htmlFor="cedula">Cédula:</label>
-          <input id="cedula" name="cedula" value={formData.cedula} onChange={handleChange} placeholder="Cédula" />
+          <input
+            id="cedula"
+            name="cedula"
+            value={formData.cedula}
+            onChange={handleChange}
+            placeholder="Cédula"
+            required
+          />
         </div>
         <div className="form-group">
           <label htmlFor="email">Email:</label>
-          <input id="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" />
+          <input
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Email"
+            required
+          />
         </div>
         <div className="form-group">
           <label htmlFor="telefono">Teléfono:</label>
-          <input id="telefono" name="telefono" value={formData.telefono} onChange={handleChange} placeholder="Teléfono" />
+          <input
+            id="telefono"
+            name="telefono"
+            value={formData.telefono}
+            onChange={handleChange}
+            placeholder="Teléfono"
+            required
+          />
         </div>
         <div className="form-group">
           <label htmlFor="direccion">Dirección:</label>
-          <input id="direccion" name="direccion" value={formData.direccion} onChange={handleChange} placeholder="Dirección" />
+          <input
+            id="direccion"
+            name="direccion"
+            value={formData.direccion}
+            onChange={handleChange}
+            placeholder="Dirección"
+            required
+          />
         </div>
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary">Guardar Cliente</button>
+          <button type="submit" className="btn btn-primary">
+            Guardar Cliente
+          </button>
         </div>
       </form>
       <h3>Lista de Clientes</h3>
@@ -135,8 +191,18 @@ const GestionClientes = () => {
               <td>{cliente.telefono}</td>
               <td>{cliente.direccion}</td>
               <td>
-                <button onClick={() => seleccionarCliente(cliente)} className="btn btn-editar">✏️</button>
-                <button onClick={() => handleEliminar(cliente.cliente_id)} className="btn btn-eliminar">🗑️</button>
+                <button
+                  onClick={() => seleccionarCliente(cliente)}
+                  className="btn btn-editar"
+                >
+                  ✏️
+                </button>
+                <button
+                  onClick={() => handleEliminar(cliente.cliente_id)}
+                  className="btn btn-eliminar"
+                >
+                  🗑️
+                </button>
               </td>
             </tr>
           ))}

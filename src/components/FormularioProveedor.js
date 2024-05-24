@@ -7,16 +7,13 @@ import '../css/FormularioProveedor.css';
 const baseUrl = 'http://25.5.98.175:5000';
 
 const FormularioProveedor = ({ onSubmit, onReset }) => {
-  // Estados para cada campo del formulario
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
   const [tiempoEntregaEstimado, setTiempoEntregaEstimado] = useState('');
   const [direccion, setDireccion] = useState('');
   const [comentario, setComentario] = useState('');
-  const [proveedorActual, setProveedorActual] = useState(null); // Estado para almacenar el proveedor actual
-
-  // Nuevo estado para almacenar la lista de proveedores
+  const [proveedorActual, setProveedorActual] = useState(null);
   const [listaProveedores, setListaProveedores] = useState([]);
 
   useEffect(() => {
@@ -26,13 +23,16 @@ const FormularioProveedor = ({ onSubmit, onReset }) => {
   const cargarProveedores = async () => {
     try {
       const respuesta = await axios.get(`${baseUrl}/proveedores`);
-      setListaProveedores(respuesta.data);
+      if (respuesta.data && respuesta.data.data) {
+        setListaProveedores(respuesta.data.data);
+      } else {
+        console.error('Estructura de respuesta inesperada:', respuesta.data);
+      }
     } catch (error) {
-      console.error('Error al obtener los proveedores: ', error);
+      console.error('Error al obtener los proveedores:', error);
     }
   };
 
-  // Carga los datos del proveedor en el formulario para editar
   useEffect(() => {
     if (proveedorActual) {
       setNombre(proveedorActual.nombre);
@@ -49,7 +49,6 @@ const FormularioProveedor = ({ onSubmit, onReset }) => {
       const response = await axios.delete(`${baseUrl}/proveedores/${proveedorId}`);
       if (response.status === 204) {
         console.log('Proveedor eliminado exitosamente');
-        // Elimina el proveedor de la lista en el estado
         setListaProveedores(listaProveedores.filter((proveedor) => proveedor.proveedor_id !== proveedorId));
       }
     } catch (error) {
@@ -58,7 +57,6 @@ const FormularioProveedor = ({ onSubmit, onReset }) => {
   };
 
   const handleModificarProveedor = (proveedorId) => {
-    // Aquí puedes implementar la lógica para seleccionar un proveedor y cargar sus datos en el formulario para modificar.
     const proveedorSeleccionado = listaProveedores.find((proveedor) => proveedor.proveedor_id === proveedorId);
     if (proveedorSeleccionado) {
       setNombre(proveedorSeleccionado.nombre);
@@ -67,7 +65,6 @@ const FormularioProveedor = ({ onSubmit, onReset }) => {
       setTiempoEntregaEstimado(proveedorSeleccionado.tiempo_entrega_estimado);
       setDireccion(proveedorSeleccionado.direccion);
       setComentario(proveedorSeleccionado.comentario);
-      // Asegurarse de que proveedorActual esté actualizado
       setProveedorActual(proveedorSeleccionado);
     }
   };
@@ -82,51 +79,43 @@ const FormularioProveedor = ({ onSubmit, onReset }) => {
       direccion,
       comentario,
     };
-  
-    // Utiliza la propiedad proveedorActual para determinar si se está creando o actualizando un proveedor
+
     try {
       let response;
       if (proveedorActual) {
-        // Utilizar el ID del proveedor actual para la solicitud PUT
         response = await axios.put(`${baseUrl}/proveedores/${proveedorActual.proveedor_id}`, proveedorData);
-        // Actualizar el estado listaProveedores con los datos actualizados
         setListaProveedores(listaProveedores.map((proveedor) => {
           if (proveedor.proveedor_id === proveedorActual.proveedor_id) {
-            return response.data;
+            return response.data.data;
           }
           return proveedor;
         }));
       } else {
         response = await axios.post(`${baseUrl}/proveedores`, proveedorData);
-        // Agregar el nuevo proveedor a listaProveedores
-        setListaProveedores([...listaProveedores, response.data]);
+        setListaProveedores([...listaProveedores, response.data.data]);
       }
-      // Restablecer el proveedorActual después de enviar el formulario
       setProveedorActual(null);
-      // Limpiar los campos del formulario
       handleReset();
-      // Recargar la lista de proveedores solo después de que se haya completado la operación de POST o PUT
       await cargarProveedores();
     } catch (error) {
       console.error('Error al procesar la solicitud', error);
     }
   };
+
   const handleReset = () => {
-    // Limpia los estados del formulario
     setNombre('');
     setTelefono('');
     setEmail('');
     setTiempoEntregaEstimado('');
     setDireccion('');
     setComentario('');
-    onReset(); // Limpia el estado del componente padre
+    onReset();
   };
 
   return (    
     <div className="form-container" style={{ marginLeft: '10px auto ', marginRight: '0%' }}>
       <h2>Proveedores</h2>
       <form onSubmit={handleFormSubmit} className="provider-form">
-        {/* Los inputs para los campos del formulario */}
         <input
           type="text"
           value={nombre}
@@ -171,7 +160,6 @@ const FormularioProveedor = ({ onSubmit, onReset }) => {
         <button type="submit">Guardar</button>
         <button type="button" onClick={handleReset}>Cancelar</button>
       </form>
-      {/* Lista de proveedores */}
       <div className="proveedores-lista">
         <h3>Lista de Proveedores</h3>
         <table>
@@ -190,14 +178,12 @@ const FormularioProveedor = ({ onSubmit, onReset }) => {
                 <td>{proveedor.telefono}</td>
                 <td>{proveedor.email}</td>
                 <td>
-                  {/* Botón de modificar */}
                   <button
                     className="action-button modify-button"
                     onClick={() => handleModificarProveedor(proveedor.proveedor_id)}
                   >
                     <FontAwesomeIcon icon={faCog} />
                   </button>
-                  {/* Botón de eliminar */}
                   <button
                     className="action-button delete-button"
                     onClick={() => handleEliminarProveedor(proveedor.proveedor_id)}
