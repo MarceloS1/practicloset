@@ -1,10 +1,11 @@
-const pool = require('../db');
+const Categoria = require('../models/Categoria');
 const ResponseFactory = require('../helpers/ResponseFactory');
 
-exports.obtenerCategorias = async (req, res) => {
+// Obtener todas las categorías
+exports.obtenerCategorias = async (req, res, next) => {
     try {
-        const resultado = await pool.query('SELECT * FROM categorias ORDER BY nombre');
-        const respuesta = ResponseFactory.createSuccessResponse(resultado.rows, 'Categorías obtenidas exitosamente');
+        const categorias = await Categoria.findAll({ order: [['nombre', 'ASC']] });
+        const respuesta = ResponseFactory.createSuccessResponse(categorias, 'Categorías obtenidas exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
         console.error('Error al obtener categorías:', error.message);
@@ -12,4 +13,3 @@ exports.obtenerCategorias = async (req, res) => {
         res.status(respuesta.status).json(respuesta.body);
     }
 };
-

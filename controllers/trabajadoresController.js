@@ -1,19 +1,22 @@
-const pool = require('../db');
+const Trabajador = require('../models/Trabajador');
 const ResponseFactory = require('../helpers/ResponseFactory');
 
 // Agregar un nuevo trabajador
-exports.agregarTrabajador = async (req, res, next) => {
+exports.agregarTrabajador = async (req, res) => {
     const { nombre, apellido, cedula, email, telefono, cargo, fecha_ingreso, salario } = req.body;
 
     try {
-        const consultaSQL = `
-            INSERT INTO trabajadores (nombre, apellido, cedula, email, telefono, cargo, fecha_ingreso, salario)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-            RETURNING *;
-        `;
-        const valores = [nombre, apellido, cedula, email, telefono, cargo, fecha_ingreso, salario];
-        const resultado = await pool.query(consultaSQL, valores);
-        const respuesta = ResponseFactory.createSuccessResponse(resultado.rows[0], 'Trabajador agregado exitosamente');
+        const trabajador = await Trabajador.create({
+            nombre,
+            apellido,
+            cedula,
+            email,
+            telefono,
+            cargo,
+            fecha_ingreso,
+            salario,
+        });
+        const respuesta = ResponseFactory.createSuccessResponse(trabajador, 'Trabajador agregado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
         const respuesta = ResponseFactory.createErrorResponse(error, 'Error al agregar trabajador');
@@ -22,34 +25,30 @@ exports.agregarTrabajador = async (req, res, next) => {
 };
 
 // Actualizar un trabajador existente
-exports.actualizarTrabajador = async (req, res, next) => {
+exports.actualizarTrabajador = async (req, res) => {
     const { trabajadorId } = req.params;
     const { nombre, apellido, cedula, email, telefono, cargo, fecha_ingreso, salario } = req.body;
 
     try {
-        const consultaSQL = `
-            UPDATE trabajadores
-            SET nombre = COALESCE($1, nombre),
-                apellido = COALESCE($2, apellido),
-                cedula = COALESCE($3, cedula),
-                email = COALESCE($4, email),
-                telefono = COALESCE($5, telefono),
-                cargo = COALESCE($6, cargo),
-                fecha_ingreso = COALESCE($7, fecha_ingreso),
-                salario = COALESCE($8, salario)
-            WHERE trabajador_id = $9
-            RETURNING *;
-        `;
-        const valores = [nombre, apellido, cedula, email, telefono, cargo, fecha_ingreso, salario, trabajadorId];
-        const resultado = await pool.query(consultaSQL, valores);
-
-        if (resultado.rows.length > 0) {
-            const respuesta = ResponseFactory.createSuccessResponse(resultado.rows[0], 'Trabajador actualizado exitosamente');
-            res.status(respuesta.status).json(respuesta.body);
-        } else {
+        const trabajador = await Trabajador.findByPk(trabajadorId);
+        if (!trabajador) {
             const respuesta = ResponseFactory.createNotFoundResponse('Trabajador no encontrado');
-            res.status(respuesta.status).json(respuesta.body);
+            return res.status(respuesta.status).json(respuesta.body);
         }
+
+        await trabajador.update({
+            nombre,
+            apellido,
+            cedula,
+            email,
+            telefono,
+            cargo,
+            fecha_ingreso,
+            salario,
+        });
+
+        const respuesta = ResponseFactory.createSuccessResponse(trabajador, 'Trabajador actualizado exitosamente');
+        res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
         const respuesta = ResponseFactory.createErrorResponse(error, 'Error al actualizar el trabajador');
         res.status(respuesta.status).json(respuesta.body);
@@ -57,26 +56,23 @@ exports.actualizarTrabajador = async (req, res, next) => {
 };
 
 // Obtener todos los trabajadores o un trabajador específico por ID
-exports.obtenerTrabajadores = async (req, res, next) => {
+exports.obtenerTrabajadores = async (req, res) => {
     const { trabajadorId } = req.params;
+
     try {
-        let consultaSQL, resultado;
-
+        let trabajadores;
         if (trabajadorId) {
-            consultaSQL = 'SELECT * FROM trabajadores WHERE trabajador_id = $1';
-            resultado = await pool.query(consultaSQL, [trabajadorId]);
+            trabajadores = await Trabajador.findByPk(trabajadorId);
+            if (!trabajadores) {
+                const respuesta = ResponseFactory.createNotFoundResponse('Trabajador no encontrado');
+                return res.status(respuesta.status).json(respuesta.body);
+            }
         } else {
-            consultaSQL = 'SELECT * FROM trabajadores';
-            resultado = await pool.query(consultaSQL);
+            trabajadores = await Trabajador.findAll();
         }
 
-        if (resultado.rows.length > 0) {
-            const respuesta = ResponseFactory.createSuccessResponse(resultado.rows, 'Trabajador(es) obtenido(s) exitosamente');
-            res.status(respuesta.status).json(respuesta.body);
-        } else {
-            const respuesta = ResponseFactory.createNotFoundResponse('Trabajador(es) no encontrado(s)');
-            res.status(respuesta.status).json(respuesta.body);
-        }
+        const respuesta = ResponseFactory.createSuccessResponse(trabajadores, 'Trabajador(es) obtenido(s) exitosamente');
+        res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
         const respuesta = ResponseFactory.createErrorResponse(error, 'Error al obtener trabajadores');
         res.status(respuesta.status).json(respuesta.body);
@@ -84,18 +80,19 @@ exports.obtenerTrabajadores = async (req, res, next) => {
 };
 
 // Eliminar un trabajador
-exports.eliminarTrabajador = async (req, res, next) => {
+exports.eliminarTrabajador = async (req, res) => {
     const { trabajadorId } = req.params;
-    try {
-        const resultado = await pool.query('DELETE FROM trabajadores WHERE trabajador_id = $1 RETURNING *', [trabajadorId]);
 
-        if (resultado.rowCount > 0) {
-            const respuesta = ResponseFactory.createSuccessResponse(null, 'Trabajador eliminado exitosamente');
-            res.status(respuesta.status).json(respuesta.body);
-        } else {
+    try {
+        const trabajador = await Trabajador.findByPk(trabajadorId);
+        if (!trabajador) {
             const respuesta = ResponseFactory.createNotFoundResponse('Trabajador no encontrado');
-            res.status(respuesta.status).json(respuesta.body);
+            return res.status(respuesta.status).json(respuesta.body);
         }
+
+        await trabajador.destroy();
+        const respuesta = ResponseFactory.createSuccessResponse(null, 'Trabajador eliminado exitosamente');
+        res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
         const respuesta = ResponseFactory.createErrorResponse(error, 'Error al eliminar el trabajador');
         res.status(respuesta.status).json(respuesta.body);

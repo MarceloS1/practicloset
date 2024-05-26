@@ -1,27 +1,23 @@
-const pool = require('../db');
+const Stock = require('../models/Stock');
 const ResponseFactory = require('../helpers/ResponseFactory');
 
 // Actualizar stock
-exports.actualizarStock = async (req, res, next) => {
+exports.actualizarStock = async (req, res) => {
     const { producto_id } = req.params;
     const { cantidad_disponible, cantidad_reservada } = req.body;
 
     try {
-        const consultaSQL = `
-            UPDATE stock
-            SET cantidad_disponible = $1, cantidad_reservada = $2
-            WHERE producto_id = $3
-            RETURNING *;
-        `;
-        const resultado = await pool.query(consultaSQL, [cantidad_disponible, cantidad_reservada, producto_id]);
+        const stock = await Stock.findOne({ where: { producto_id } });
 
-        if (resultado.rows.length > 0) {
-            const respuesta = ResponseFactory.createSuccessResponse(resultado.rows[0], 'Stock actualizado exitosamente');
-            res.status(respuesta.status).json(respuesta.body);
-        } else {
+        if (!stock) {
             const respuesta = ResponseFactory.createNotFoundResponse('Stock no encontrado');
-            res.status(respuesta.status).json(respuesta.body);
+            return res.status(respuesta.status).json(respuesta.body);
         }
+
+        await stock.update({ cantidad_disponible, cantidad_reservada });
+
+        const respuesta = ResponseFactory.createSuccessResponse(stock, 'Stock actualizado exitosamente');
+        res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
         const respuesta = ResponseFactory.createErrorResponse(error, 'Error al actualizar stock');
         res.status(respuesta.status).json(respuesta.body);
@@ -29,24 +25,20 @@ exports.actualizarStock = async (req, res, next) => {
 };
 
 // Eliminar stock
-exports.eliminarStock = async (req, res, next) => {
+exports.eliminarStock = async (req, res) => {
     const { producto_id } = req.params;
 
     try {
-        const consultaSQL = `
-            DELETE FROM stock
-            WHERE producto_id = $1
-            RETURNING *;
-        `;
-        const resultado = await pool.query(consultaSQL, [producto_id]);
+        const stock = await Stock.findOne({ where: { producto_id } });
 
-        if (resultado.rowCount > 0) {
-            const respuesta = ResponseFactory.createSuccessResponse(null, 'Stock eliminado exitosamente');
-            res.status(respuesta.status).json(respuesta.body);
-        } else {
+        if (!stock) {
             const respuesta = ResponseFactory.createNotFoundResponse('Stock no encontrado');
-            res.status(respuesta.status).json(respuesta.body);
+            return res.status(respuesta.status).json(respuesta.body);
         }
+
+        await stock.destroy();
+        const respuesta = ResponseFactory.createSuccessResponse(null, 'Stock eliminado exitosamente');
+        res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
         const respuesta = ResponseFactory.createErrorResponse(error, 'Error al eliminar stock');
         res.status(respuesta.status).json(respuesta.body);

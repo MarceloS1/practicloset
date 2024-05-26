@@ -1,58 +1,57 @@
-const pool = require('../db');
+const TransaccionInventario = require('../models/TransaccionInventario');
+const Stock = require('../models/Stock');
 const ResponseFactory = require('../helpers/ResponseFactory');
+const sequelize = require('../sequelize');
 
 // Agregar transacción de inventario y actualizar stock
-exports.agregarTransaccionYActualizarStock = async (req, res, next) => {
+exports.agregarTransaccionYActualizarStock = async (req, res) => {
     const { producto_id, tipo_transaccion, cantidad, nota } = req.body;
-    const client = await pool.connect();
+
+    const transaction = await sequelize.transaction();
 
     try {
-        await client.query('BEGIN'); // Iniciar transacción
-
         // Verificar stock actual si es una salida
         if (tipo_transaccion === 'salida') {
-            const checkStockSQL = 'SELECT cantidad_disponible FROM stock WHERE producto_id = $1';
-            const stockResult = await client.query(checkStockSQL, [producto_id]);
-            const stockDisponible = stockResult.rows[0].cantidad_disponible;
+            const stock = await Stock.findOne({ where: { producto_id }, transaction });
 
-            if (stockDisponible < cantidad) {
-                await client.query('ROLLBACK');
+            if (!stock || stock.cantidad_disponible < cantidad) {
+                await transaction.rollback();
                 const respuesta = ResponseFactory.createErrorResponse(new Error('Stock insuficiente'), 'No hay suficiente stock disponible para esta transacción');
                 return res.status(respuesta.status).json(respuesta.body);
             }
         }
 
         // Insertar transacción de inventario
-        const insertTransaccionSQL = `
-            INSERT INTO transacciones_inventario (producto_id, tipo_transaccion, cantidad, fecha_transaccion, nota)
-            VALUES ($1, $2, $3, NOW(), $4)
-            RETURNING *;
-        `;
-        const transaccionResult = await client.query(insertTransaccionSQL, [producto_id, tipo_transaccion, cantidad, nota]);
-        const transaccion = transaccionResult.rows[0];
+        const transaccion = await TransaccionInventario.create({
+            producto_id,
+            tipo_transaccion,
+            cantidad,
+            nota,
+        }, { transaction });
 
         // Actualizar stock
-        let updateStockSQL;
+        let stock;
         if (tipo_transaccion === 'entrada') {
-            updateStockSQL = 'UPDATE stock SET cantidad_disponible = cantidad_disponible + $1 WHERE producto_id = $2 RETURNING *;';
+            stock = await Stock.findOne({ where: { producto_id }, transaction });
+            if (stock) {
+                stock.cantidad_disponible += cantidad;
+                await stock.save({ transaction });
+            }
         } else if (tipo_transaccion === 'salida') {
-            updateStockSQL = 'UPDATE stock SET cantidad_disponible = cantidad_disponible - $1 WHERE producto_id = $2 RETURNING *;';
+            stock = await Stock.findOne({ where: { producto_id }, transaction });
+            if (stock) {
+                stock.cantidad_disponible -= cantidad;
+                await stock.save({ transaction });
+            }
         }
 
-        let stockResult;
-        if (updateStockSQL) {
-            stockResult = await client.query(updateStockSQL, [cantidad, producto_id]);
-        }
+        await transaction.commit();
 
-        await client.query('COMMIT'); // Finalizar transacción
-
-        const respuesta = ResponseFactory.createSuccessResponse({ transaccion, stock: stockResult.rows[0] }, 'Transacción y actualización de stock realizadas con éxito');
+        const respuesta = ResponseFactory.createSuccessResponse({ transaccion, stock }, 'Transacción y actualización de stock realizadas con éxito');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
-        await client.query('ROLLBACK'); // Revertir transacción en caso de error
+        await transaction.rollback();
         const respuesta = ResponseFactory.createErrorResponse(error, 'Error al agregar transacción y actualizar stock');
         res.status(respuesta.status).json(respuesta.body);
-    } finally {
-        client.release();
     }
 };
