@@ -27,8 +27,11 @@ DetalleOrden.belongsTo(Articulo, { foreignKey: 'articulo_id' });
 Proveedor.hasMany(Articulo, { foreignKey: 'proveedor_id' });
 Articulo.belongsTo(Proveedor, { foreignKey: 'proveedor_id' });
 
-Articulo.hasMany(Stock, { foreignKey: 'producto_id' });
-Stock.belongsTo(Articulo, { foreignKey: 'producto_id' });
+Modelo.hasOne(Stock, { foreignKey: 'modelo_id', onDelete: 'CASCADE' });
+Stock.belongsTo(Modelo, { foreignKey: 'modelo_id', onDelete: 'CASCADE' });
+
+Modelo.hasMany(TransaccionInventario, { foreignKey: 'modelo_id', onDelete: 'CASCADE' });
+TransaccionInventario.belongsTo(Modelo, { foreignKey: 'modelo_id', onDelete: 'CASCADE' });
 
 module.exports = {
   DetallePedido,

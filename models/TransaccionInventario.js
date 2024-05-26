@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../sequelize');
+const Modelo = require('./Modelo');
 
 const TransaccionInventario = sequelize.define('TransaccionInventario', {
   transaccion_id: {
@@ -7,13 +8,14 @@ const TransaccionInventario = sequelize.define('TransaccionInventario', {
     autoIncrement: true,
     primaryKey: true,
   },
-  producto_id: {
+  modelo_id: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'productos',
-      key: 'producto_id',
+      model: Modelo,
+      key: 'modelo_id',
     },
     allowNull: false,
+    onDelete: 'CASCADE',
   },
   tipo_transaccion: {
     type: DataTypes.STRING,
@@ -36,5 +38,6 @@ const TransaccionInventario = sequelize.define('TransaccionInventario', {
   tableName: 'transacciones_inventario',
   timestamps: false,
 });
+
 
 module.exports = TransaccionInventario;

@@ -11,25 +11,25 @@ const Modelo = sequelize.define('Modelo', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  tipo: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
   descripcion: {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  categoria_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   material: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,  // Puede ser NULL para algunos modelos
   },
   alto: {
     type: DataTypes.FLOAT,
-    allowNull: false,
+    allowNull: true,  // Puede ser NULL para algunos modelos
   },
   ancho: {
     type: DataTypes.FLOAT,
-    allowNull: false,
+    allowNull: true,  // Puede ser NULL para algunos modelos
   },
   precio: {
     type: DataTypes.FLOAT,

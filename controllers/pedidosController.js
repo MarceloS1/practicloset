@@ -1,4 +1,4 @@
-const { Pedido, DetallePedido, Modelo} = require('../models');
+const { Pedido, DetallePedido, Modelo, Stock} = require('../models');
 const sequelize = require('../sequelize');
 const ResponseFactory = require('../helpers/ResponseFactory');
 
@@ -11,11 +11,25 @@ exports.crearPedido = async (req, res) => {
         // Calcular el precio total del pedido
         let precioTotal = 0;
         for (let modelo of modelos) {
-            const modeloData = await Modelo.findByPk(modelo.modelo_id);
+            const modeloData = await Modelo.findByPk(modelo.modelo_id, { transaction });
+
             if (modeloData) {
                 precioTotal += modeloData.precio * modelo.cantidad;
             } else {
-                throw new Error('Modelo no encontrado');
+                throw new Error('Modelo no encontrado: ' + modelo.modelo_id);
+            }
+
+            // Actualizar stock
+            const stock = await Stock.findOne({ where: { modelo_id: modelo.modelo_id }, transaction });
+            if (stock) {
+                if (stock.cantidad_disponible < modelo.cantidad) {
+                    throw new Error('Stock insuficiente para el modelo: ' + modelo.modelo_id);
+                }
+                stock.cantidad_disponible -= modelo.cantidad;
+                stock.cantidad_reservada += modelo.cantidad;
+                await stock.save({ transaction });
+            } else {
+                throw new Error('Stock no encontrado para el modelo: ' + modelo.modelo_id);
             }
         }
 
@@ -38,11 +52,11 @@ exports.crearPedido = async (req, res) => {
 
         await transaction.commit();
 
-        const respuesta = ResponseFactory.createSuccessResponse(pedido, 'Pedido creado exitosamente');
+        const respuesta = ResponseFactory.createSuccessResponse(pedido, 'Pedido creado y stock actualizado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
         await transaction.rollback();
-        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al crear el pedido');
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al crear el pedido y actualizar el stock');
         res.status(respuesta.status).json(respuesta.body);
     }
 };

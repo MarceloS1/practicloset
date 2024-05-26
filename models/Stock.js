@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../sequelize');
+const Modelo = require('./Modelo');
 
 const Stock = sequelize.define('Stock', {
   stock_id: {
@@ -7,27 +8,30 @@ const Stock = sequelize.define('Stock', {
     autoIncrement: true,
     primaryKey: true,
   },
-  producto_id: {
+  modelo_id: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'productos',
-      key: 'producto_id',
+      model: Modelo,
+      key: 'modelo_id',
     },
     allowNull: false,
+    onDelete: 'CASCADE',
   },
   cantidad_disponible: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0, // Valor predeterminado en caso de que no se proporcione
+    defaultValue: 0,
   },
   cantidad_reservada: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0, // Valor predeterminado en caso de que no se proporcione
+    defaultValue: 0,
   },
 }, {
   tableName: 'stock',
   timestamps: false,
 });
 
+
 module.exports = Stock;
+

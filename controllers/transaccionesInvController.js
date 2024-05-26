@@ -3,16 +3,15 @@ const Stock = require('../models/Stock');
 const ResponseFactory = require('../helpers/ResponseFactory');
 const sequelize = require('../sequelize');
 
-// Agregar transacción de inventario y actualizar stock
 exports.agregarTransaccionYActualizarStock = async (req, res) => {
-    const { producto_id, tipo_transaccion, cantidad, nota } = req.body;
+    const { modelo_id, tipo_transaccion, cantidad, nota } = req.body;
 
     const transaction = await sequelize.transaction();
 
     try {
         // Verificar stock actual si es una salida
         if (tipo_transaccion === 'salida') {
-            const stock = await Stock.findOne({ where: { producto_id }, transaction });
+            const stock = await Stock.findOne({ where: { modelo_id }, transaction });
 
             if (!stock || stock.cantidad_disponible < cantidad) {
                 await transaction.rollback();
@@ -23,26 +22,21 @@ exports.agregarTransaccionYActualizarStock = async (req, res) => {
 
         // Insertar transacción de inventario
         const transaccion = await TransaccionInventario.create({
-            producto_id,
+            modelo_id,
             tipo_transaccion,
             cantidad,
             nota,
         }, { transaction });
 
         // Actualizar stock
-        let stock;
-        if (tipo_transaccion === 'entrada') {
-            stock = await Stock.findOne({ where: { producto_id }, transaction });
-            if (stock) {
+        let stock = await Stock.findOne({ where: { modelo_id }, transaction });
+        if (stock) {
+            if (tipo_transaccion === 'entrada') {
                 stock.cantidad_disponible += cantidad;
-                await stock.save({ transaction });
-            }
-        } else if (tipo_transaccion === 'salida') {
-            stock = await Stock.findOne({ where: { producto_id }, transaction });
-            if (stock) {
+            } else if (tipo_transaccion === 'salida') {
                 stock.cantidad_disponible -= cantidad;
-                await stock.save({ transaction });
             }
+            await stock.save({ transaction });
         }
 
         await transaction.commit();
