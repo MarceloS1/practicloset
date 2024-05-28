@@ -73,16 +73,6 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
   const handleModificarModelo = (modeloId) => {
     const modeloSeleccionado = listaModelos.find((modelo) => modelo.modelo_id === modeloId);
     if (modeloSeleccionado) {
-      setNombre(modeloSeleccionado.nombre);
-      setCategoriaId(modeloSeleccionado.categoria_id);
-      setDescripcion(modeloSeleccionado.descripcion);
-      setMaterial(modeloSeleccionado.material);
-      setAlto(modeloSeleccionado.alto);
-      setAncho(modeloSeleccionado.ancho);
-      setPrecio(modeloSeleccionado.precio);
-      setImagenUrl(modeloSeleccionado.imagen_url);
-      setCantidadDisponible(modeloSeleccionado.Stock.cantidad_disponible);
-      setCantidadReservada(modeloSeleccionado.Stock.cantidad_reservada);
       setModeloActual(modeloSeleccionado);
     }
   };
@@ -101,24 +91,18 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
       cantidad_disponible: cantidadDisponible,
       cantidad_reservada: cantidadReservada
     };
-  
+
     try {
       let response;
       if (modeloActual) {
         response = await axios.put(`${baseUrl}/modelos/${modeloActual.modelo_id}`, modeloData);
-        setListaModelos(listaModelos.map((modelo) => {
-          if (modelo.modelo_id === modeloActual.modelo_id) {
-            return response.data.data; // Ajuste para obtener los datos correctamente
-          }
-          return modelo;
-        }));
+        setListaModelos(listaModelos.map((modelo) => modelo.modelo_id === modeloActual.modelo_id ? response.data.data : modelo));
       } else {
         response = await axios.post(`${baseUrl}/modelos`, modeloData);
-        setListaModelos([...listaModelos, response.data.data]); // Ajuste para obtener los datos correctamente
+        setListaModelos([...listaModelos, response.data.data]);
       }
       setModeloActual(null);
       handleReset();
-      await cargarModelos();
     } catch (error) {
       console.error('Error al procesar la solicitud', error);
     }
@@ -153,7 +137,7 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
           value={categoriaId}
           onChange={(e) => setCategoriaId(e.target.value)}
           required
-          >
+        >
           <option value="">Selecciona una categoría</option>
           {categorias
             .filter(categoria => categoria.categoria_id === 1 || categoria.categoria_id === 3)
@@ -251,8 +235,8 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
                 <td>{modelo.ancho}</td>
                 <td>{modelo.precio}</td>
                 <td><img src={modelo.imagen_url} alt={modelo.nombre} style={{ width: '100px', height: '100px' }} /></td>
-                <td>{modelo.Stock.cantidad_disponible}</td>
-                <td>{modelo.Stock.cantidad_reservada}</td>
+                <td>{modelo.Stock?.cantidad_disponible}</td>
+                <td>{modelo.Stock?.cantidad_reservada}</td>
                 <td>
                   <button
                     className="action-button modify-button"

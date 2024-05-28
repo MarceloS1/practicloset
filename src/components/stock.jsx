@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import TransaccionForm from './transaccionForm';
+import TransaccionForm from './transaccionForm'
 
 const baseUrl = 'http://25.41.163.224:5000';
 
@@ -9,6 +9,11 @@ const GestionStock = () => {
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
     const [categoriaId, setCategoriaId] = useState('');
+    const [material, setMaterial] = useState('');
+    const [alto, setAlto] = useState('');
+    const [ancho, setAncho] = useState('');
+    const [precio, setPrecio] = useState('');
+    const [imagenUrl, setImagenUrl] = useState('');
     const [cantidadDisponible, setCantidadDisponible] = useState('');
     const [cantidadReservada, setCantidadReservada] = useState('');
     const [modeloId, setModeloId] = useState(null);
@@ -22,7 +27,7 @@ const GestionStock = () => {
     const cargarModelos = async () => {
         try {
             const respuesta = await axios.get(`${baseUrl}/modelos`);
-            setModelos(respuesta.data.data);
+            setModelos(respuesta.data.data || []);
         } catch (error) {
             console.error('Error al obtener los modelos:', error);
         }
@@ -31,7 +36,7 @@ const GestionStock = () => {
     const cargarCategorias = async () => {
         try {
             const respuesta = await axios.get(`${baseUrl}/categorias`);
-            setCategorias(respuesta.data.data);
+            setCategorias(respuesta.data.data || []);
         } catch (error) {
             console.error('Error al obtener las categorías:', error);
         }
@@ -41,6 +46,11 @@ const GestionStock = () => {
         setNombre('');
         setDescripcion('');
         setCategoriaId('');
+        setMaterial('');
+        setAlto('');
+        setAncho('');
+        setPrecio('');
+        setImagenUrl('');
         setCantidadDisponible('');
         setCantidadReservada('');
         setModeloId(null);
@@ -52,6 +62,11 @@ const GestionStock = () => {
             nombre,
             descripcion,
             categoria_id: categoriaId,
+            material,
+            alto,
+            ancho,
+            precio,
+            imagen_url: imagenUrl,
             cantidad_disponible: cantidadDisponible,
             cantidad_reservada: cantidadReservada,
         };
@@ -71,6 +86,11 @@ const GestionStock = () => {
             nombre,
             descripcion,
             categoria_id: categoriaId,
+            material,
+            alto,
+            ancho,
+            precio,
+            imagen_url: imagenUrl,
             cantidad_disponible: cantidadDisponible,
             cantidad_reservada: cantidadReservada,
         };
@@ -93,39 +113,9 @@ const GestionStock = () => {
         }
     };
 
-    const editarCantidades = async () => {
-        const datosStock = {
-            cantidad_disponible: cantidadDisponible,
-            cantidad_reservada: cantidadReservada,
-        };
-
-        try {
-            const respuesta = await axios.put(`${baseUrl}/stock/modelo/${modeloId}`, datosStock);
-
-            if (respuesta.status === 200) {
-                const stockEditado = respuesta.data.data;
-                setModelos(modelos.map((modelo) => {
-                    if (modelo.modelo_id === modeloId) {
-                        return {
-                            ...modelo,
-                            cantidad_disponible: stockEditado.cantidad_disponible,
-                            cantidad_reservada: stockEditado.cantidad_reservada,
-                        };
-                    }
-                    return modelo;
-                }));
-                resetFormulario();
-            } else {
-                console.error('Error en la respuesta del servidor:', respuesta);
-            }
-        } catch (error) {
-            console.error('Error al editar el stock del modelo:', error);
-        }
-    };
-
     const eliminarModelo = async (modeloId) => {
         try {
-            await axios.delete(`${baseUrl}/stock/modelo/${modeloId}`);
+            await axios.delete(`${baseUrl}/modelos/${modeloId}`);
             cargarModelos();
         } catch (error) {
             console.error('Error al eliminar el modelo:', error);
@@ -140,7 +130,6 @@ const GestionStock = () => {
                 e.preventDefault();
                 if (modeloId) {
                     editarModelo(e);
-                    editarCantidades();
                 } else {
                     agregarModelo(e);
                 }
@@ -171,14 +160,53 @@ const GestionStock = () => {
                         required
                     >
                         <option value="">Selecciona una categoría</option>
-                        {categorias
-                            .filter(categoria => categoria.nombre === 'Muebles' || categoria.nombre === 'Rejillas')
-                            .map((categoria) => (
-                                <option key={categoria.categoria_id} value={categoria.categoria_id}>
-                                    {categoria.nombre}
-                                </option>
-                            ))}
+                        {categorias.map((categoria) => (
+                            <option key={categoria.categoria_id} value={categoria.categoria_id}>
+                                {categoria.nombre}
+                            </option>
+                        ))}
                     </select>
+                </div>
+                <div>
+                    <label>Material:</label>
+                    <input
+                        type="text"
+                        value={material}
+                        onChange={(e) => setMaterial(e.target.value)}
+                    />
+                </div>
+                <div>
+                    <label>Alto:</label>
+                    <input
+                        type="number"
+                        value={alto}
+                        onChange={(e) => setAlto(Number(e.target.value))}
+                    />
+                </div>
+                <div>
+                    <label>Ancho:</label>
+                    <input
+                        type="number"
+                        value={ancho}
+                        onChange={(e) => setAncho(Number(e.target.value))}
+                    />
+                </div>
+                <div>
+                    <label>Precio:</label>
+                    <input
+                        type="number"
+                        value={precio}
+                        onChange={(e) => setPrecio(Number(e.target.value))}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Imagen URL:</label>
+                    <input
+                        type="text"
+                        value={imagenUrl}
+                        onChange={(e) => setImagenUrl(e.target.value)}
+                    />
                 </div>
                 <div>
                     <label>Cantidad Disponible:</label>
@@ -213,6 +241,10 @@ const GestionStock = () => {
                         <th>Nombre</th>
                         <th>Descripción</th>
                         <th>Material</th>
+                        <th>Alto</th>
+                        <th>Ancho</th>
+                        <th>Precio</th>
+                        <th>Imagen</th>
                         <th>Cantidad Disponible</th>
                         <th>Cantidad Reservada</th>
                         <th>Acciones</th>
@@ -224,6 +256,10 @@ const GestionStock = () => {
                             <td>{modelo.nombre}</td>
                             <td>{modelo.descripcion}</td>
                             <td>{modelo.material}</td>
+                            <td>{modelo.alto}</td>
+                            <td>{modelo.ancho}</td>
+                            <td>{modelo.precio}</td>
+                            <td>{modelo.imagen_url}</td>
                             <td>{modelo.Stock.cantidad_disponible}</td>
                             <td>{modelo.Stock.cantidad_reservada}</td>
                             <td>
@@ -232,6 +268,11 @@ const GestionStock = () => {
                                         setNombre(modelo.nombre);
                                         setDescripcion(modelo.descripcion);
                                         setCategoriaId(modelo.categoria_id);
+                                        setMaterial(modelo.material);
+                                        setAlto(modelo.alto);
+                                        setAncho(modelo.ancho);
+                                        setPrecio(modelo.precio);
+                                        setImagenUrl(modelo.imagen_url);
                                         setCantidadDisponible(modelo.Stock.cantidad_disponible);
                                         setCantidadReservada(modelo.Stock.cantidad_reservada);
                                         setModeloId(modelo.modelo_id);
@@ -243,7 +284,6 @@ const GestionStock = () => {
                     ))}
                 </tbody>
             </table>
-
             <TransaccionForm
                 modelos={modelos}
                 onTransaccionRealizada={cargarModelos}
