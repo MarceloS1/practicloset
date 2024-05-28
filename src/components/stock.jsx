@@ -182,10 +182,7 @@ const GestionStock = () => {
                         <th>Nombre</th>
                         <th>Descripción</th>
                         <th>Material</th>
-                        <th>Alto</th>
-                        <th>Ancho</th>
                         <th>Precio</th>
-                        <th>Imagen</th>
                         <th>Cantidad Disponible</th>
                         <th>Cantidad Reservada</th>
                         <th>Acciones</th>
@@ -196,11 +193,8 @@ const GestionStock = () => {
                         <tr key={modelo.modelo_id}>
                             <td>{modelo.nombre}</td>
                             <td>{modelo.descripcion}</td>
-                            <td>{modelo.material}</td>
-                            <td>{modelo.alto}</td>
-                            <td>{modelo.ancho}</td>
+                            <td>{modelo.material}</td>            
                             <td>{modelo.precio}</td>
-                            <td><img src={modelo.imagen_url} alt={modelo.nombre} style={{ width: '100px', height: '100px' }} /></td>
                             <td>{modelo.Stock ? modelo.Stock.cantidad_disponible : 0}</td>
                             <td>{modelo.Stock ? modelo.Stock.cantidad_reservada : 0}</td>
                             <td>
