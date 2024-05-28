@@ -1,28 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import TransaccionForm from './transaccionForm'
+import TransaccionForm from './transaccionForm';
 
 const baseUrl = 'http://25.41.163.224:5000';
 
 const GestionStock = () => {
+    const [articulos, setArticulos] = useState([]);
     const [modelos, setModelos] = useState([]);
-    const [nombre, setNombre] = useState('');
-    const [descripcion, setDescripcion] = useState('');
-    const [categoriaId, setCategoriaId] = useState('');
-    const [material, setMaterial] = useState('');
-    const [alto, setAlto] = useState('');
-    const [ancho, setAncho] = useState('');
-    const [precio, setPrecio] = useState('');
-    const [imagenUrl, setImagenUrl] = useState('');
-    const [cantidadDisponible, setCantidadDisponible] = useState('');
-    const [cantidadReservada, setCantidadReservada] = useState('');
-    const [modeloId, setModeloId] = useState(null);
     const [categorias, setCategorias] = useState([]);
+    const [proveedores, setProveedores] = useState([]);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [cantidadDisponible, setCantidadDisponible] = useState(0);
+    const [cantidadReservada, setCantidadReservada] = useState(0);
 
     useEffect(() => {
+        cargarArticulos();
         cargarModelos();
         cargarCategorias();
+        cargarProveedores();
     }, []);
+
+    const cargarArticulos = async () => {
+        try {
+            const respuesta = await axios.get(`${baseUrl}/articulos/con-stock`);
+            setArticulos(respuesta.data.data || []);
+        } catch (error) {
+            console.error('Error al obtener los artículos:', error);
+        }
+    };
 
     const cargarModelos = async () => {
         try {
@@ -42,83 +48,44 @@ const GestionStock = () => {
         }
     };
 
-    const resetFormulario = () => {
-        setNombre('');
-        setDescripcion('');
-        setCategoriaId('');
-        setMaterial('');
-        setAlto('');
-        setAncho('');
-        setPrecio('');
-        setImagenUrl('');
-        setCantidadDisponible('');
-        setCantidadReservada('');
-        setModeloId(null);
-    };
-
-    const agregarModelo = async (e) => {
-        e.preventDefault();
-        const datosModelo = {
-            nombre,
-            descripcion,
-            categoria_id: categoriaId,
-            material,
-            alto,
-            ancho,
-            precio,
-            imagen_url: imagenUrl,
-            cantidad_disponible: cantidadDisponible,
-            cantidad_reservada: cantidadReservada,
-        };
+    const cargarProveedores = async () => {
         try {
-            const respuesta = await axios.post(`${baseUrl}/modelos`, datosModelo);
-            setModelos([...modelos, respuesta.data.data]);
-            resetFormulario();
+            const respuesta = await axios.get(`${baseUrl}/proveedores`);
+            setProveedores(respuesta.data.data || []);
         } catch (error) {
-            console.error('Error al agregar el modelo:', error);
+            console.error('Error al obtener los proveedores:', error);
         }
     };
 
-    const editarModelo = async (e) => {
-        e.preventDefault();
+    const resetFormulario = () => {
+        setSelectedItem(null);
+        setIsEditing(false);
+        setCantidadDisponible(0);
+        setCantidadReservada(0);
+    };
 
-        const datosModelo = {
-            nombre,
-            descripcion,
-            categoria_id: categoriaId,
-            material,
-            alto,
-            ancho,
-            precio,
-            imagen_url: imagenUrl,
-            cantidad_disponible: cantidadDisponible,
-            cantidad_reservada: cantidadReservada,
-        };
+    const editarCantidad = async (e) => {
+        e.preventDefault();
+        const { id, tipo } = selectedItem;
+        const datos = { cantidad_disponible: cantidadDisponible, cantidad_reservada: cantidadReservada };
 
         try {
-            const respuesta = await axios.put(`${baseUrl}/modelos/${modeloId}`, datosModelo);
+            let respuesta;
+            if (tipo === 'articulo') {
+                respuesta = await axios.put(`${baseUrl}/stock/articulo/${id}`, datos);
+            } else if (tipo === 'modelo') {
+                respuesta = await axios.put(`${baseUrl}/stock/modelo/${id}`, datos);
+            }
 
             if (respuesta.status === 200) {
-                const modeloEditado = respuesta.data.data;
-                setModelos(modelos.map((modelo) =>
-                    modelo.modelo_id === modeloId ? modeloEditado : modelo
-                ));
                 resetFormulario();
+                cargarArticulos();
                 cargarModelos();
             } else {
                 console.error('Error en la respuesta del servidor:', respuesta);
             }
         } catch (error) {
-            console.error('Error al editar el modelo:', error);
-        }
-    };
-
-    const eliminarModelo = async (modeloId) => {
-        try {
-            await axios.delete(`${baseUrl}/modelos/${modeloId}`);
-            cargarModelos();
-        } catch (error) {
-            console.error('Error al eliminar el modelo:', error);
+            console.error('Error al editar las cantidades:', error);
         }
     };
 
@@ -126,113 +93,67 @@ const GestionStock = () => {
         <div className="form-container" style={{ marginLeft: '20%' }}>
             <h2>Gestión de Stock</h2>
 
-            <form onSubmit={(e) => {
-                e.preventDefault();
-                if (modeloId) {
-                    editarModelo(e);
-                } else {
-                    agregarModelo(e);
-                }
-            }}>
-                <div>
-                    <label>Nombre:</label>
-                    <input
-                        type="text"
-                        value={nombre}
-                        onChange={(e) => setNombre(e.target.value)}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Descripción:</label>
-                    <input
-                        type="text"
-                        value={descripcion}
-                        onChange={(e) => setDescripcion(e.target.value)}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Categoría:</label>
-                    <select
-                        value={categoriaId}
-                        onChange={(e) => setCategoriaId(Number(e.target.value))}
-                        required
-                    >
-                        <option value="">Selecciona una categoría</option>
-                        {categorias.map((categoria) => (
-                            <option key={categoria.categoria_id} value={categoria.categoria_id}>
-                                {categoria.nombre}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <label>Material:</label>
-                    <input
-                        type="text"
-                        value={material}
-                        onChange={(e) => setMaterial(e.target.value)}
-                    />
-                </div>
-                <div>
-                    <label>Alto:</label>
-                    <input
-                        type="number"
-                        value={alto}
-                        onChange={(e) => setAlto(Number(e.target.value))}
-                    />
-                </div>
-                <div>
-                    <label>Ancho:</label>
-                    <input
-                        type="number"
-                        value={ancho}
-                        onChange={(e) => setAncho(Number(e.target.value))}
-                    />
-                </div>
-                <div>
-                    <label>Precio:</label>
-                    <input
-                        type="number"
-                        value={precio}
-                        onChange={(e) => setPrecio(Number(e.target.value))}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Imagen URL:</label>
-                    <input
-                        type="text"
-                        value={imagenUrl}
-                        onChange={(e) => setImagenUrl(e.target.value)}
-                    />
-                </div>
-                <div>
-                    <label>Cantidad Disponible:</label>
-                    <input
-                        type="number"
-                        value={cantidadDisponible}
-                        onChange={(e) => setCantidadDisponible(Number(e.target.value))}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Cantidad Reservada:</label>
-                    <input
-                        type="number"
-                        value={cantidadReservada}
-                        onChange={(e) => setCantidadReservada(Number(e.target.value))}
-                        required
-                    />
-                </div>
-                <button type="submit">{modeloId ? 'Guardar Cambios' : 'Agregar Modelo'}</button>
-                {modeloId && (
-                    <button type="button" onClick={resetFormulario}>
-                        Cancelar
-                    </button>
-                )}
-            </form>
+            {isEditing && (
+                <form onSubmit={editarCantidad}>
+                    <div>
+                        <label>Cantidad Disponible:</label>
+                        <input
+                            type="number"
+                            value={cantidadDisponible}
+                            onChange={(e) => setCantidadDisponible(Number(e.target.value))}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label>Cantidad Reservada:</label>
+                        <input
+                            type="number"
+                            value={cantidadReservada}
+                            onChange={(e) => setCantidadReservada(Number(e.target.value))}
+                            required
+                        />
+                    </div>
+                    <button type="submit">Guardar Cambios</button>
+                    <button type="button" onClick={resetFormulario}>Cancelar</button>
+                </form>
+            )}
+
+            <h3>Lista de Artículos</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Tipo</th>
+                        <th>Proveedor</th>
+                        <th>Cantidad Disponible</th>
+                        <th>Cantidad Reservada</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {articulos.map((articulo) => (
+                        <tr key={articulo.articulo_id}>
+                            <td>{articulo.nombre}</td>
+                            <td>{articulo.precio}</td>
+                            <td>{articulo.tipo}</td>
+                            <td>{proveedores.find(p => p.proveedor_id === articulo.proveedor_id)?.nombre || 'Desconocido'}</td>
+                            <td>{articulo.Stock ? articulo.Stock.cantidad_disponible : 0}</td>
+                            <td>{articulo.Stock ? articulo.Stock.cantidad_reservada : 0}</td>
+                            <td>
+                                <button
+                                    onClick={() => {
+                                        setSelectedItem({ id: articulo.articulo_id, tipo: 'articulo' });
+                                        setCantidadDisponible(articulo.Stock ? articulo.Stock.cantidad_disponible : 0);
+                                        setCantidadReservada(articulo.Stock ? articulo.Stock.cantidad_reservada : 0);
+                                        setIsEditing(true);
+                                    }}
+                                >Editar</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
 
             <h3>Lista de Modelos</h3>
             <table>
@@ -260,33 +181,29 @@ const GestionStock = () => {
                             <td>{modelo.ancho}</td>
                             <td>{modelo.precio}</td>
                             <td>{modelo.imagen_url}</td>
-                            <td>{modelo.Stock.cantidad_disponible}</td>
-                            <td>{modelo.Stock.cantidad_reservada}</td>
+                            <td>{modelo.Stock ? modelo.Stock.cantidad_disponible : 0}</td>
+                            <td>{modelo.Stock ? modelo.Stock.cantidad_reservada : 0}</td>
                             <td>
                                 <button
                                     onClick={() => {
-                                        setNombre(modelo.nombre);
-                                        setDescripcion(modelo.descripcion);
-                                        setCategoriaId(modelo.categoria_id);
-                                        setMaterial(modelo.material);
-                                        setAlto(modelo.alto);
-                                        setAncho(modelo.ancho);
-                                        setPrecio(modelo.precio);
-                                        setImagenUrl(modelo.imagen_url);
-                                        setCantidadDisponible(modelo.Stock.cantidad_disponible);
-                                        setCantidadReservada(modelo.Stock.cantidad_reservada);
-                                        setModeloId(modelo.modelo_id);
+                                        setSelectedItem({ id: modelo.modelo_id, tipo: 'modelo' });
+                                        setCantidadDisponible(modelo.Stock ? modelo.Stock.cantidad_disponible : 0);
+                                        setCantidadReservada(modelo.Stock ? modelo.Stock.cantidad_reservada : 0);
+                                        setIsEditing(true);
                                     }}
                                 >Editar</button>
-                                <button onClick={() => eliminarModelo(modelo.modelo_id)}>Eliminar</button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+            
             <TransaccionForm
                 modelos={modelos}
-                onTransaccionRealizada={cargarModelos}
+                onTransaccionRealizada={() => {
+                    cargarArticulos();
+                    cargarModelos();
+                }}
             />
         </div>
     );
