@@ -202,7 +202,7 @@ const OrdenesCompra = () => {
             <button type="button" onClick={() => eliminarDetalle(index)}>Eliminar</button>
           </div>
         ))}
-        <button type="button" onClick={agregarDetalle}>Agregar Detalle</button>
+        <button type="button" onClick={agregarDetalle}>Agregar Articulo</button>
         <button type="submit">{ordenActual ? 'Guardar Cambios' : 'Crear Orden'}</button>
         {ordenActual && <button type="button" onClick={resetFormulario}>Cancelar</button>}
       </form>

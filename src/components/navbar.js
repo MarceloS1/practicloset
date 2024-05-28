@@ -21,10 +21,10 @@ const NavBar = () => {
             <nav>
                 <ul className="navbar-nav">
                     <li><Link to="/">Inicio</Link></li>
-                    <li><Link to="/proveedores">Proveedores</Link></li>
-                    <li><Link to="/articulos">Artículos</Link></li>
+                    <li><Link to="/proveedores">Gestion Proveedores</Link></li>
+                    <li><Link to="/articulos">Gestion Artículos</Link></li>
                     <li><Link to="/ordenes-de-compra">Órdenes de Compra</Link></li>
-                    <li><Link to="/trabajadores">trabajadores</Link></li>
+                    <li><Link to="/trabajadores">Gestion Trabajadores</Link></li>
                     <li><Link to="/Clientes">Gestion Clientes</Link></li>
                     <li><Link to="/Stock">Gestionar Stock</Link></li>
                     <li><Link to="/Modelos">Gestionar Modelos</Link></li>
