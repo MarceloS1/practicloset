@@ -1,6 +1,13 @@
 const { Pedido, DetallePedido, Modelo, Stock} = require('../models');
 const sequelize = require('../sequelize');
 const ResponseFactory = require('../helpers/ResponseFactory');
+const { Subject } = require('../observers/observer');
+const StockObserver = require('../observers/StockObserver');
+
+const orderSubject = new Subject();
+const stockObserver = new StockObserver();
+
+orderSubject.subscribe(stockObserver);
 
 // Crear un nuevo pedido
 exports.crearPedido = async (req, res) => {
@@ -12,24 +19,10 @@ exports.crearPedido = async (req, res) => {
         let precioTotal = 0;
         for (let modelo of modelos) {
             const modeloData = await Modelo.findByPk(modelo.modelo_id, { transaction });
-
             if (modeloData) {
                 precioTotal += modeloData.precio * modelo.cantidad;
             } else {
-                throw new Error('Modelo no encontrado: ' + modelo.modelo_id);
-            }
-
-            // Actualizar stock
-            const stock = await Stock.findOne({ where: { modelo_id: modelo.modelo_id }, transaction });
-            if (stock) {
-                if (stock.cantidad_disponible < modelo.cantidad) {
-                    throw new Error('Stock insuficiente para el modelo: ' + modelo.modelo_id);
-                }
-                stock.cantidad_disponible -= modelo.cantidad;
-                stock.cantidad_reservada += modelo.cantidad;
-                await stock.save({ transaction });
-            } else {
-                throw new Error('Stock no encontrado para el modelo: ' + modelo.modelo_id);
+                throw new Error(`Modelo no encontrado: ${modelo.modelo_id}`);
             }
         }
 
@@ -51,6 +44,9 @@ exports.crearPedido = async (req, res) => {
         }
 
         await transaction.commit();
+
+        // Notify the observer to update the stock
+        orderSubject.notify({ modelos });
 
         const respuesta = ResponseFactory.createSuccessResponse(pedido, 'Pedido creado y stock actualizado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
