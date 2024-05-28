@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const baseUrl = 'http://25.41.163.224:5000';
+const baseUrl = 'http://25.56.40.70:5000';
 
 const Pedidos = () => {
     const [pedidos, setPedidos] = useState([]);
@@ -56,14 +56,14 @@ const Pedidos = () => {
     const handleDetalleChange = (index, e) => {
         const { name, value } = e.target;
         const detalles = [...formulario.modelos];
-        detalles[index][name] = value;
+        detalles[index][name] = name === 'cantidad' ? parseInt(value, 10) : value;
         setFormulario({ ...formulario, modelos: detalles });
     };
 
     const agregarDetalle = () => {
         setFormulario({
             ...formulario,
-            modelos: [...formulario.modelos, { modelo_id: '', cantidad: '' }]
+            modelos: [...formulario.modelos, { modelo_id: '', cantidad: 0 }]
         });
     };
 
@@ -76,7 +76,9 @@ const Pedidos = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${baseUrl}/pedidos`, formulario);
+            console.log('Enviando formulario:', JSON.stringify(formulario, null, 2));
+            const respuesta = await axios.post(`${baseUrl}/pedidos`, formulario);
+            console.log('Respuesta al guardar pedido:', respuesta.data);
             cargarPedidos();
             resetFormulario();
         } catch (error) {
