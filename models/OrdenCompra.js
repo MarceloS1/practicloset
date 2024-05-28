@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../sequelize');
 const DetalleOrden = require('./DetalleOrden'); // Importa el modelo de DetalleOrden
+const Proveedor = require('./Proveedor')
 
 const OrdenCompra = sequelize.define('OrdenCompra', {
   orden_id: {
@@ -11,6 +12,10 @@ const OrdenCompra = sequelize.define('OrdenCompra', {
   proveedor_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: Proveedor,
+      key: 'proveedor_id',
+    }
   },
   fecha: {
     type: DataTypes.DATE,

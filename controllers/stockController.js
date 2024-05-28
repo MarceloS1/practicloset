@@ -1,4 +1,5 @@
 const Stock = require('../models/Stock');
+const Op = require('../sequelize');
 const ResponseFactory = require('../helpers/ResponseFactory');
 
 // Actualizar stock

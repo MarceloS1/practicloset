@@ -33,6 +33,9 @@ Stock.belongsTo(Modelo, { foreignKey: 'modelo_id', onDelete: 'CASCADE' });
 Modelo.hasMany(TransaccionInventario, { foreignKey: 'modelo_id', onDelete: 'CASCADE' });
 TransaccionInventario.belongsTo(Modelo, { foreignKey: 'modelo_id', onDelete: 'CASCADE' });
 
+Articulo.hasOne(Stock, { foreignKey: 'articulo_id' });
+Stock.belongsTo(Articulo, { foreignKey: 'articulo_id' });
+
 module.exports = {
   DetallePedido,
   Modelo,

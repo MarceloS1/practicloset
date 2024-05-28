@@ -2,6 +2,7 @@ const sequelize = require('../sequelize');
 const OrdenCompra = require('../models/OrdenCompra');
 const DetalleOrden = require('../models/DetalleOrden');
 const Articulo = require('../models/articulo');
+const Stock = require('../models/Stock');
 const ResponseFactory = require('../helpers/ResponseFactory');
 
 // Crear una nueva orden de compra
@@ -142,6 +143,51 @@ exports.obtenerDetalleOrdenConPrecio = async (req, res) => {
         }
     } catch (error) {
         const respuesta = ResponseFactory.createErrorResponse(error, 'Error al obtener el detalle de la orden');
+        res.status(respuesta.status).json(respuesta.body);
+    }
+};
+
+// Confirmar la recepción de una orden de compra
+exports.confirmarRecepcionOrden = async (req, res) => {
+    const { ordenId } = req.params;
+
+    const transaction = await sequelize.transaction();
+
+    try {
+        const orden = await OrdenCompra.findByPk(ordenId, {
+            include: [{ model: DetalleOrden, include: [Articulo] }],
+            transaction
+        });
+
+        if (!orden) {
+            const respuesta = ResponseFactory.createNotFoundResponse('Orden de compra no encontrada');
+            return res.status(respuesta.status).json(respuesta.body);
+        }
+
+        // Actualizar el estado de la orden a "Recibida"
+        await orden.update({ estado: 'Recibida' }, { transaction });
+
+        // Actualizar el inventario de materias primas
+        for (let detalle of orden.DetalleOrdens) {
+            const stock = await Stock.findOne({ where: { articulo_id: detalle.articulo_id }, transaction });
+            if (stock) {
+                stock.cantidad_disponible += detalle.cantidad;
+                await stock.save({ transaction });
+            } else {
+                await Stock.create({
+                    articulo_id: detalle.articulo_id,
+                    cantidad_disponible: detalle.cantidad,
+                    cantidad_reservada: 0
+                }, { transaction });
+            }
+        }
+
+        await transaction.commit();
+        const respuesta = ResponseFactory.createSuccessResponse(orden, 'Orden de compra recibida y stock actualizado exitosamente');
+        res.status(respuesta.status).json(respuesta.body);
+    } catch (error) {
+        await transaction.rollback();
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al confirmar la recepción de la orden de compra');
         res.status(respuesta.status).json(respuesta.body);
     }
 };

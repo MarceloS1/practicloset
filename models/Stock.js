@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../sequelize');
 const Modelo = require('./Modelo');
+const Articulo = require('./articulo');
 
 const Stock = sequelize.define('Stock', {
   stock_id: {
@@ -14,8 +15,16 @@ const Stock = sequelize.define('Stock', {
       model: Modelo,
       key: 'modelo_id',
     },
-    allowNull: false,
+    allowNull: true,
     onDelete: 'CASCADE',
+  },
+  articulo_id: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Articulo,
+      key: 'articulo_id',
+    },
+    allowNull: true,
   },
   cantidad_disponible: {
     type: DataTypes.INTEGER,

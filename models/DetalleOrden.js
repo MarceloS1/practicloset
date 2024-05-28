@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../sequelize');
-const Articulo = require('../models/articulo'); 
+const Articulo = require('./articulo'); 
+const OrdenCompra = require('./OrdenCompra')
 
 const DetalleOrden = sequelize.define('DetalleOrden', {
   detalle_id: {
@@ -11,7 +12,7 @@ const DetalleOrden = sequelize.define('DetalleOrden', {
   orden_id: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'ordenes_compra',
+      model: OrdenCompra,
       key: 'orden_id',
     },
   },

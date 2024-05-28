@@ -1,6 +1,7 @@
 const Articulo = require('../models/articulo');
 const Proveedor = require('../models/Proveedor');
 const ResponseFactory = require('../helpers/ResponseFactory');
+const Stock = require('../models/Stock');
 
 // Obtener todos los artículos
 exports.obtenerArticulos = async (req, res, next) => {
@@ -75,5 +76,34 @@ exports.obtenerArticulosConProveedores = async (req, res, next) => {
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
         next(error);
+    }
+};
+
+exports.obtenerArticulosConStock = async (req, res) => {
+    try {
+        const articulos = await Articulo.findAll({
+            include: [{
+                model: Stock,
+                attributes: ['cantidad_disponible', 'cantidad_reservada'],
+                required: false // Esto permite que se incluyan artículos sin stock registrado
+            }]
+        });
+
+        // Establecer stock en 0 para los artículos que no tienen stock registrado
+        const articulosConStock = articulos.map(articulo => {
+            if (!articulo.Stock) {
+                articulo.dataValues.Stock = {
+                    cantidad_disponible: 0,
+                    cantidad_reservada: 0
+                };
+            }
+            return articulo;
+        });
+
+        const respuesta = ResponseFactory.createSuccessResponse(articulosConStock, 'Artículos y stock obtenidos exitosamente');
+        res.status(respuesta.status).json(respuesta.body);
+    } catch (error) {
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al obtener artículos y stock');
+        res.status(respuesta.status).json(respuesta.body);
     }
 };

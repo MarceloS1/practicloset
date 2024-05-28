@@ -7,5 +7,6 @@ router.post('/', articulosController.crearArticulo);
 router.put('/:articulo_id', articulosController.actualizarArticulo);
 router.delete('/:articulo_id', articulosController.eliminarArticulo);
 router.get('/con-proveedores', articulosController.obtenerArticulosConProveedores);
+router.get('/con-stock', articulosController.obtenerArticulosConStock);
 
 module.exports = router;

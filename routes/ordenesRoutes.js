@@ -8,5 +8,6 @@ router.post('/', ordenesController.crearOrden);
 router.put('/:ordenId', ordenesController.actualizarOrden);
 router.delete('/:ordenId', ordenesController.eliminarOrden);
 router.get('/:ordenId/detalleConPrecio', ordenesController.obtenerDetalleOrdenConPrecio);
+router.post('/:ordenId/confirmarRecepcion', ordenesController.confirmarRecepcionOrden);
 
 module.exports = router;
