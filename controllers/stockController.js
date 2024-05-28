@@ -4,11 +4,16 @@ const ResponseFactory = require('../helpers/ResponseFactory');
 
 // Actualizar stock
 exports.actualizarStock = async (req, res) => {
-    const { producto_id } = req.params;
+    const { modelo_id, articulo_id } = req.params;
     const { cantidad_disponible, cantidad_reservada } = req.body;
 
     try {
-        const stock = await Stock.findOne({ where: { producto_id } });
+        let stock;
+        if (modelo_id) {
+            stock = await Stock.findOne({ where: { modelo_id } });
+        } else if (articulo_id) {
+            stock = await Stock.findOne({ where: { articulo_id } });
+        }
 
         if (!stock) {
             const respuesta = ResponseFactory.createNotFoundResponse('Stock no encontrado');
