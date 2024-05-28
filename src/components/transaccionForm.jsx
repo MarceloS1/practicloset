@@ -22,13 +22,13 @@ const TransaccionForm = ({ modelos, onTransaccionRealizada }) => {
         try {
             const respuesta = await axios.post(`${baseUrl}/transaccion`, transaccionData);
 
-            if (respuesta.status === 201) {
+            if (respuesta.status === 201 || respuesta.status === 200) {
                 console.log('Transacción y actualización de stock realizadas con éxito');
-                onTransaccionRealizada();
                 setModeloId('');
                 setTipoTransaccion('entrada');
                 setCantidad(0);
                 setNota('');
+                onTransaccionRealizada(); // Asegurarse de que esta función se llama después de una transacción exitosa
             } else {
                 console.error('Error en la respuesta del servidor:', respuesta);
             }
