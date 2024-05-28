@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TransaccionForm from './transaccionForm';
+import FormularioModelo from './modelos';  // Import the FormularioModelo component
 
 const baseUrl = 'http://25.41.163.224:5000';
 
@@ -199,7 +200,7 @@ const GestionStock = () => {
                             <td>{modelo.alto}</td>
                             <td>{modelo.ancho}</td>
                             <td>{modelo.precio}</td>
-                            <td>{modelo.imagen_url}</td>
+                            <td><img src={modelo.imagen_url} alt={modelo.nombre} style={{ width: '100px', height: '100px' }} /></td>
                             <td>{modelo.Stock ? modelo.Stock.cantidad_disponible : 0}</td>
                             <td>{modelo.Stock ? modelo.Stock.cantidad_reservada : 0}</td>
                             <td>
@@ -216,7 +217,7 @@ const GestionStock = () => {
                     ))}
                 </tbody>
             </table>
-            
+
             <TransaccionForm
                 modelos={modelos}
                 onTransaccionRealizada={() => {
@@ -224,6 +225,8 @@ const GestionStock = () => {
                     cargarModelos();
                 }}
             />
+
+            
         </div>
     );
 };

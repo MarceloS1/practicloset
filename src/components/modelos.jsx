@@ -5,7 +5,7 @@ import { faTrash, faCog } from '@fortawesome/free-solid-svg-icons';
 
 const baseUrl = 'http://25.41.163.224:5000';
 
-const FormularioModelo = ({ onSubmit, onReset }) => {
+const FormularioModelo = ({ onReset }) => {
   const [nombre, setNombre] = useState('');
   const [categoriaId, setCategoriaId] = useState('');
   const [descripcion, setDescripcion] = useState('');
@@ -53,8 +53,8 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
       setAncho(modeloActual.ancho);
       setPrecio(modeloActual.precio);
       setImagenUrl(modeloActual.imagen_url);
-      setCantidadDisponible(modeloActual.Stock.cantidad_disponible);
-      setCantidadReservada(modeloActual.Stock.cantidad_reservada);
+      setCantidadDisponible(modeloActual.Stock ? modeloActual.Stock.cantidad_disponible : 0);
+      setCantidadReservada(modeloActual.Stock ? modeloActual.Stock.cantidad_reservada : 0);
     }
   }, [modeloActual]);
 
@@ -101,7 +101,8 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
         response = await axios.post(`${baseUrl}/modelos`, modeloData);
         setListaModelos([...listaModelos, response.data.data]);
       }
-      setModeloActual(null);
+      // Aquí actualizamos el estado del modeloActual con la respuesta del servidor
+      setModeloActual(response.data.data);
       handleReset();
     } catch (error) {
       console.error('Error al procesar la solicitud', error);
@@ -119,7 +120,9 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
     setImagenUrl('');
     setCantidadDisponible('');
     setCantidadReservada('');
-    onReset();
+    if (onReset) {
+      onReset();
+    }
   };
 
   return (
@@ -190,14 +193,14 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
           required
         />
         <input
-          type="text"
+          type="number"
           value={cantidadDisponible}
           onChange={(e) => setCantidadDisponible(e.target.value)}
           placeholder="Cantidad Disponible"
           required
         />
         <input
-          type="text"
+          type="number"
           value={cantidadReservada}
           onChange={(e) => setCantidadReservada(e.target.value)}
           placeholder="Cantidad Reservada"
@@ -235,8 +238,8 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
                 <td>{modelo.ancho}</td>
                 <td>{modelo.precio}</td>
                 <td><img src={modelo.imagen_url} alt={modelo.nombre} style={{ width: '100px', height: '100px' }} /></td>
-                <td>{modelo.Stock?.cantidad_disponible}</td>
-                <td>{modelo.Stock?.cantidad_reservada}</td>
+                <td>{modelo.Stock ? modelo.Stock.cantidad_disponible : 0}</td>
+                <td>{modelo.Stock ? modelo.Stock.cantidad_reservada : 0}</td>
                 <td>
                   <button
                     className="action-button modify-button"
