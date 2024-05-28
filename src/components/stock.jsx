@@ -12,7 +12,6 @@ const GestionStock = () => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [cantidadDisponible, setCantidadDisponible] = useState(0);
-    const [cantidadReservada, setCantidadReservada] = useState(0);
 
     useEffect(() => {
         cargarArticulos();
@@ -61,19 +60,19 @@ const GestionStock = () => {
         setSelectedItem(null);
         setIsEditing(false);
         setCantidadDisponible(0);
-        setCantidadReservada(0);
     };
 
     const editarCantidad = async (e) => {
         e.preventDefault();
         const { id, tipo } = selectedItem;
-        const datos = { cantidad_disponible: cantidadDisponible, cantidad_reservada: cantidadReservada };
+        const datos = { cantidad_disponible: cantidadDisponible };
 
         try {
             let respuesta;
             if (tipo === 'articulo') {
                 respuesta = await axios.put(`${baseUrl}/stock/articulo/${id}`, datos);
             } else if (tipo === 'modelo') {
+                datos.cantidad_reservada = selectedItem.cantidadReservada;
                 respuesta = await axios.put(`${baseUrl}/stock/modelo/${id}`, datos);
             }
 
@@ -86,6 +85,24 @@ const GestionStock = () => {
             }
         } catch (error) {
             console.error('Error al editar las cantidades:', error);
+        }
+    };
+
+    const eliminarArticulo = async (articuloId) => {
+        try {
+            await axios.delete(`${baseUrl}/articulos/${articuloId}`);
+            cargarArticulos();
+        } catch (error) {
+            console.error('Error al eliminar el artículo:', error);
+        }
+    };
+
+    const eliminarModelo = async (modeloId) => {
+        try {
+            await axios.delete(`${baseUrl}/modelos/${modeloId}`);
+            cargarModelos();
+        } catch (error) {
+            console.error('Error al eliminar el modelo:', error);
         }
     };
 
@@ -104,15 +121,17 @@ const GestionStock = () => {
                             required
                         />
                     </div>
-                    <div>
-                        <label>Cantidad Reservada:</label>
-                        <input
-                            type="number"
-                            value={cantidadReservada}
-                            onChange={(e) => setCantidadReservada(Number(e.target.value))}
-                            required
-                        />
-                    </div>
+                    {selectedItem?.tipo === 'modelo' && (
+                        <div>
+                            <label>Cantidad Reservada:</label>
+                            <input
+                                type="number"
+                                value={selectedItem.cantidadReservada}
+                                onChange={(e) => setSelectedItem({ ...selectedItem, cantidadReservada: Number(e.target.value) })}
+                                required
+                            />
+                        </div>
+                    )}
                     <button type="submit">Guardar Cambios</button>
                     <button type="button" onClick={resetFormulario}>Cancelar</button>
                 </form>
@@ -145,10 +164,10 @@ const GestionStock = () => {
                                     onClick={() => {
                                         setSelectedItem({ id: articulo.articulo_id, tipo: 'articulo' });
                                         setCantidadDisponible(articulo.Stock ? articulo.Stock.cantidad_disponible : 0);
-                                        setCantidadReservada(articulo.Stock ? articulo.Stock.cantidad_reservada : 0);
                                         setIsEditing(true);
                                     }}
                                 >Editar</button>
+                                <button onClick={() => eliminarArticulo(articulo.articulo_id)}>Eliminar</button>
                             </td>
                         </tr>
                     ))}
@@ -186,12 +205,12 @@ const GestionStock = () => {
                             <td>
                                 <button
                                     onClick={() => {
-                                        setSelectedItem({ id: modelo.modelo_id, tipo: 'modelo' });
+                                        setSelectedItem({ id: modelo.modelo_id, tipo: 'modelo', cantidadReservada: modelo.Stock ? modelo.Stock.cantidad_reservada : 0 });
                                         setCantidadDisponible(modelo.Stock ? modelo.Stock.cantidad_disponible : 0);
-                                        setCantidadReservada(modelo.Stock ? modelo.Stock.cantidad_reservada : 0);
                                         setIsEditing(true);
                                     }}
                                 >Editar</button>
+                                <button onClick={() => eliminarModelo(modelo.modelo_id)}>Eliminar</button>
                             </td>
                         </tr>
                     ))}

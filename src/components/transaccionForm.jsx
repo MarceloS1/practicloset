@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const baseUrl = 'http://25.41.163.224:5000';
 
-const TransaccionForm = ({ modelos = [], onTransaccionRealizada }) => {
+const TransaccionForm = ({ modelos, onTransaccionRealizada }) => {
     const [modeloId, setModeloId] = useState('');
     const [tipoTransaccion, setTipoTransaccion] = useState('entrada');
     const [cantidad, setCantidad] = useState(0);
