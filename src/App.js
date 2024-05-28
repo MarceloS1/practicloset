@@ -13,6 +13,7 @@ import './App.css';
 import FormularioModelo from './components/modelos';
 import OrdenesCompra from './components/ordenesdecompra';
 import GestionPedidosYPagos from './components/gestionPagos';
+import Pedidos from './components/pedidos';
 
 
 const App = () => {
@@ -29,7 +30,7 @@ const App = () => {
           <Route path="/Clientes" element={<GestionClientes/>} />
           <Route path="/Stock" element={<GestionStock/>} />
           <Route path="/Modelos" element={<FormularioModelo/>} />
-          <Route path="/Pedidos" element={<GestionPedidosYPagos/>} />
+          <Route path="/Pedidos" element={<Pedidos/>} />
 
           {/* ... otras rutas */}
         </Routes>

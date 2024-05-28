@@ -23,13 +23,21 @@ const Pagos = () => {
 
     const handlePago = async (pedidoId) => {
         try {
-            const fecha_pago = new Date().toISOString().split('T')[0]; // Fecha actual
-            await axios.post(`${baseUrl}/pagos`, {
+            const fechaPago = new Date().toISOString(); // Obtén la fecha actual en formato ISO
+    
+            const respuesta = await axios.post(`${baseUrl}/pagos`, {
                 pedido_id: pedidoId,
-                fecha_pago,
-                metodo_pago: metodoPago
+                metodo_pago: metodoPago,
+                fecha_pago: fechaPago
             });
-            cargarPedidos();
+    
+            if (respuesta.status === 200) {
+                cargarPedidos();
+                setMetodoPago(''); // Resetear el método de pago después del pago
+                alert('Pago realizado con éxito');
+            } else {
+                console.error('Error en la respuesta del servidor:', respuesta);
+            }
         } catch (error) {
             console.error('Error al realizar el pago:', error);
         }

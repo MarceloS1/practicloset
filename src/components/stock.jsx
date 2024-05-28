@@ -5,26 +5,26 @@ import TransaccionForm from './transaccionForm';
 const baseUrl = 'http://25.41.163.224:5000';
 
 const GestionStock = () => {
-    const [productos, setProductos] = useState([]);
+    const [modelos, setModelos] = useState([]);
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
     const [categoriaId, setCategoriaId] = useState('');
     const [cantidadDisponible, setCantidadDisponible] = useState('');
     const [cantidadReservada, setCantidadReservada] = useState('');
-    const [productoId, setProductoId] = useState(null);
+    const [modeloId, setModeloId] = useState(null);
     const [categorias, setCategorias] = useState([]);
 
     useEffect(() => {
-        cargarProductos();
+        cargarModelos();
         cargarCategorias();
     }, []);
 
-    const cargarProductos = async () => {
+    const cargarModelos = async () => {
         try {
-            const respuesta = await axios.get(`${baseUrl}/productos`);
-            setProductos(respuesta.data.data);
+            const respuesta = await axios.get(`${baseUrl}/modelos`);
+            setModelos(respuesta.data.data);
         } catch (error) {
-            console.error('Error al obtener los productos:', error);
+            console.error('Error al obtener los modelos:', error);
         }
     };
 
@@ -43,12 +43,12 @@ const GestionStock = () => {
         setCategoriaId('');
         setCantidadDisponible('');
         setCantidadReservada('');
-        setProductoId(null);
+        setModeloId(null);
     };
 
-    const agregarProducto = async (e) => {
+    const agregarModelo = async (e) => {
         e.preventDefault();
-        const datosProducto = {
+        const datosModelo = {
             nombre,
             descripcion,
             categoria_id: categoriaId,
@@ -56,18 +56,18 @@ const GestionStock = () => {
             cantidad_reservada: cantidadReservada,
         };
         try {
-            const respuesta = await axios.post(`${baseUrl}/productos`, datosProducto);
-            setProductos([...productos, respuesta.data.data]);
+            const respuesta = await axios.post(`${baseUrl}/modelos`, datosModelo);
+            setModelos([...modelos, respuesta.data.data]);
             resetFormulario();
         } catch (error) {
-            console.error('Error al agregar el producto:', error);
+            console.error('Error al agregar el modelo:', error);
         }
     };
 
-    const editarProducto = async (e) => {
+    const editarModelo = async (e) => {
         e.preventDefault();
 
-        const datosProducto = {
+        const datosModelo = {
             nombre,
             descripcion,
             categoria_id: categoriaId,
@@ -76,20 +76,20 @@ const GestionStock = () => {
         };
 
         try {
-            const respuesta = await axios.put(`${baseUrl}/productos/${productoId}`, datosProducto);
+            const respuesta = await axios.put(`${baseUrl}/modelos/${modeloId}`, datosModelo);
 
             if (respuesta.status === 200) {
-                const productoEditado = respuesta.data.data;
-                setProductos(productos.map((producto) =>
-                    producto.producto_id === productoId ? productoEditado : producto
+                const modeloEditado = respuesta.data.data;
+                setModelos(modelos.map((modelo) =>
+                    modelo.modelo_id === modeloId ? modeloEditado : modelo
                 ));
                 resetFormulario();
-                cargarProductos();
+                cargarModelos();
             } else {
                 console.error('Error en la respuesta del servidor:', respuesta);
             }
         } catch (error) {
-            console.error('Error al editar el producto:', error);
+            console.error('Error al editar el modelo:', error);
         }
     };
 
@@ -100,35 +100,35 @@ const GestionStock = () => {
         };
 
         try {
-            const respuesta = await axios.put(`${baseUrl}/stock/${productoId}`, datosStock);
+            const respuesta = await axios.put(`${baseUrl}/stock/modelo/${modeloId}`, datosStock);
 
             if (respuesta.status === 200) {
                 const stockEditado = respuesta.data.data;
-                setProductos(productos.map((producto) => {
-                    if (producto.producto_id === productoId) {
+                setModelos(modelos.map((modelo) => {
+                    if (modelo.modelo_id === modeloId) {
                         return {
-                            ...producto,
+                            ...modelo,
                             cantidad_disponible: stockEditado.cantidad_disponible,
                             cantidad_reservada: stockEditado.cantidad_reservada,
                         };
                     }
-                    return producto;
+                    return modelo;
                 }));
                 resetFormulario();
             } else {
                 console.error('Error en la respuesta del servidor:', respuesta);
             }
         } catch (error) {
-            console.error('Error al editar el stock del producto:', error);
+            console.error('Error al editar el stock del modelo:', error);
         }
     };
 
-    const eliminarProducto = async (productoId) => {
+    const eliminarModelo = async (modeloId) => {
         try {
-            await axios.delete(`${baseUrl}/productos/${productoId}`);
-            cargarProductos();
+            await axios.delete(`${baseUrl}/stock/modelo/${modeloId}`);
+            cargarModelos();
         } catch (error) {
-            console.error('Error al eliminar el producto:', error);
+            console.error('Error al eliminar el modelo:', error);
         }
     };
 
@@ -138,11 +138,11 @@ const GestionStock = () => {
 
             <form onSubmit={(e) => {
                 e.preventDefault();
-                if (productoId) {
-                    editarProducto(e);
+                if (modeloId) {
+                    editarModelo(e);
                     editarCantidades();
                 } else {
-                    agregarProducto(e);
+                    agregarModelo(e);
                 }
             }}>
                 <div>
@@ -171,11 +171,13 @@ const GestionStock = () => {
                         required
                     >
                         <option value="">Selecciona una categoría</option>
-                        {categorias.map((categoria) => (
-                            <option key={categoria.categoria_id} value={categoria.categoria_id}>
-                                {categoria.nombre}
-                            </option>
-                        ))}
+                        {categorias
+                            .filter(categoria => categoria.nombre === 'Muebles' || categoria.nombre === 'Rejillas')
+                            .map((categoria) => (
+                                <option key={categoria.categoria_id} value={categoria.categoria_id}>
+                                    {categoria.nombre}
+                                </option>
+                            ))}
                     </select>
                 </div>
                 <div>
@@ -196,52 +198,55 @@ const GestionStock = () => {
                         required
                     />
                 </div>
-                <button type="submit">{productoId ? 'Guardar Cambios' : 'Agregar Producto'}</button>
-                {productoId && (
+                <button type="submit">{modeloId ? 'Guardar Cambios' : 'Agregar Modelo'}</button>
+                {modeloId && (
                     <button type="button" onClick={resetFormulario}>
                         Cancelar
                     </button>
                 )}
             </form>
 
-            <h3>Lista de Productos</h3>
+            <h3>Lista de Modelos</h3>
             <table>
                 <thead>
                     <tr>
                         <th>Nombre</th>
                         <th>Descripción</th>
+                        <th>Material</th>
                         <th>Cantidad Disponible</th>
                         <th>Cantidad Reservada</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {productos.map((producto) => (
-                        <tr key={producto.producto_id}>
-                            <td>{producto.nombre}</td>
-                            <td>{producto.descripcion}</td>
-                            <td>{producto.cantidad_disponible}</td>
-                            <td>{producto.cantidad_reservada}</td>
+                    {modelos.map((modelo) => (
+                        <tr key={modelo.modelo_id}>
+                            <td>{modelo.nombre}</td>
+                            <td>{modelo.descripcion}</td>
+                            <td>{modelo.material}</td>
+                            <td>{modelo.Stock.cantidad_disponible}</td>
+                            <td>{modelo.Stock.cantidad_reservada}</td>
                             <td>
                                 <button
                                     onClick={() => {
-                                        setNombre(producto.nombre);
-                                        setDescripcion(producto.descripcion);
-                                        setCategoriaId(producto.categoria_id);
-                                        setCantidadDisponible(producto.cantidad_disponible);
-                                        setCantidadReservada(producto.cantidad_reservada);
-                                        setProductoId(producto.producto_id);
+                                        setNombre(modelo.nombre);
+                                        setDescripcion(modelo.descripcion);
+                                        setCategoriaId(modelo.categoria_id);
+                                        setCantidadDisponible(modelo.Stock.cantidad_disponible);
+                                        setCantidadReservada(modelo.Stock.cantidad_reservada);
+                                        setModeloId(modelo.modelo_id);
                                     }}
                                 >Editar</button>
-                                <button onClick={() => eliminarProducto(producto.producto_id)}>Eliminar</button>
+                                <button onClick={() => eliminarModelo(modelo.modelo_id)}>Eliminar</button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
             <TransaccionForm
-                productos={productos}
-                onTransaccionRealizada={cargarProductos}
+                modelos={modelos}
+                onTransaccionRealizada={cargarModelos}
             />
         </div>
     );

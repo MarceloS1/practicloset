@@ -7,17 +7,22 @@ const baseUrl = 'http://25.41.163.224:5000';
 
 const FormularioModelo = ({ onSubmit, onReset }) => {
   const [nombre, setNombre] = useState('');
-  const [tipo, setTipo] = useState('');
+  const [categoriaId, setCategoriaId] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [material, setMaterial] = useState('');
-  const [medida, setMedida] = useState('');
+  const [alto, setAlto] = useState('');
+  const [ancho, setAncho] = useState('');
   const [precio, setPrecio] = useState('');
   const [imagenUrl, setImagenUrl] = useState('');
+  const [cantidadDisponible, setCantidadDisponible] = useState('');
+  const [cantidadReservada, setCantidadReservada] = useState('');
   const [modeloActual, setModeloActual] = useState(null);
   const [listaModelos, setListaModelos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
     cargarModelos();
+    cargarCategorias();
   }, []);
 
   const cargarModelos = async () => {
@@ -29,15 +34,27 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
     }
   };
 
+  const cargarCategorias = async () => {
+    try {
+      const respuesta = await axios.get(`${baseUrl}/categorias`);
+      setCategorias(respuesta.data.data);
+    } catch (error) {
+      console.error('Error al obtener las categorías: ', error);
+    }
+  };
+
   useEffect(() => {
     if (modeloActual) {
       setNombre(modeloActual.nombre);
-      setTipo(modeloActual.tipo);
+      setCategoriaId(modeloActual.categoria_id);
       setDescripcion(modeloActual.descripcion);
       setMaterial(modeloActual.material);
-      setMedida(modeloActual.alto + ' x ' + modeloActual.ancho);
+      setAlto(modeloActual.alto);
+      setAncho(modeloActual.ancho);
       setPrecio(modeloActual.precio);
       setImagenUrl(modeloActual.imagen_url);
+      setCantidadDisponible(modeloActual.Stock.cantidad_disponible);
+      setCantidadReservada(modeloActual.Stock.cantidad_reservada);
     }
   }, [modeloActual]);
 
@@ -57,12 +74,15 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
     const modeloSeleccionado = listaModelos.find((modelo) => modelo.modelo_id === modeloId);
     if (modeloSeleccionado) {
       setNombre(modeloSeleccionado.nombre);
-      setTipo(modeloSeleccionado.tipo);
+      setCategoriaId(modeloSeleccionado.categoria_id);
       setDescripcion(modeloSeleccionado.descripcion);
       setMaterial(modeloSeleccionado.material);
-      setMedida(modeloSeleccionado.alto + ' x ' + modeloSeleccionado.ancho);
+      setAlto(modeloSeleccionado.alto);
+      setAncho(modeloSeleccionado.ancho);
       setPrecio(modeloSeleccionado.precio);
       setImagenUrl(modeloSeleccionado.imagen_url);
+      setCantidadDisponible(modeloSeleccionado.Stock.cantidad_disponible);
+      setCantidadReservada(modeloSeleccionado.Stock.cantidad_reservada);
       setModeloActual(modeloSeleccionado);
     }
   };
@@ -71,13 +91,15 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
     event.preventDefault();
     const modeloData = {
       nombre,
-      tipo,
+      categoria_id: categoriaId,
       descripcion,
       material,
-      alto: medida.split(' x ')[0],
-      ancho: medida.split(' x ')[1],
+      alto,
+      ancho,
       precio,
       imagen_url: imagenUrl,
+      cantidad_disponible: cantidadDisponible,
+      cantidad_reservada: cantidadReservada
     };
   
     try {
@@ -104,12 +126,15 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
 
   const handleReset = () => {
     setNombre('');
-    setTipo('');
+    setCategoriaId('');
     setDescripcion('');
     setMaterial('');
-    setMedida('');
+    setAlto('');
+    setAncho('');
     setPrecio('');
     setImagenUrl('');
+    setCantidadDisponible('');
+    setCantidadReservada('');
     onReset();
   };
 
@@ -125,13 +150,18 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
           required
         />
         <select
-          value={tipo}
-          onChange={(e) => setTipo(e.target.value)}
+          value={categoriaId}
+          onChange={(e) => setCategoriaId(e.target.value)}
           required
-        >
-          <option value="">Selecciona un tipo</option>
-          <option value="Mueble">Mueble</option>
-          <option value="Rejilla">Rejilla</option>
+          >
+          <option value="">Selecciona una categoría</option>
+          {categorias
+            .filter(categoria => categoria.categoria_id === 1 || categoria.categoria_id === 3)
+            .map((categoria) => (
+              <option key={categoria.categoria_id} value={categoria.categoria_id}>
+                {categoria.nombre}
+              </option>
+            ))}
         </select>
         <input
           type="text"
@@ -149,9 +179,16 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
         />
         <input
           type="text"
-          value={medida}
-          onChange={(e) => setMedida(e.target.value)}
-          placeholder="Medida (Alto x Ancho)"
+          value={alto}
+          onChange={(e) => setAlto(e.target.value)}
+          placeholder="Alto"
+          required
+        />
+        <input
+          type="text"
+          value={ancho}
+          onChange={(e) => setAncho(e.target.value)}
+          placeholder="Ancho"
           required
         />
         <input
@@ -168,6 +205,20 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
           placeholder="URL de la imagen"
           required
         />
+        <input
+          type="text"
+          value={cantidadDisponible}
+          onChange={(e) => setCantidadDisponible(e.target.value)}
+          placeholder="Cantidad Disponible"
+          required
+        />
+        <input
+          type="text"
+          value={cantidadReservada}
+          onChange={(e) => setCantidadReservada(e.target.value)}
+          placeholder="Cantidad Reservada"
+          required
+        />
         <button type="submit">Guardar</button>
         <button type="button" onClick={handleReset}>Cancelar</button>
       </form>
@@ -177,12 +228,15 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
           <thead>
             <tr>
               <th>Nombre</th>
-              <th>Tipo</th>
+              <th>Categoría</th>
               <th>Descripción</th>
               <th>Material</th>
-              <th>Medida</th>
+              <th>Alto</th>
+              <th>Ancho</th>
               <th>Precio</th>
               <th>Imagen</th>
+              <th>Cantidad Disponible</th>
+              <th>Cantidad Reservada</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -190,12 +244,15 @@ const FormularioModelo = ({ onSubmit, onReset }) => {
             {listaModelos.map((modelo) => (
               <tr key={modelo.modelo_id}>
                 <td>{modelo.nombre}</td>
-                <td>{modelo.tipo}</td>
+                <td>{categorias.find(c => c.categoria_id === modelo.categoria_id)?.nombre}</td>
                 <td>{modelo.descripcion}</td>
                 <td>{modelo.material}</td>
-                <td>{modelo.alto} x {modelo.ancho}</td>
+                <td>{modelo.alto}</td>
+                <td>{modelo.ancho}</td>
                 <td>{modelo.precio}</td>
                 <td><img src={modelo.imagen_url} alt={modelo.nombre} style={{ width: '100px', height: '100px' }} /></td>
+                <td>{modelo.Stock.cantidad_disponible}</td>
+                <td>{modelo.Stock.cantidad_reservada}</td>
                 <td>
                   <button
                     className="action-button modify-button"

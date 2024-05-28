@@ -13,6 +13,7 @@ const Pedidos = () => {
         estado_pago: 'pendiente',
         modelos: []
     });
+    const [metodosPago, setMetodosPago] = useState({});
 
     useEffect(() => {
         cargarPedidos();
@@ -92,6 +93,36 @@ const Pedidos = () => {
         });
     };
 
+    const handlePago = async (pedidoId) => {
+        try {
+            const metodoPago = metodosPago[pedidoId];
+            if (!metodoPago) {
+                alert('Por favor seleccione un método de pago.');
+                return;
+            }
+
+            const respuesta = await axios.post(`${baseUrl}/pagos`, {
+                pedido_id: pedidoId,
+                metodo_pago: metodoPago,
+                fecha_pago: new Date().toISOString()
+            });
+
+            if (respuesta.status === 200) {
+                cargarPedidos();
+                setMetodosPago({ ...metodosPago, [pedidoId]: '' });
+                alert('Pago realizado con éxito');
+            } else {
+                console.error('Error en la respuesta del servidor:', respuesta);
+            }
+        } catch (error) {
+            console.error('Error al realizar el pago:', error);
+        }
+    };
+
+    const handleMetodoPagoChange = (pedidoId, value) => {
+        setMetodosPago({ ...metodosPago, [pedidoId]: value });
+    };
+
     return (
         <div className="form-container" style={{ marginLeft: '20%' }}>
             <h2>Gestión de Pedidos</h2>
@@ -162,6 +193,7 @@ const Pedidos = () => {
                         <th>Fecha de Entrega</th>
                         <th>Estado de Pago</th>
                         <th>Modelos</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -171,11 +203,27 @@ const Pedidos = () => {
                             <td>{pedido.fecha_entrega.split('T')[0]}</td>
                             <td>{pedido.estado_pago}</td>
                             <td>
-                                {pedido.detalles.map((detalle, index) => (
+                                {pedido.DetallePedidos.map((detalle, index) => (
                                     <div key={index}>
-                                        {detalle.nombre_modelo} - {detalle.cantidad}
+                                        {detalle.Modelo.nombre} - {detalle.cantidad}
                                     </div>
                                 ))}
+                            </td>
+                            <td>
+                                {pedido.estado_pago === 'pendiente' && (
+                                    <div>
+                                        <select
+                                            onChange={(e) => handleMetodoPagoChange(pedido.pedido_id, e.target.value)}
+                                            value={metodosPago[pedido.pedido_id] || ''}
+                                        >
+                                            <option value="">Seleccione método de pago</option>
+                                            <option value="qr">QR</option>
+                                            <option value="tarjeta">Tarjeta</option>
+                                            <option value="efectivo">Efectivo</option>
+                                        </select>
+                                        <button onClick={() => handlePago(pedido.pedido_id)}>Pagar</button>
+                                    </div>
+                                )}
                             </td>
                         </tr>
                     ))}

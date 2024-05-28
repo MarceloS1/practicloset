@@ -3,9 +3,9 @@ import axios from 'axios';
 
 const baseUrl = 'http://25.41.163.224:5000';
 
-const TransaccionForm = ({ productos, onTransaccionRealizada }) => {
-    const [productoId, setProductoId] = useState('');
-    const [tipoTransaccion, setTipoTransaccion] = useState('entrada'); // Puede ser 'entrada' o 'salida'
+const TransaccionForm = ({ modelos, onTransaccionRealizada }) => {
+    const [modeloId, setModeloId] = useState('');
+    const [tipoTransaccion, setTipoTransaccion] = useState('entrada');
     const [cantidad, setCantidad] = useState(0);
     const [nota, setNota] = useState('');
 
@@ -13,7 +13,7 @@ const TransaccionForm = ({ productos, onTransaccionRealizada }) => {
         e.preventDefault();
 
         const transaccionData = {
-            producto_id: productoId,
+            modelo_id: modeloId,
             tipo_transaccion: tipoTransaccion,
             cantidad,
             nota,
@@ -25,7 +25,7 @@ const TransaccionForm = ({ productos, onTransaccionRealizada }) => {
             if (respuesta.status === 201) {
                 console.log('Transacción y actualización de stock realizadas con éxito');
                 onTransaccionRealizada();
-                setProductoId('');
+                setModeloId('');
                 setTipoTransaccion('entrada');
                 setCantidad(0);
                 setNota('');
@@ -41,16 +41,16 @@ const TransaccionForm = ({ productos, onTransaccionRealizada }) => {
         <form onSubmit={handleSubmit}>
             <h4>Transacción</h4>
             <div>
-                <label>Producto:</label>
+                <label>Modelo:</label>
                 <select
-                    value={productoId}
-                    onChange={(e) => setProductoId(Number(e.target.value))}
+                    value={modeloId}
+                    onChange={(e) => setModeloId(Number(e.target.value))}
                     required
                 >
-                    <option value="">Selecciona un producto</option>
-                    {productos.map((producto) => (
-                        <option key={producto.producto_id} value={producto.producto_id}>
-                            {producto.nombre}
+                    <option value="">Seleccione un modelo</option>
+                    {modelos.map((modelo) => (
+                        <option key={modelo.modelo_id} value={modelo.modelo_id}>
+                            {modelo.nombre}
                         </option>
                     ))}
                 </select>

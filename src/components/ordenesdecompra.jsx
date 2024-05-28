@@ -11,7 +11,7 @@ const OrdenesCompra = () => {
   const [formulario, setFormulario] = useState({
     proveedor_id: '',
     fecha: '',
-    estado: 'en_proceso',
+    estado: 'En proceso',
     detalles: []
   });
   const [ordenActual, setOrdenActual] = useState(null);
@@ -113,7 +113,7 @@ const OrdenesCompra = () => {
       proveedor_id: orden.proveedor_id,
       fecha: orden.fecha.split('T')[0],
       estado: orden.estado,
-      detalles: orden.detalles.map(detalle => ({
+      detalles: orden.DetalleOrdens.map(detalle => ({
         articulo_id: detalle.articulo_id,
         cantidad: detalle.cantidad
       }))
@@ -121,11 +121,20 @@ const OrdenesCompra = () => {
     filtrarArticulosPorProveedor(orden.proveedor_id);
   };
 
+  const confirmarRecepcion = async (ordenId) => {
+    try {
+      await axios.post(`${baseUrl}/ordenes/${ordenId}/confirmarRecepcion`);
+      cargarOrdenes();
+    } catch (error) {
+      console.error('Error al confirmar la recepción de la orden:', error);
+    }
+  };
+
   const resetFormulario = () => {
     setFormulario({
       proveedor_id: '',
       fecha: '',
-      estado: 'en_proceso',
+      estado: 'En proceso',
       detalles: []
     });
     setOrdenActual(null);
@@ -170,8 +179,9 @@ const OrdenesCompra = () => {
             onChange={handleChange}
             required
           >
-            <option value="en_proceso">En Proceso</option>
-            <option value="completado">Completado</option>
+            <option value="En proceso">En Proceso</option>
+            <option value="Completado">Completado</option>
+            <option value="Recibida">Recibida</option>
           </select>
         </div>
         <h4>Detalles</h4>
@@ -202,7 +212,7 @@ const OrdenesCompra = () => {
             <button type="button" onClick={() => eliminarDetalle(index)}>Eliminar</button>
           </div>
         ))}
-        <button type="button" onClick={agregarDetalle}>Agregar Articulo</button>
+        <button type="button" onClick={agregarDetalle}>Agregar Artículo</button>
         <button type="submit">{ordenActual ? 'Guardar Cambios' : 'Crear Orden'}</button>
         {ordenActual && <button type="button" onClick={resetFormulario}>Cancelar</button>}
       </form>
@@ -222,17 +232,20 @@ const OrdenesCompra = () => {
             <tr key={orden.orden_id}>
               <td>{proveedores.find(p => p.proveedor_id === orden.proveedor_id)?.nombre}</td>
               <td>{orden.fecha.split('T')[0]}</td>
-              <td>{orden.estado === 'en_proceso' ? 'En Proceso' : 'Completado'}</td>
+              <td>{orden.estado}</td>
               <td>
-                {orden.detalles.map((detalle, index) => (
+                {orden.DetalleOrdens.map((detalle, index) => (
                   <div key={index}>
-                    {detalle.nombre_articulo} - {detalle.cantidad}
+                    {detalle.Articulo.nombre} - {detalle.cantidad}
                   </div>
                 ))}
               </td>
               <td>
                 <button onClick={() => handleModificar(orden)}>Editar</button>
                 <button onClick={() => handleEliminar(orden.orden_id)}>Eliminar</button>
+                {orden.estado === 'En proceso' && (
+                  <button onClick={() => confirmarRecepcion(orden.orden_id)}>Confirmar Recepción</button>
+                )}
               </td>
             </tr>
           ))}
