@@ -7,13 +7,14 @@ body, html {
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  height: 100%;
 }
 
 /* Estilos del contenedor principal de la App */
 .App {
   display: flex;
-  text-align: left;
   height: 100vh; /* Ocupa toda la altura de la ventana */
+  overflow: hidden;
 }
 
 /* Estilos para la barra lateral de navegación */
@@ -22,6 +23,7 @@ body, html {
   background: #f0f0f0;
   padding: 20px;
   overflow-y: auto; /* Añade scroll si es necesario */
+  height: 100vh; /* Ocupa toda la altura de la ventana */
 }
 
 /* Estilos para la barra de búsqueda de módulos */
@@ -57,7 +59,20 @@ body, html {
   flex-grow: 1; /* Ocupa el espacio restante */
   padding: 20px;
   overflow-y: auto; /* Añade scroll si es necesario */
+  height: 100vh; /* Ocupa toda la altura de la ventana */
+  margin-left: 20%;
 }
 
-/* Puedes eliminar los estilos de .App-logo y su animación si no los usas */
-/* También puedes eliminar los estilos de .App-header y .App-link si no los usas */
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 10px;
+  }
+}
