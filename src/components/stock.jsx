@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TransaccionForm from './transaccionForm';
 import FormularioModelo from './modelos';  // Import the FormularioModelo component
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faCog } from '@fortawesome/free-solid-svg-icons';
+
 
 const baseUrl = 'http://25.41.163.224:5000';
 
@@ -108,7 +111,7 @@ const GestionStock = () => {
     };
 
     return (
-        <div className="form-container" style={{ marginLeft: '20%' }}>
+        <div className="form-container" style={{ marginLeft: '10%' }}>
             <h2>Gestión de Stock</h2>
 
             {isEditing && (
@@ -147,7 +150,6 @@ const GestionStock = () => {
                         <th>Tipo</th>
                         <th>Proveedor</th>
                         <th>Cantidad Disponible</th>
-                        <th>Cantidad Reservada</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -159,16 +161,16 @@ const GestionStock = () => {
                             <td>{articulo.tipo}</td>
                             <td>{proveedores.find(p => p.proveedor_id === articulo.proveedor_id)?.nombre || 'Desconocido'}</td>
                             <td>{articulo.Stock ? articulo.Stock.cantidad_disponible : 0}</td>
-                            <td>{articulo.Stock ? articulo.Stock.cantidad_reservada : 0}</td>
                             <td>
                                 <button
+                                    className="action-button modify-button"
                                     onClick={() => {
                                         setSelectedItem({ id: articulo.articulo_id, tipo: 'articulo' });
                                         setCantidadDisponible(articulo.Stock ? articulo.Stock.cantidad_disponible : 0);
                                         setIsEditing(true);
                                     }}
-                                >Editar</button>
-                                <button onClick={() => eliminarArticulo(articulo.articulo_id)}>Eliminar</button>
+                                ><FontAwesomeIcon icon={faCog} /></button>
+                                <button className="action-button delete-button" onClick={() => eliminarArticulo(articulo.articulo_id)}><FontAwesomeIcon icon={faTrash} /></button>
                             </td>
                         </tr>
                     ))}
@@ -199,13 +201,14 @@ const GestionStock = () => {
                             <td>{modelo.Stock ? modelo.Stock.cantidad_reservada : 0}</td>
                             <td>
                                 <button
+                                    className="action-button modify-button"
                                     onClick={() => {
                                         setSelectedItem({ id: modelo.modelo_id, tipo: 'modelo', cantidadReservada: modelo.Stock ? modelo.Stock.cantidad_reservada : 0 });
                                         setCantidadDisponible(modelo.Stock ? modelo.Stock.cantidad_disponible : 0);
                                         setIsEditing(true);
                                     }}
-                                >Editar</button>
-                                <button onClick={() => eliminarModelo(modelo.modelo_id)}>Eliminar</button>
+                                ><FontAwesomeIcon icon={faCog} /></button>
+                                <button className="action-button delete-button" onClick={() => eliminarModelo(modelo.modelo_id)}><FontAwesomeIcon icon={faTrash} /></button>
                             </td>
                         </tr>
                     ))}

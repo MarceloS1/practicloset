@@ -44,7 +44,7 @@ const Pagos = () => {
     };
 
     return (
-        <div className="form-container" style={{ marginLeft: '20%' }}>
+        <div className="form-container" style={{ marginLeft: '10%' }}>
             <h2>Gestión de Pagos</h2>
             <h3>Pedidos Pendientes o En Proceso</h3>
             <table>

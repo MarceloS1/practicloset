@@ -1,7 +1,9 @@
 // src/components/GestionClientes.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import '../css/FormularioProveedor.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faCog } from '@fortawesome/free-solid-svg-icons';
+
 
 const baseUrl = 'http://25.41.163.224:5000'; // Asegúrate de reemplazar esta URL con la dirección correcta de tu servidor
 
@@ -93,7 +95,7 @@ const GestionClientes = () => {
   };
 
   return (
-    <div className="form-container" style={{ marginLeft: '20%' }}>
+    <div className="form-container" style={{ marginLeft: '10%' }}>
       <h2>Gestión de Clientes</h2>
       <form onSubmit={handleSubmit} className="cliente-form">
         <div className="form-group">
@@ -175,7 +177,6 @@ const GestionClientes = () => {
             <th>Nombre</th>
             <th>Apellido</th>
             <th>Cédula</th>
-            <th>Email</th>
             <th>Teléfono</th>
             <th>Dirección</th>
             <th>Acciones</th>
@@ -187,21 +188,18 @@ const GestionClientes = () => {
               <td>{cliente.nombre}</td>
               <td>{cliente.apellido}</td>
               <td>{cliente.cedula}</td>
-              <td>{cliente.email}</td>
               <td>{cliente.telefono}</td>
               <td>{cliente.direccion}</td>
               <td>
                 <button
-                  onClick={() => seleccionarCliente(cliente)}
-                  className="btn btn-editar"
-                >
-                  ✏️
+                  className="action-button modify-button"
+                  onClick={() => seleccionarCliente(cliente)}>
+                  <FontAwesomeIcon icon={faCog} />
                 </button>
                 <button
-                  onClick={() => handleEliminar(cliente.cliente_id)}
-                  className="btn btn-eliminar"
-                >
-                  🗑️
+                  className="action-button delete-button"
+                  onClick={() => handleEliminar(cliente.cliente_id)}>                 
+                  <FontAwesomeIcon icon={faTrash} />
                 </button>
               </td>
             </tr>

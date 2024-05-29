@@ -80,7 +80,7 @@ const Articulo = () => {
   };
 
   return (
-    <div className="form-container" style={{ marginLeft: '20%' }}>
+    <div className="form-container" style={{ marginLeft: '10%' }}>
       <h2>Registrar Artículo</h2>
       <form onSubmit={handleSubmit} className="provider-form">
         <input

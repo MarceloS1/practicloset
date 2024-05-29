@@ -126,7 +126,7 @@ const FormularioModelo = ({ onReset }) => {
   };
 
   return (
-    <div className="form-container" style={{ marginLeft: '20%' }}>
+    <div className="form-container" style={{ marginLeft: '10%' }}>
       <h2>Modelos</h2>
       <form onSubmit={handleFormSubmit} className="model-form">
         <input
@@ -222,8 +222,6 @@ const FormularioModelo = ({ onReset }) => {
               <th>Ancho</th>
               <th>Precio</th>
               <th>Imagen</th>
-              <th>Cantidad Disponible</th>
-              <th>Cantidad Reservada</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -238,8 +236,7 @@ const FormularioModelo = ({ onReset }) => {
                 <td>{modelo.ancho}</td>
                 <td>{modelo.precio}</td>
                 <td><img src={modelo.imagen_url} alt={modelo.nombre} style={{ width: '100px', height: '100px' }} /></td>
-                <td>{modelo.Stock ? modelo.Stock.cantidad_disponible : 0}</td>
-                <td>{modelo.Stock ? modelo.Stock.cantidad_reservada : 0}</td>
+                
                 <td>
                   <button
                     className="action-button modify-button"

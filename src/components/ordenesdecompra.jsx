@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import '../css/base.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faCog } from '@fortawesome/free-solid-svg-icons';
+
+
 
 const baseUrl = 'http://25.41.163.224:5000';
 
@@ -142,7 +147,7 @@ const OrdenesCompra = () => {
   };
 
   return (
-    <div className="form-container" style={{ marginLeft: '20%' }}>
+    <div className="form-container" style={{ marginLeft: '10%' }}>
       <h2>Gestión de Órdenes de Compra</h2>
       <form onSubmit={handleSubmit}>
         <div>
@@ -241,8 +246,8 @@ const OrdenesCompra = () => {
                 ))}
               </td>
               <td>
-                <button onClick={() => handleModificar(orden)}>Editar</button>
-                <button onClick={() => handleEliminar(orden.orden_id)}>Eliminar</button>
+                <button className="action-button modify-button" onClick={() => handleModificar(orden)}><FontAwesomeIcon icon={faCog} /></button>
+                <button className="action-button delete-button" onClick={() => handleEliminar(orden.orden_id)}><FontAwesomeIcon icon={faTrash} /></button>
                 {orden.estado === 'En proceso' && (
                   <button onClick={() => confirmarRecepcion(orden.orden_id)}>Confirmar Recepción</button>
                 )}

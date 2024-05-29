@@ -126,7 +126,7 @@ const Pedidos = () => {
     };
 
     return (
-        <div className="form-container" style={{ marginLeft: '20%' }}>
+        <div className="form-container" style={{ marginLeft: '10%' }}>
             <h2>Gestión de Pedidos</h2>
             <form onSubmit={handleSubmit}>
                 <div>

@@ -104,7 +104,7 @@ const FormularioTrabajador = ({ onReset }) => {
   };
 
   return (
-    <div className="form-container" style={{ marginLeft: '20%' }}>
+    <div className="form-container" style={{ marginLeft: '10%', marginRight: '0%' }}>
       <h2>Gestión de Trabajadores</h2>
       <form onSubmit={handleFormSubmit} style={{ margin: '20px 0' }}>
         <div>
@@ -196,7 +196,6 @@ const FormularioTrabajador = ({ onReset }) => {
             <tr>
               <th>Nombre</th>
               <th>Apellido</th>
-              <th>Email</th>
               <th>Teléfono</th>
               <th>Cédula</th>
               <th>Cargo</th>
@@ -210,17 +209,16 @@ const FormularioTrabajador = ({ onReset }) => {
               <tr key={trabajador.trabajador_id}>
                 <td>{trabajador.nombre}</td>
                 <td>{trabajador.apellido}</td>
-                <td>{trabajador.email}</td>
                 <td>{trabajador.telefono}</td>
                 <td>{trabajador.cedula}</td>
                 <td>{trabajador.cargo}</td>
                 <td>{trabajador.fecha_ingreso ? new Date(trabajador.fecha_ingreso).toLocaleDateString() : ''}</td>
                 <td>{trabajador.salario}</td>
                 <td>
-                  <button onClick={() => handleEditarTrabajador(trabajador.trabajador_id)}>
+                  <button className="action-button modify-button" onClick={() => handleEditarTrabajador(trabajador.trabajador_id)}>
                     <FontAwesomeIcon icon={faEdit} />
                   </button>
-                  <button onClick={() => handleEliminarTrabajador(trabajador.trabajador_id)} style={{ marginLeft: '10px' }}>
+                  <button className="action-button delete-button" onClick={() => handleEliminarTrabajador(trabajador.trabajador_id)} style={{ marginLeft: '10px' }}>
                     <FontAwesomeIcon icon={faTrash} />
                   </button>
                 </td>
