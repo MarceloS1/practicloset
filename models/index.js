@@ -12,6 +12,9 @@ const Categoria = require('./Categoria');
 const OrdenCompra = require('./OrdenCompra');
 
 // Definir asociaciones
+Cliente.hasMany(Pedido, { foreignKey: 'cliente_id' });
+Pedido.belongsTo(Cliente, { foreignKey: 'cliente_id' });
+
 Pedido.hasMany(DetallePedido, { foreignKey: 'pedido_id' });
 DetallePedido.belongsTo(Pedido, { foreignKey: 'pedido_id' });
 
