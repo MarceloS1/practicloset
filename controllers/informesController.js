@@ -7,77 +7,55 @@ const Cliente = require('../models/Cliente');
 const ResponseFactory = require('../helpers/ResponseFactory');
 const DetallePedido = require('../models/DetallePedido');
 const Modelo = require('../models/Modelo');
+const Articulo = require('../models/articulo');
 const { Op } = require('sequelize');
 
-const generarPDF = (data, tipo) => {
-    const doc = new PDFDocument();
-    const filePath = `./informes/${tipo}_informe.pdf`;
-
-    doc.pipe(fs.createWriteStream(filePath));
-
-    doc.fontSize(18).text(`Informe de ${tipo}`, { align: 'center' });
-
-    doc.fontSize(12).text(JSON.stringify(data, null, 2), {
-        width: 410,
-        align: 'left'
-    });
-
-    doc.end();
-    return filePath;
-};
-
 exports.generarInformeVentas = async (req, res) => {
-    const { startDate, endDate } = req.query;
+    const { fechaInicio, fechaFin } = req.query;
 
     try {
-        if (!startDate || !endDate) {
-            throw new Error('Faltan los parámetros startDate o endDate');
-        }
-
         const pedidos = await Pedido.findAll({
             where: {
                 fecha_entrega: {
-                    [Op.between]: [new Date(startDate), new Date(endDate)]
+                    [Op.between]: [new Date(fechaInicio), new Date(fechaFin)]
                 }
             },
             include: [
                 { model: Cliente },
-                { model: DetallePedido, include: [Modelo] }
-            ]
+                {
+                    model: DetallePedido,
+                    include: [Modelo]
+                }
+            ],
+            order: [['fecha_entrega', 'ASC']]
         });
 
-        const informesDir = path.join(__dirname, '../informes');
-        if (!fs.existsSync(informesDir)) {
-            fs.mkdirSync(informesDir, { recursive: true });
-        }
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const pdfPath = path.join(__dirname, `../informes/ventas_informe_${timestamp}.pdf`);
 
-        const informePath = path.join(informesDir, 'ventas_informe.pdf');
         const doc = new PDFDocument();
-        const stream = fs.createWriteStream(informePath);
 
-        doc.pipe(stream);
+        doc.pipe(fs.createWriteStream(pdfPath));
+        doc.pipe(res);
 
-        // Título
-        doc.fontSize(20).text('Informe de Ventas', { align: 'center' });
-
-        // Fechas
-        doc.fontSize(12).text(`Desde: ${startDate} Hasta: ${endDate}`, { align: 'center' });
-
+        doc.fontSize(18).text('Informe de Ventas', { align: 'center' });
+        doc.moveDown();
+        doc.fontSize(12).text(`Fechas: Desde ${fechaInicio} hasta ${fechaFin}`, { align: 'center' });
         doc.moveDown();
 
-        // Tabla de pedidos
         pedidos.forEach(pedido => {
             doc.fontSize(12).text(`Pedido ID: ${pedido.pedido_id}`);
-            doc.fontSize(12).text(`Cliente: ${pedido.Cliente.nombre} ${pedido.Cliente.apellido}`);
-            doc.fontSize(12).text(`Fecha de Entrega: ${pedido.fecha_entrega}`);
-            doc.fontSize(12).text(`Estado de Pago: ${pedido.estado_pago}`);
-            doc.fontSize(12).text(`Precio Total: ${pedido.precio_total}`);
-
+            doc.text(`Cliente: ${pedido.Cliente.nombre} ${pedido.Cliente.apellido}`);
+            doc.text(`Fecha de Entrega: ${pedido.fecha_entrega}`);
+            doc.text(`Estado de Pago: ${pedido.estado_pago}`);
+            doc.text(`Precio Total: ${pedido.precio_total}`);
             doc.moveDown();
 
-            doc.fontSize(12).text('Detalles del Pedido:');
             pedido.DetallePedidos.forEach(detalle => {
-                doc.fontSize(12).text(`- Modelo: ${detalle.Modelo.nombre}, Cantidad: ${detalle.cantidad}`);
+                doc.text(` - Modelo: ${detalle.Modelo.nombre}`);
+                doc.text(` - Cantidad: ${detalle.cantidad}`);
+                doc.text(` - Precio: ${detalle.Modelo.precio}`);
+                doc.moveDown();
             });
 
             doc.moveDown();
@@ -85,17 +63,10 @@ exports.generarInformeVentas = async (req, res) => {
 
         doc.end();
 
-        stream.on('finish', () => {
-            const respuesta = ResponseFactory.createSuccessResponse({ path: informePath }, 'Informe de ventas generado exitosamente');
-            res.status(respuesta.status).json(respuesta.body);
-        });
-
-        stream.on('error', (error) => {
-            const respuesta = ResponseFactory.createErrorResponse(error, 'Error al generar el informe de ventas');
-            res.status(respuesta.status).json(respuesta.body);
-        });
-
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=ventas_informe_${timestamp}.pdf`);
     } catch (error) {
+        console.error('Error al generar el informe de ventas:', error.message);
         const respuesta = ResponseFactory.createErrorResponse(error, 'Error al generar el informe de ventas');
         res.status(respuesta.status).json(respuesta.body);
     }
@@ -103,28 +74,47 @@ exports.generarInformeVentas = async (req, res) => {
 
 exports.generarInformeInventario = async (req, res) => {
     try {
-        const inventario = await Stock.findAll({
-            include: [Modelo]
+        const modelos = await Modelo.findAll({ include: [Stock] });
+        const articulos = await Articulo.findAll({ include: [Stock] });
+
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const pdfPath = path.join(__dirname, `../informes/inventario_informe_${timestamp}.pdf`);
+
+        const doc = new PDFDocument();
+
+        doc.pipe(fs.createWriteStream(pdfPath));
+        doc.pipe(res);
+
+        doc.fontSize(18).text('Informe de Inventario', { align: 'center' });
+        doc.moveDown();
+
+        doc.fontSize(16).text('Modelos');
+        modelos.forEach(modelo => {
+            doc.fontSize(12).text(`Modelo: ${modelo.nombre}`);
+            doc.text(`Descripción: ${modelo.descripcion}`);
+            doc.text(`Cantidad Disponible: ${modelo.Stock.cantidad_disponible}`);
+            doc.text(`Cantidad Reservada: ${modelo.Stock.cantidad_reservada}`);
+            doc.moveDown();
         });
 
-        const filePath = generarPDF(inventario, 'inventario');
-        res.download(filePath);
+        doc.addPage();
+
+        doc.fontSize(16).text('Artículos');
+        articulos.forEach(articulo => {
+            doc.fontSize(12).text(`Artículo: ${articulo.nombre}`);
+            doc.text(`Descripción: ${articulo.descripcion}`);
+            doc.text(`Cantidad Disponible: ${articulo.Stock.cantidad_disponible}`);
+            doc.text(`Cantidad Reservada: ${articulo.Stock.cantidad_reservada}`);
+            doc.moveDown();
+        });
+
+        doc.end();
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=inventario_informe_${timestamp}.pdf`);
     } catch (error) {
+        console.error('Error al generar el informe de inventario:', error.message);
         const respuesta = ResponseFactory.createErrorResponse(error, 'Error al generar el informe de inventario');
         res.status(respuesta.status).json(respuesta.body);
     }
-};
-
-exports.generarInformeClientes = async (req, res) => {
-    try {
-        const clientes = await Cliente.findAll({
-            include: [{ model: Pedido, include: [DetallePedido, Pagos] }]
-        });
-
-        const filePath = generarPDF(clientes, 'clientes');
-        res.download(filePath);
-    } catch (error) {
-        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al generar el informe de clientes');
-        res.status(respuesta.status).json(respuesta.body);
-    }
-};
+}
