@@ -14,6 +14,7 @@ import FormularioModelo from './components/modelos';
 import OrdenesCompra from './components/ordenesdecompra';
 import GestionPedidosYPagos from './components/gestionPagos';
 import Pedidos from './components/pedidos';
+import Informes from './components/informes';
 
 const App = () => {
   return (
@@ -31,6 +32,8 @@ const App = () => {
             <Route path="/Stock" element={<GestionStock />} />
             <Route path="/Modelos" element={<FormularioModelo />} />
             <Route path="/Pedidos" element={<Pedidos />} />
+            <Route path="/Informes" element={<Informes />} />
+
             {/* ... otras rutas */}
           </Routes>
         </div>

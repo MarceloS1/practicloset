@@ -29,6 +29,7 @@ const NavBar = () => {
                     <li><Link to="/Stock">Gestionar Stock</Link></li>
                     <li><Link to="/Modelos">Gestionar Modelos</Link></li>
                     <li><Link to="/Pedidos">Gestionar Pedidos</Link></li>
+                    <li><Link to="/Informes">Gestionar Informes</Link></li>
                 </ul>
             </nav>
         </div>
