@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faCog } from '@fortawesome/free-solid-svg-icons';
 
 
-const baseUrl = 'http://25.41.163.224:5000';
+const baseUrl = 'http://25.5.98.175:5000';
 
 const GestionStock = () => {
     const [articulos, setArticulos] = useState([]);
