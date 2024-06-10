@@ -24,13 +24,16 @@ const Pedido = sequelize.define('Pedido', {
     type: DataTypes.FLOAT,
     allowNull: false,
   },
+  estado_entrega: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'pendiente',
+  },
 }, {
   tableName: 'pedidos',
   timestamps: false,
 });
 
-// Define la asociación con DetallePedido
-Pedido.hasMany(DetallePedido, { foreignKey: 'pedido_id' });
-DetallePedido.belongsTo(Pedido, { foreignKey: 'pedido_id' });
+
 
 module.exports = Pedido;

@@ -12,7 +12,6 @@ orderSubject.subscribe(stockObserver);
 exports.crearPedido = async (req, res) => {
     const { cliente_id, fecha_entrega, estado_pago, modelos } = req.body;
     const transaction = await sequelize.transaction();
-    const stockObserver = new StockObserver();
 
     try {
         // Verificar el stock disponible antes de crear el pedido
@@ -44,7 +43,8 @@ exports.crearPedido = async (req, res) => {
             cliente_id,
             fecha_entrega,
             estado_pago,
-            precio_total: precioTotal
+            precio_total: precioTotal,
+            estado_entrega: 'pendiente' // Agregar estado_entrega
         }, { transaction });
 
         // Insertar detalles del pedido
@@ -57,7 +57,7 @@ exports.crearPedido = async (req, res) => {
         }
 
         // Notificar al observador para actualizar el stock
-        await stockObserver.update({ modelos }, transaction);
+        await orderSubject.notify({ modelos });
 
         await transaction.commit();
 
@@ -91,7 +91,7 @@ exports.obtenerPedidos = async (req, res) => {
 // Actualizar un pedido existente
 exports.actualizarPedido = async (req, res) => {
     const { pedidoId } = req.params;
-    const { cliente_id, fecha_entrega, estado_pago, modelos } = req.body;
+    const { cliente_id, fecha_entrega, estado_pago, estado_entrega, modelos } = req.body;
     const transaction = await sequelize.transaction();
 
     try {
@@ -112,6 +112,7 @@ exports.actualizarPedido = async (req, res) => {
                 cliente_id,
                 fecha_entrega,
                 estado_pago,
+                estado_entrega,
                 precio_total: precioTotal
             }, { transaction });
 
@@ -126,6 +127,9 @@ exports.actualizarPedido = async (req, res) => {
                     cantidad: modelo.cantidad
                 }, { transaction });
             }
+
+            // Notificar al observador para actualizar el stock
+            await orderSubject.notify({ modelos });
 
             await transaction.commit();
 
@@ -158,6 +162,24 @@ exports.eliminarPedido = async (req, res) => {
         }
     } catch (error) {
         const respuesta = ResponseFactory.createErrorResponse(error, 'Error al eliminar el pedido');
+        res.status(respuesta.status).json(respuesta.body);
+    }
+};
+
+exports.completarEntrega = async (req, res) => {
+    const { pedidoId } = req.params;
+    try {
+        const pedido = await Pedido.findByPk(pedidoId);
+        if (!pedido) {
+            const respuesta = ResponseFactory.createNotFoundResponse('Pedido no encontrado');
+            return res.status(respuesta.status).json(respuesta.body);
+        }
+
+        await pedido.update({ estado_entrega: 'Completado' });
+        const respuesta = ResponseFactory.createSuccessResponse(pedido, 'Estado de entrega actualizado a Completado');
+        res.status(respuesta.status).json(respuesta.body);
+    } catch (error) {
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al actualizar el estado de entrega');
         res.status(respuesta.status).json(respuesta.body);
     }
 };
