@@ -102,7 +102,6 @@ exports.generarInformeInventario = async (req, res) => {
         doc.fontSize(16).text('Artículos');
         articulos.forEach(articulo => {
             doc.fontSize(12).text(`Artículo: ${articulo.nombre}`);
-            doc.text(`Descripción: ${articulo.descripcion}`);
             doc.text(`Cantidad Disponible: ${articulo.Stock.cantidad_disponible}`);
             doc.text(`Cantidad Reservada: ${articulo.Stock.cantidad_reservada}`);
             doc.moveDown();
