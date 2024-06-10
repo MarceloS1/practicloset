@@ -3,8 +3,7 @@ const Stock = require('../models/Stock');
 const sequelize = require('../sequelize');
 
 class StockObserver extends Observer {
-  async update(order) {
-    const transaction = await sequelize.transaction();
+  async update(order, transaction) {
     try {
       for (let modelo of order.modelos) {
         const stock = await Stock.findOne({ where: { modelo_id: modelo.modelo_id }, transaction });
@@ -19,9 +18,7 @@ class StockObserver extends Observer {
           throw new Error(`Stock no encontrado para el modelo: ${modelo.modelo_id}`);
         }
       }
-      await transaction.commit();
     } catch (error) {
-      await transaction.rollback();
       throw error;
     }
   }

@@ -9,21 +9,34 @@ const stockObserver = new StockObserver();
 
 orderSubject.subscribe(stockObserver);
 
-// Crear un nuevo pedido
 exports.crearPedido = async (req, res) => {
     const { cliente_id, fecha_entrega, estado_pago, modelos } = req.body;
     const transaction = await sequelize.transaction();
+    const stockObserver = new StockObserver();
 
     try {
+        // Verificar el stock disponible antes de crear el pedido
+        for (let modelo of modelos) {
+            const modeloData = await Modelo.findByPk(modelo.modelo_id, { transaction });
+            if (!modeloData) {
+                throw new Error('Modelo no encontrado: ' + modelo.modelo_id);
+            }
+
+            const stock = await Stock.findOne({ where: { modelo_id: modelo.modelo_id }, transaction });
+            if (stock) {
+                if (stock.cantidad_disponible < modelo.cantidad) {
+                    throw new Error('Stock insuficiente para el modelo: ' + modelo.modelo_id);
+                }
+            } else {
+                throw new Error('Stock no encontrado para el modelo: ' + modelo.modelo_id);
+            }
+        }
+
         // Calcular el precio total del pedido
         let precioTotal = 0;
         for (let modelo of modelos) {
             const modeloData = await Modelo.findByPk(modelo.modelo_id, { transaction });
-            if (modeloData) {
-                precioTotal += modeloData.precio * modelo.cantidad;
-            } else {
-                throw new Error(`Modelo no encontrado: ${modelo.modelo_id}`);
-            }
+            precioTotal += modeloData.precio * modelo.cantidad;
         }
 
         // Insertar el pedido
@@ -43,10 +56,10 @@ exports.crearPedido = async (req, res) => {
             }, { transaction });
         }
 
-        await transaction.commit();
+        // Notificar al observador para actualizar el stock
+        await stockObserver.update({ modelos }, transaction);
 
-        // Notify the observer to update the stock
-        orderSubject.notify({ modelos });
+        await transaction.commit();
 
         const respuesta = ResponseFactory.createSuccessResponse(pedido, 'Pedido creado y stock actualizado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
