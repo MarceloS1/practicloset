@@ -3,11 +3,14 @@ const sequelize = require('../sequelize');
 const ResponseFactory = require('../helpers/ResponseFactory');
 const { Subject } = require('../observers/observer');
 const StockObserver = require('../observers/StockObserver');
+const EntregaObserver = require('../observers/EntregaObserver');
 
 const orderSubject = new Subject();
 const stockObserver = new StockObserver();
+const entregaObserver = new EntregaObserver();
 
 orderSubject.subscribe(stockObserver);
+orderSubject.subscribe(entregaObserver);
 
 exports.crearPedido = async (req, res) => {
     const { cliente_id, fecha_entrega, estado_pago, modelos } = req.body;
@@ -106,8 +109,10 @@ exports.actualizarPedido = async (req, res) => {
             }
         }
 
-        const pedido = await Pedido.findByPk(pedidoId);
+        const pedido = await Pedido.findByPk(pedidoId, { include: [DetallePedido], transaction });
         if (pedido) {
+            const estadoAnterior = pedido.estado_entrega;
+
             await pedido.update({
                 cliente_id,
                 fecha_entrega,
@@ -128,8 +133,10 @@ exports.actualizarPedido = async (req, res) => {
                 }, { transaction });
             }
 
-            // Notificar al observador para actualizar el stock
-            await orderSubject.notify({ modelos });
+            // Notificar al observador para actualizar el stock si el estado de entrega ha cambiado
+            if (estadoAnterior === 'pendiente' && estado_entrega === 'entregado') {
+                await deliveryObserver.update(pedido);
+            }
 
             await transaction.commit();
 
@@ -168,18 +175,39 @@ exports.eliminarPedido = async (req, res) => {
 
 exports.completarEntrega = async (req, res) => {
     const { pedidoId } = req.params;
+    const { estado_entrega } = req.body;
+    const transaction = await sequelize.transaction();
+
     try {
-        const pedido = await Pedido.findByPk(pedidoId);
+        const pedido = await Pedido.findByPk(pedidoId, { include: [DetallePedido], transaction });
+
         if (!pedido) {
+            await transaction.rollback();
             const respuesta = ResponseFactory.createNotFoundResponse('Pedido no encontrado');
             return res.status(respuesta.status).json(respuesta.body);
         }
 
-        await pedido.update({ estado_entrega: 'Completado' });
-        const respuesta = ResponseFactory.createSuccessResponse(pedido, 'Estado de entrega actualizado a Completado');
+        const estadoAnterior = pedido.estado_entrega;
+
+        console.log('Estado anterior:', estadoAnterior);
+        console.log('Estado nuevo:', estado_entrega);
+
+        await pedido.update({ estado_entrega }, { transaction });
+
+        console.log('Pedido actualizado:', pedido);
+
+        if (estadoAnterior === 'pendiente' && estado_entrega === 'entregado') {
+            console.log('Notificando al observador de entrega');
+            await entregaObserver.update(pedido);
+        }
+
+        await transaction.commit();
+
+        const respuesta = ResponseFactory.createSuccessResponse(pedido, 'Estado del pedido actualizado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
-        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al actualizar el estado de entrega');
+        await transaction.rollback();
+        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al actualizar el estado del pedido');
         res.status(respuesta.status).json(respuesta.body);
     }
 };
