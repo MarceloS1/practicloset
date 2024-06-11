@@ -99,10 +99,16 @@ exports.generarInformeInventario = async (req, res) => {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const pdfPath = path.join(__dirname, `../informes/inventario_informe_${timestamp}.pdf`);
 
-        const doc = new PDFDocument();
+        // Asegúrate de que el directorio existe
+        const dir = path.dirname(pdfPath);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
 
-        doc.pipe(fs.createWriteStream(pdfPath));
-        doc.pipe(res);
+        const doc = new PDFDocument();
+        const writeStream = fs.createWriteStream(pdfPath);
+
+        doc.pipe(writeStream);
 
         doc.fontSize(18).text('Informe de Inventario', { align: 'center' });
         doc.moveDown();
@@ -111,8 +117,8 @@ exports.generarInformeInventario = async (req, res) => {
         modelos.forEach(modelo => {
             doc.fontSize(12).text(`Modelo: ${modelo.nombre}`);
             doc.text(`Descripción: ${modelo.descripcion}`);
-            doc.text(`Cantidad Disponible: ${modelo.Stock.cantidad_disponible}`);
-            doc.text(`Cantidad Reservada: ${modelo.Stock.cantidad_reservada}`);
+            doc.text(`Cantidad Disponible: ${modelo.Stock?.cantidad_disponible || 0}`);
+            doc.text(`Cantidad Reservada: ${modelo.Stock?.cantidad_reservada || 0}`);
             doc.moveDown();
         });
 
@@ -121,18 +127,27 @@ exports.generarInformeInventario = async (req, res) => {
         doc.fontSize(16).text('Artículos');
         articulos.forEach(articulo => {
             doc.fontSize(12).text(`Artículo: ${articulo.nombre}`);
-            doc.text(`Cantidad Disponible: ${articulo.Stock.cantidad_disponible}`);
-            doc.text(`Cantidad Reservada: ${articulo.Stock.cantidad_reservada}`);
+            doc.text(`Cantidad Disponible: ${articulo.Stock?.cantidad_disponible || 0}`);
+            doc.text(`Cantidad Reservada: ${articulo.Stock?.cantidad_reservada || 0}`);
             doc.moveDown();
         });
 
         doc.end();
 
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=inventario_informe_${timestamp}.pdf`);
+        writeStream.on('finish', () => {
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename=inventario_informe_${timestamp}.pdf`);
+            res.sendFile(pdfPath);
+        });
+
+        writeStream.on('error', (err) => {
+            console.error('Error al escribir el PDF:', err.message);
+            const respuesta = ResponseFactory.createErrorResponse(err, 'Error al generar el informe de inventario');
+            res.status(respuesta.status).json(respuesta.body);
+        });
     } catch (error) {
         console.error('Error al generar el informe de inventario:', error.message);
         const respuesta = ResponseFactory.createErrorResponse(error, 'Error al generar el informe de inventario');
         res.status(respuesta.status).json(respuesta.body);
     }
-}
+};
