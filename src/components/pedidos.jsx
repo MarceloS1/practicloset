@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const baseUrl = 'http://25.5.98.175:5000';
+const baseUrl = 'http://25.41.163.224:5000';
 
 const Pedidos = () => {
     const [pedidos, setPedidos] = useState([]);
@@ -14,6 +14,7 @@ const Pedidos = () => {
         modelos: []
     });
     const [metodosPago, setMetodosPago] = useState({});
+    const [estadosEntrega, setEstadosEntrega] = useState({});
 
     useEffect(() => {
         cargarPedidos();
@@ -125,6 +126,33 @@ const Pedidos = () => {
         setMetodosPago({ ...metodosPago, [pedidoId]: value });
     };
 
+    const handleEstadoEntregaChange = (pedidoId, value) => {
+        setEstadosEntrega({ ...estadosEntrega, [pedidoId]: value });
+    };
+
+    const actualizarEstadoEntrega = async (pedidoId) => {
+        try {
+            const estadoEntrega = estadosEntrega[pedidoId];
+            if (!estadoEntrega) {
+                alert('Por favor seleccione un estado de entrega.');
+                return;
+            }
+
+            const respuesta = await axios.put(`${baseUrl}/pedidos/${pedidoId}`, {
+                estado_entrega: estadoEntrega
+            });
+
+            if (respuesta.status === 200) {
+                cargarPedidos();
+                alert('Estado de entrega actualizado con éxito');
+            } else {
+                console.error('Error en la respuesta del servidor:', respuesta);
+            }
+        } catch (error) {
+            console.error('Error al actualizar el estado de entrega:', error);
+        }
+    };
+
     return (
         <div className="form-container" style={{ marginLeft: '10%' }}>
             <h2>Gestión de Pedidos</h2>
@@ -226,6 +254,16 @@ const Pedidos = () => {
                                         <button onClick={() => handlePago(pedido.pedido_id)}>Pagar</button>
                                     </div>
                                 )}
+                                <div>
+                                    <select
+                                        onChange={(e) => handleEstadoEntregaChange(pedido.pedido_id, e.target.value)}
+                                        value={estadosEntrega[pedido.pedido_id] || pedido.estado_entrega}
+                                    >
+                                        <option value="pendiente">Pendiente</option>
+                                        <option value="completado">Completado</option>
+                                    </select>
+                                    <button onClick={() => actualizarEstadoEntrega(pedido.pedido_id)}>Actualizar Estado de Entrega</button>
+                                </div>
                             </td>
                         </tr>
                     ))}
