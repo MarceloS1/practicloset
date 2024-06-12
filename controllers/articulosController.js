@@ -1,6 +1,6 @@
 const Articulo = require('../models/articulo');
 const Proveedor = require('../models/Proveedor');
-const ResponseFactory = require('../helpers/ResponseFactory');
+const ResponseFactory = require('../helpers/responseFactory');
 const Stock = require('../models/Stock');
 
 // Obtener todos los artículos

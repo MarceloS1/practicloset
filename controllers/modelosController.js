@@ -1,6 +1,6 @@
 const Modelo = require('../models/Modelo');
 const Stock = require('../models/Stock');
-const ResponseFactory = require('../helpers/ResponseFactory');
+const ResponseFactory = require('../helpers/responseFactory');
 const sequelize = require('../sequelize');
 
 // Obtener todos los modelos con stock

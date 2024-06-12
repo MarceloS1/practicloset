@@ -1,6 +1,6 @@
 const Pago = require('../models/Pago');
 const Pedido = require('../models/Pedido');
-const ResponseFactory = require('../helpers/ResponseFactory');
+const ResponseFactory = require('../helpers/responseFactory');
 const sequelize = require('../sequelize');
 
 // Crear un nuevo pago y actualizar el estado del pedido a "Completado"

@@ -1,6 +1,6 @@
 const { Pedido, DetallePedido, Modelo, Stock} = require('../models');
 const sequelize = require('../sequelize');
-const ResponseFactory = require('../helpers/ResponseFactory');
+const ResponseFactory = require('../helpers/responseFactory');
 const { Subject } = require('../observers/observer');
 const StockObserver = require('../observers/StockObserver');
 const EntregaObserver = require('../observers/EntregaObserver');

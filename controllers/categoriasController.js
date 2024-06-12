@@ -1,5 +1,5 @@
 const Categoria = require('../models/Categoria');
-const ResponseFactory = require('../helpers/ResponseFactory');
+const ResponseFactory = require('../helpers/responseFactory');
 
 // Obtener todas las categorías
 exports.obtenerCategorias = async (req, res, next) => {

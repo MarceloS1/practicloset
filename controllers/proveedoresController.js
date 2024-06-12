@@ -1,5 +1,5 @@
 const Proveedor = require('../models/Proveedor');
-const ResponseFactory = require('../helpers/ResponseFactory');
+const ResponseFactory = require('../helpers/responseFactory');
 
 // Obtener todos los proveedores
 exports.obtenerProveedores = async (req, res) => {

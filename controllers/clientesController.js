@@ -1,5 +1,5 @@
 const Cliente = require('../models/Cliente');
-const ResponseFactory = require('../helpers/ResponseFactory');
+const ResponseFactory = require('../helpers/responseFactory');
 
 // Crear un nuevo cliente
 exports.agregarCliente = async (req, res, next) => {

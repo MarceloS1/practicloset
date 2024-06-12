@@ -1,6 +1,6 @@
 const TransaccionInventario = require('../models/TransaccionInventario');
 const Stock = require('../models/Stock');
-const ResponseFactory = require('../helpers/ResponseFactory');
+const ResponseFactory = require('../helpers/responseFactory');
 const sequelize = require('../sequelize');
 
 exports.agregarTransaccionYActualizarStock = async (req, res) => {

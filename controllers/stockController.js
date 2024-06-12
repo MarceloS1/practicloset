@@ -1,6 +1,6 @@
 const Stock = require('../models/Stock');
 const Op = require('../sequelize');
-const ResponseFactory = require('../helpers/ResponseFactory');
+const ResponseFactory = require('../helpers/responseFactory');
 
 // Actualizar stock
 exports.actualizarStock = async (req, res) => {

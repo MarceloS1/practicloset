@@ -1,5 +1,5 @@
 const Trabajador = require('../models/Trabajador');
-const ResponseFactory = require('../helpers/ResponseFactory');
+const ResponseFactory = require('../helpers/responseFactory');
 
 // Agregar un nuevo trabajador
 exports.agregarTrabajador = async (req, res) => {

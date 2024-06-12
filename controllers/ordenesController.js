@@ -3,7 +3,7 @@ const OrdenCompra = require('../models/OrdenCompra');
 const DetalleOrden = require('../models/DetalleOrden');
 const Articulo = require('../models/articulo');
 const Stock = require('../models/Stock');
-const ResponseFactory = require('../helpers/ResponseFactory');
+const ResponseFactory = require('../helpers/responseFactory');
 
 // Crear una nueva orden de compra
 exports.crearOrden = async (req, res) => {
