@@ -157,7 +157,7 @@ const Pedidos = () => {
         <div className="form-container" style={{ marginLeft: '10%' }}>
             <h2>Gestión de Pedidos</h2>
             <form onSubmit={handleSubmit}>
-                <div>
+                <div style={{ marginBottom: '10px' }}>
                     <label>Cliente:</label>
                     <select
                         name="cliente_id"
@@ -173,7 +173,7 @@ const Pedidos = () => {
                         ))}
                     </select>
                 </div>
-                <div>
+                <div style={{ marginBottom: '10px' }}>
                     <label>Fecha de Entrega:</label>
                     <input
                         type="date"
@@ -185,7 +185,7 @@ const Pedidos = () => {
                 </div>
                 <h4>Modelos</h4>
                 {formulario.modelos.map((modelo, index) => (
-                    <div key={index}>
+                    <div key={index} style={{ marginBottom: '10px' }}>
                         <label>Modelo:</label>
                         <select
                             name="modelo_id"
@@ -211,9 +211,13 @@ const Pedidos = () => {
                         <button type="button" onClick={() => eliminarDetalle(index)}>Eliminar</button>
                     </div>
                 ))}
-                <button type="button" onClick={agregarDetalle}>Agregar Modelo</button>
-                <button type="submit">Crear Pedido</button>
-                <button type="button" onClick={resetFormulario}>Cancelar</button>
+                <div style={{ marginBottom: '10px' }}>
+                    <button type="button" onClick={agregarDetalle}>Agregar Modelo</button>
+                </div>
+                <div>
+                    <button type="submit">Crear Pedido</button>
+                    <button type="button" onClick={resetFormulario} style={{ marginLeft: '10px' }}>Cancelar</button>
+                </div>
             </form>
             <h3>Lista de Pedidos</h3>
             <table>
@@ -234,22 +238,14 @@ const Pedidos = () => {
                             <td>{clientes.find(c => c.cliente_id === pedido.cliente_id)?.nombre}</td>
                             <td>{pedido.fecha_entrega.split('T')[0]}</td>
                             <td>{pedido.estado_pago}</td>
+                            <td>{pedido.DetallePedidos.map((detalle, index) => (
+                                <div key={index}>{detalle.Modelo.nombre}</div>
+                            ))}</td>
+                            <td>{pedido.DetallePedidos.map((detalle, index) => (
+                                <div key={index}>{detalle.cantidad}</div>
+                            ))}</td>
                             <td>
-                                {pedido.DetallePedidos.map((detalle, index) => (
-                                    <div key={index}>
-                                        {detalle.Modelo.nombre}
-                                    </div>
-                                ))}
-                            </td>
-                            <td>
-                                {pedido.DetallePedidos.map((detalle, index) => (
-                                    <div key={index}>
-                                        {detalle.cantidad}
-                                    </div>
-                                ))}
-                            </td>
-                            <td>
-                                {pedido.estado_pago === 'pendiente' && pedido.estado_entrega !== 'entregado' && (
+                                {pedido.estado_pago === 'pendiente' ? (
                                     <div>
                                         <select
                                             onChange={(e) => handleMetodoPagoChange(pedido.pedido_id, e.target.value)}
@@ -262,20 +258,24 @@ const Pedidos = () => {
                                         </select>
                                         <button onClick={() => handlePago(pedido.pedido_id)}>Pagar</button>
                                     </div>
+                                ) : (
+                                    <div>{pedido.estado_pago}</div>
                                 )}
                             </td>
                             <td>
-                                {pedido.estado_entrega !== 'entregado' && (
+                                {pedido.estado_entrega === 'pendiente' ? (
                                     <div>
                                         <select
                                             onChange={(e) => handleEstadoEntregaChange(pedido.pedido_id, e.target.value)}
-                                            value={estadosEntrega[pedido.pedido_id] || pedido.estado_entrega}
+                                            value={estadosEntrega[pedido.pedido_id] || 'pendiente'}
                                         >
                                             <option value="pendiente">Pendiente</option>
                                             <option value="entregado">Entregado</option>
                                         </select>
                                         <button onClick={() => actualizarEstadoEntrega(pedido.pedido_id)}>Actualizar</button>
                                     </div>
+                                ) : (
+                                    <div>{pedido.estado_entrega}</div>
                                 )}
                             </td>
                         </tr>
