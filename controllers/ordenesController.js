@@ -4,6 +4,8 @@ const OrdenCompra = require('../models/OrdenCompra');
 const ResponseFactory = require('../helpers/responseFactory');
 const OrdenBuilder = require('../builders/ordenBuilder');
 const DetalleOrdenBuilder = require('../builders/detallesOrdenBuilder');
+const ValidacionStockHandler = require('../handlers/validacionStockHandler');
+const CalculoPrecioHandler = require('../handlers/calculoPrecioHandler');
 
 
 // Crear una nueva orden de compra
@@ -12,6 +14,18 @@ exports.crearOrden = async (req, res) => {
     const transaction = await sequelize.transaction();
 
     try {
+        // Configurar la cadena de responsabilidad
+        const validacionStockHandler = new ValidacionStockHandler();
+        const calculoPrecioHandler = new CalculoPrecioHandler();
+
+        validacionStockHandler.setNext(calculoPrecioHandler);
+
+        // Crear la solicitud
+        const request = { detalles };
+
+        // Procesar la solicitud a través de la cadena
+        await validacionStockHandler.handle(request);
+
         const ordenBuilder = new OrdenBuilder()
             .setProveedorId(proveedor_id)
             .setFecha(fecha)
@@ -32,7 +46,8 @@ exports.crearOrden = async (req, res) => {
         const orden = await OrdenCompra.create({
             proveedor_id: ordenData.proveedor_id,
             fecha: ordenData.fecha,
-            estado: ordenData.estado
+            estado: ordenData.estado,
+            precio_total: request.precioTotal
         }, { transaction });
 
         // Crear los detalles de la orden
