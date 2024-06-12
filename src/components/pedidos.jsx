@@ -138,7 +138,7 @@ const Pedidos = () => {
                 return;
             }
 
-            const respuesta = await axios.put(`${baseUrl}/pedidos/${pedidoId}`, {
+            const respuesta = await axios.put(`${baseUrl}/pedidos/${pedidoId}/completarEntrega`, {
                 estado_entrega: estadoEntrega
             });
 
@@ -223,7 +223,9 @@ const Pedidos = () => {
                         <th>Fecha de Entrega</th>
                         <th>Estado de Pago</th>
                         <th>Modelos</th>
-                        <th>Acciones</th>
+                        <th>Cantidad</th>
+                        <th>Gestionar Pago</th>
+                        <th>Estado de Entrega</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -235,12 +237,19 @@ const Pedidos = () => {
                             <td>
                                 {pedido.DetallePedidos.map((detalle, index) => (
                                     <div key={index}>
-                                        {detalle.Modelo.nombre} - {detalle.cantidad}
+                                        {detalle.Modelo.nombre}
                                     </div>
                                 ))}
                             </td>
                             <td>
-                                {pedido.estado_pago === 'pendiente' && (
+                                {pedido.DetallePedidos.map((detalle, index) => (
+                                    <div key={index}>
+                                        {detalle.cantidad}
+                                    </div>
+                                ))}
+                            </td>
+                            <td>
+                                {pedido.estado_pago === 'pendiente' && pedido.estado_entrega !== 'entregado' && (
                                     <div>
                                         <select
                                             onChange={(e) => handleMetodoPagoChange(pedido.pedido_id, e.target.value)}
@@ -254,16 +263,20 @@ const Pedidos = () => {
                                         <button onClick={() => handlePago(pedido.pedido_id)}>Pagar</button>
                                     </div>
                                 )}
-                                <div>
-                                    <select
-                                        onChange={(e) => handleEstadoEntregaChange(pedido.pedido_id, e.target.value)}
-                                        value={estadosEntrega[pedido.pedido_id] || pedido.estado_entrega}
-                                    >
-                                        <option value="pendiente">Pendiente</option>
-                                        <option value="completado">Completado</option>
-                                    </select>
-                                    <button onClick={() => actualizarEstadoEntrega(pedido.pedido_id)}>Actualizar Estado de Entrega</button>
-                                </div>
+                            </td>
+                            <td>
+                                {pedido.estado_entrega !== 'entregado' && (
+                                    <div>
+                                        <select
+                                            onChange={(e) => handleEstadoEntregaChange(pedido.pedido_id, e.target.value)}
+                                            value={estadosEntrega[pedido.pedido_id] || pedido.estado_entrega}
+                                        >
+                                            <option value="pendiente">Pendiente</option>
+                                            <option value="entregado">Entregado</option>
+                                        </select>
+                                        <button onClick={() => actualizarEstadoEntrega(pedido.pedido_id)}>Actualizar</button>
+                                    </div>
+                                )}
                             </td>
                         </tr>
                     ))}
