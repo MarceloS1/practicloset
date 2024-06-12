@@ -1,7 +1,8 @@
-const Modelo = require('../models/Modelo');
-const Stock = require('../models/Stock');
+const { Modelo, Stock }= require('../models')
 const ResponseFactory = require('../helpers/responseFactory');
 const sequelize = require('../sequelize');
+const ModeloBuilder = require('../builders/modeloBuilder');
+const StockBuilder = require('../builders/stockBuilder');
 
 // Obtener todos los modelos con stock
 exports.obtenerModelos = async (req, res) => {
@@ -25,7 +26,7 @@ exports.obtenerModelos = async (req, res) => {
 exports.actualizarModelo = async (req, res) => {
     const { modelo_id } = req.params;
     const { nombre, descripcion, categoria_id, material, alto, ancho, precio, imagen_url, cantidad_disponible, cantidad_reservada } = req.body;
-    
+
     const transaction = await sequelize.transaction();
 
     try {
@@ -35,17 +36,32 @@ exports.actualizarModelo = async (req, res) => {
             return res.status(respuesta.status).json(respuesta.body);
         }
 
-        await modelo.update({ nombre, descripcion, categoria_id, material, alto, ancho, precio, imagen_url }, { transaction });
+        const modeloBuilder = new ModeloBuilder()
+            .setNombre(nombre)
+            .setDescripcion(descripcion)
+            .setCategoriaId(categoria_id)
+            .setMaterial(material)
+            .setAlto(alto)
+            .setAncho(ancho)
+            .setPrecio(precio)
+            .setImagenUrl(imagen_url);
+
+        await modelo.update(modeloBuilder.build(), { transaction });
 
         const stock = await Stock.findOne({ where: { modelo_id }, transaction });
+        const stockBuilder = new StockBuilder()
+            .setModeloId(modelo_id)
+            .setCantidadDisponible(cantidad_disponible)
+            .setCantidadReservada(cantidad_reservada);
+
         if (stock) {
-            await stock.update({ cantidad_disponible, cantidad_reservada }, { transaction });
+            await stock.update(stockBuilder.build(), { transaction });
         } else {
-            await Stock.create({ modelo_id, cantidad_disponible, cantidad_reservada }, { transaction });
+            await Stock.create(stockBuilder.build(), { transaction });
         }
 
         await transaction.commit();
-        
+
         const respuesta = ResponseFactory.createSuccessResponse(modelo, 'Modelo y stock actualizados exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
@@ -54,6 +70,7 @@ exports.actualizarModelo = async (req, res) => {
         res.status(respuesta.status).json(respuesta.body);
     }
 };
+
 
 // Eliminar un modelo
 exports.eliminarModelo = async (req, res) => {
@@ -81,22 +98,24 @@ exports.agregarModelo = async (req, res) => {
 
     try {
         const result = await sequelize.transaction(async (t) => {
-            const modelo = await Modelo.create({
-                nombre,
-                descripcion,
-                categoria_id,
-                material,
-                alto,
-                ancho,
-                precio,
-                imagen_url,
-            }, { transaction: t });
+            const modeloBuilder = new ModeloBuilder()
+                .setNombre(nombre)
+                .setDescripcion(descripcion)
+                .setCategoriaId(categoria_id)
+                .setMaterial(material)
+                .setAlto(alto)
+                .setAncho(ancho)
+                .setPrecio(precio)
+                .setImagenUrl(imagen_url);
 
-            await Stock.create({
-                modelo_id: modelo.modelo_id,
-                cantidad_disponible,
-                cantidad_reservada,
-            }, { transaction: t });
+            const modelo = await Modelo.create(modeloBuilder.build(), { transaction: t });
+
+            const stockBuilder = new StockBuilder()
+                .setModeloId(modelo.modelo_id)
+                .setCantidadDisponible(cantidad_disponible)
+                .setCantidadReservada(cantidad_reservada);
+
+            await Stock.create(stockBuilder.build(), { transaction: t });
 
             return modelo;
         });

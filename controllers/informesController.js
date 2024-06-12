@@ -1,13 +1,8 @@
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
-const Pedido = require('../models/Pedido');
-const Stock = require('../models/Stock');
-const Cliente = require('../models/Cliente');
+const { Pedido, Stock, Cliente , DetallePedido, Modelo, Articulo} = require('../models')
 const ResponseFactory = require('../helpers/responseFactory');
-const DetallePedido = require('../models/DetallePedido');
-const Modelo = require('../models/Modelo');
-const Articulo = require('../models/articulo');
 const sequelize = require('sequelize');
 
 exports.generarInformeVentas = async (req, res) => {

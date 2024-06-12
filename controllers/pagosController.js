@@ -1,5 +1,6 @@
 const Pago = require('../models/Pago');
 const Pedido = require('../models/Pedido');
+const PagoBuilder = require('../builders/pagoBuilder');
 const ResponseFactory = require('../helpers/responseFactory');
 const sequelize = require('../sequelize');
 
@@ -16,13 +17,13 @@ exports.crearPago = async (req, res) => {
             }
             const monto = pedido.precio_total;
 
-            // Insertar el pago
-            const pago = await Pago.create({
-                pedido_id,
-                fecha_pago,
-                monto,
-                metodo_pago,
-            }, { transaction: t });
+            // Construir el pago usando PagoBuilder
+            const pagoBuilder = new PagoBuilder()
+                .setPedidoId(pedido_id)
+                .setFechaPago(fecha_pago)
+                .setMonto(monto)
+                .setMetodoPago(metodo_pago);
+            const pago = await Pago.create(pagoBuilder.build(), { transaction: t });
 
             // Actualizar el estado del pedido a "Completado"
             await pedido.update({ estado_pago: 'Completado' }, { transaction: t });
@@ -61,11 +62,14 @@ exports.actualizarPago = async (req, res) => {
             const respuesta = ResponseFactory.createNotFoundResponse('Pago no encontrado');
             return res.status(respuesta.status).json(respuesta.body);
         }
-        await pago.update({
-            pedido_id,
-            fecha_pago,
-            metodo_pago,
-        });
+
+        // Construir el pago actualizado usando PagoBuilder
+        const pagoBuilder = new PagoBuilder()
+            .setPedidoId(pedido_id)
+            .setFechaPago(fecha_pago)
+            .setMetodoPago(metodo_pago);
+        await pago.update(pagoBuilder.build());
+
         const respuesta = ResponseFactory.createSuccessResponse(pago, 'Pago actualizado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {

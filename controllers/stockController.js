@@ -1,6 +1,7 @@
 const Stock = require('../models/Stock');
 const Op = require('../sequelize');
 const ResponseFactory = require('../helpers/responseFactory');
+const StockBuilder = require('../builders/stockBuilder');
 
 // Actualizar stock
 exports.actualizarStock = async (req, res) => {
@@ -20,7 +21,18 @@ exports.actualizarStock = async (req, res) => {
             return res.status(respuesta.status).json(respuesta.body);
         }
 
-        await stock.update({ cantidad_disponible, cantidad_reservada });
+        const stockBuilder = new StockBuilder()
+            .setCantidadDisponible(cantidad_disponible)
+            .setCantidadReservada(cantidad_reservada);
+
+        if (modelo_id) {
+            stockBuilder.setModeloId(modelo_id);
+        }
+        if (articulo_id) {
+            stockBuilder.setArticuloId(articulo_id);
+        }
+
+        await stock.update(stockBuilder.build());
 
         const respuesta = ResponseFactory.createSuccessResponse(stock, 'Stock actualizado exitosamente');
         res.status(respuesta.status).json(respuesta.body);

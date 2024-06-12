@@ -10,7 +10,6 @@ const stockObserver = new StockObserver();
 const entregaObserver = new EntregaObserver();
 
 orderSubject.subscribe(stockObserver);
-orderSubject.subscribe(entregaObserver);
 
 exports.crearPedido = async (req, res) => {
     const { cliente_id, fecha_entrega, estado_pago, modelos } = req.body;
@@ -60,7 +59,7 @@ exports.crearPedido = async (req, res) => {
         }
 
         // Notificar al observador para actualizar el stock
-        await orderSubject.notify({ modelos });
+        await orderSubject.notify({ modelos }, transaction);
 
         await transaction.commit();
 
@@ -177,37 +176,37 @@ exports.completarEntrega = async (req, res) => {
     const { pedidoId } = req.params;
     const { estado_entrega } = req.body;
     const transaction = await sequelize.transaction();
-
+  
     try {
-        const pedido = await Pedido.findByPk(pedidoId, { include: [DetallePedido], transaction });
-
-        if (!pedido) {
-            await transaction.rollback();
-            const respuesta = ResponseFactory.createNotFoundResponse('Pedido no encontrado');
-            return res.status(respuesta.status).json(respuesta.body);
-        }
-
-        const estadoAnterior = pedido.estado_entrega;
-
-        console.log('Estado anterior:', estadoAnterior);
-        console.log('Estado nuevo:', estado_entrega);
-
-        await pedido.update({ estado_entrega }, { transaction });
-
-        console.log('Pedido actualizado:', pedido);
-
-        if (estadoAnterior === 'pendiente' && estado_entrega === 'entregado') {
-            console.log('Notificando al observador de entrega');
-            await entregaObserver.update(pedido);
-        }
-
-        await transaction.commit();
-
-        const respuesta = ResponseFactory.createSuccessResponse(pedido, 'Estado del pedido actualizado exitosamente');
-        res.status(respuesta.status).json(respuesta.body);
-    } catch (error) {
+      const pedido = await Pedido.findByPk(pedidoId, { transaction });
+  
+      if (!pedido) {
         await transaction.rollback();
-        const respuesta = ResponseFactory.createErrorResponse(error, 'Error al actualizar el estado del pedido');
-        res.status(respuesta.status).json(respuesta.body);
+        const respuesta = ResponseFactory.createNotFoundResponse('Pedido no encontrado');
+        return res.status(respuesta.status).json(respuesta.body);
+      }
+  
+      const estadoAnterior = pedido.estado_entrega;
+  
+      console.log('Estado anterior:', estadoAnterior);
+      console.log('Estado nuevo:', estado_entrega);
+  
+      await pedido.update({ estado_entrega }, { transaction });
+  
+      console.log('Pedido actualizado:', pedido);
+  
+      if (estadoAnterior === 'pendiente' && estado_entrega === 'entregado') {
+        console.log('Notificando al observador de entrega');
+        await entregaObserver.update(pedido);
+      }
+  
+      await transaction.commit();
+  
+      const respuesta = ResponseFactory.createSuccessResponse(pedido, 'Estado del pedido actualizado exitosamente');
+      res.status(respuesta.status).json(respuesta.body);
+    } catch (error) {
+      await transaction.rollback();
+      const respuesta = ResponseFactory.createErrorResponse(error, 'Error al actualizar el estado del pedido');
+      res.status(respuesta.status).json(respuesta.body);
     }
-};
+  };

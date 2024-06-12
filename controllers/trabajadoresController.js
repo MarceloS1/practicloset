@@ -1,21 +1,24 @@
 const Trabajador = require('../models/Trabajador');
 const ResponseFactory = require('../helpers/responseFactory');
+const TrabajadorBuilder = require('../builders/trabajadorBuilder');
 
 // Agregar un nuevo trabajador
 exports.agregarTrabajador = async (req, res) => {
     const { nombre, apellido, cedula, email, telefono, cargo, fecha_ingreso, salario } = req.body;
 
     try {
-        const trabajador = await Trabajador.create({
-            nombre,
-            apellido,
-            cedula,
-            email,
-            telefono,
-            cargo,
-            fecha_ingreso,
-            salario,
-        });
+        const trabajadorBuilder = new TrabajadorBuilder()
+            .setNombre(nombre)
+            .setApellido(apellido)
+            .setCedula(cedula)
+            .setEmail(email)
+            .setTelefono(telefono)
+            .setCargo(cargo)
+            .setFechaIngreso(fecha_ingreso)
+            .setSalario(salario);
+
+        const trabajador = await Trabajador.create(trabajadorBuilder.build());
+
         const respuesta = ResponseFactory.createSuccessResponse(trabajador, 'Trabajador agregado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
@@ -36,16 +39,17 @@ exports.actualizarTrabajador = async (req, res) => {
             return res.status(respuesta.status).json(respuesta.body);
         }
 
-        await trabajador.update({
-            nombre,
-            apellido,
-            cedula,
-            email,
-            telefono,
-            cargo,
-            fecha_ingreso,
-            salario,
-        });
+        const trabajadorBuilder = new TrabajadorBuilder()
+            .setNombre(nombre)
+            .setApellido(apellido)
+            .setCedula(cedula)
+            .setEmail(email)
+            .setTelefono(telefono)
+            .setCargo(cargo)
+            .setFechaIngreso(fecha_ingreso)
+            .setSalario(salario);
+
+        await trabajador.update(trabajadorBuilder.build());
 
         const respuesta = ResponseFactory.createSuccessResponse(trabajador, 'Trabajador actualizado exitosamente');
         res.status(respuesta.status).json(respuesta.body);

@@ -1,27 +1,43 @@
 const sequelize = require('../sequelize');
+const { DetalleOrden, Articulo, Stock } = require('../models');
 const OrdenCompra = require('../models/OrdenCompra');
-const DetalleOrden = require('../models/DetalleOrden');
-const Articulo = require('../models/articulo');
-const Stock = require('../models/Stock');
 const ResponseFactory = require('../helpers/responseFactory');
+const OrdenBuilder = require('../builders/ordenBuilder');
+const DetalleOrdenBuilder = require('../builders/detallesOrdenBuilder');
+
 
 // Crear una nueva orden de compra
 exports.crearOrden = async (req, res) => {
     const { proveedor_id, fecha, estado, detalles } = req.body;
-
     const transaction = await sequelize.transaction();
 
     try {
+        const ordenBuilder = new OrdenBuilder()
+            .setProveedorId(proveedor_id)
+            .setFecha(fecha)
+            .setEstado(estado);
+
+        detalles.forEach(detalle => {
+            const detalleBuilder = new DetalleOrdenBuilder()
+                .setArticuloId(detalle.articulo_id)
+                .setCantidad(detalle.cantidad)
+                .build();
+
+            ordenBuilder.addDetalle(detalleBuilder);
+        });
+
+        const ordenData = ordenBuilder.build();
+
         // Crear la orden
         const orden = await OrdenCompra.create({
-            proveedor_id,
-            fecha,
-            estado
+            proveedor_id: ordenData.proveedor_id,
+            fecha: ordenData.fecha,
+            estado: ordenData.estado
         }, { transaction });
 
         // Crear los detalles de la orden
-        const detallesOrden = detalles.map(detalle => ({
-            orden_id: orden.orden_id,  // Corregir esta referencia
+        const detallesOrden = ordenData.detalles.map(detalle => ({
+            orden_id: orden.orden_id,
             articulo_id: detalle.articulo_id,
             cantidad: detalle.cantidad
         }));
@@ -81,11 +97,13 @@ exports.actualizarOrden = async (req, res, next) => {
 
             // Insertar los nuevos detalles
             for (const detalle of detalles) {
-                await DetalleOrden.create({
-                    orden_id: ordenId,
-                    articulo_id: detalle.articulo_id,
-                    cantidad: detalle.cantidad,
-                }, { transaction: t });
+                const detalleBuilder = new DetalleOrdenBuilder()
+                    .setOrdenId(ordenId)
+                    .setArticuloId(detalle.articulo_id)
+                    .setCantidad(detalle.cantidad)
+                    .build();
+
+                await DetalleOrden.create(detalleBuilder, { transaction: t });
             }
 
             return orden;

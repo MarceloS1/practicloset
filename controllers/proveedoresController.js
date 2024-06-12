@@ -1,5 +1,6 @@
 const Proveedor = require('../models/Proveedor');
 const ResponseFactory = require('../helpers/responseFactory');
+const ProveedorBuilder = require('../builders/proveedoresBuilder');
 
 // Obtener todos los proveedores
 exports.obtenerProveedores = async (req, res) => {
@@ -18,14 +19,16 @@ exports.crearProveedor = async (req, res) => {
     const { nombre, direccion, telefono, email, comentario, tiempo_entrega_estimado } = req.body;
 
     try {
-        const proveedor = await Proveedor.create({
-            nombre,
-            direccion,
-            telefono,
-            email,
-            comentario,
-            tiempo_entrega_estimado,
-        });
+        const proveedorBuilder = new ProveedorBuilder()
+            .setNombre(nombre)
+            .setDireccion(direccion)
+            .setTelefono(telefono)
+            .setEmail(email)
+            .setComentario(comentario)
+            .setTiempoEntregaEstimado(tiempo_entrega_estimado);
+
+        const proveedor = await Proveedor.create(proveedorBuilder.build());
+
         const respuesta = ResponseFactory.createSuccessResponse(proveedor, 'Proveedor creado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
@@ -46,14 +49,15 @@ exports.actualizarProveedor = async (req, res) => {
             return res.status(respuesta.status).json(respuesta.body);
         }
 
-        await proveedor.update({
-            nombre,
-            direccion,
-            telefono,
-            email,
-            comentario,
-            tiempo_entrega_estimado,
-        });
+        const proveedorBuilder = new ProveedorBuilder()
+            .setNombre(nombre)
+            .setDireccion(direccion)
+            .setTelefono(telefono)
+            .setEmail(email)
+            .setComentario(comentario)
+            .setTiempoEntregaEstimado(tiempo_entrega_estimado);
+
+        await proveedor.update(proveedorBuilder.build());
 
         const respuesta = ResponseFactory.createSuccessResponse(proveedor, 'Proveedor actualizado exitosamente');
         res.status(respuesta.status).json(respuesta.body);

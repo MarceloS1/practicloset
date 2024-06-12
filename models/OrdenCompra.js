@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../sequelize');
-const DetalleOrden = require('./DetalleOrden'); // Importa el modelo de DetalleOrden
-const Proveedor = require('./Proveedor')
+const Proveedor = require('./Proveedor');
 
 const OrdenCompra = sequelize.define('OrdenCompra', {
   orden_id: {
@@ -15,7 +14,7 @@ const OrdenCompra = sequelize.define('OrdenCompra', {
     references: {
       model: Proveedor,
       key: 'proveedor_id',
-    }
+    },
   },
   fecha: {
     type: DataTypes.DATE,
@@ -29,8 +28,5 @@ const OrdenCompra = sequelize.define('OrdenCompra', {
   tableName: 'ordenes_compra',
   timestamps: false,
 });
-
-OrdenCompra.hasMany(DetalleOrden, { foreignKey: 'orden_id' });
-DetalleOrden.belongsTo(OrdenCompra, { foreignKey: 'orden_id' });
 
 module.exports = OrdenCompra;

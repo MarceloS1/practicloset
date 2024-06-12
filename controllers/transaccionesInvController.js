@@ -2,6 +2,7 @@ const TransaccionInventario = require('../models/TransaccionInventario');
 const Stock = require('../models/Stock');
 const ResponseFactory = require('../helpers/responseFactory');
 const sequelize = require('../sequelize');
+const TransaccionInventarioBuilder = require('../builders/transaccionInventarioBuilder');
 
 exports.agregarTransaccionYActualizarStock = async (req, res) => {
     const { modelo_id, tipo_transaccion, cantidad, nota } = req.body;
@@ -20,13 +21,14 @@ exports.agregarTransaccionYActualizarStock = async (req, res) => {
             }
         }
 
-        // Insertar transacción de inventario
-        const transaccion = await TransaccionInventario.create({
-            modelo_id,
-            tipo_transaccion,
-            cantidad,
-            nota,
-        }, { transaction });
+        // Construir la transacción de inventario usando el builder
+        const transaccionBuilder = new TransaccionInventarioBuilder()
+            .setModeloId(modelo_id)
+            .setTipoTransaccion(tipo_transaccion)
+            .setCantidad(cantidad)
+            .setNota(nota);
+
+        const transaccion = await TransaccionInventario.create(transaccionBuilder.build(), { transaction });
 
         // Actualizar stock
         let stock = await Stock.findOne({ where: { modelo_id }, transaction });

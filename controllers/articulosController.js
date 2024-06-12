@@ -1,7 +1,6 @@
-const Articulo = require('../models/articulo');
-const Proveedor = require('../models/Proveedor');
+const { Articulo, Proveedor, Stock } = require('../models')
 const ResponseFactory = require('../helpers/responseFactory');
-const Stock = require('../models/Stock');
+const ArticuloBuilder = require('../builders/articuloBuilder');
 
 // Obtener todos los artículos
 exports.obtenerArticulos = async (req, res, next) => {
@@ -18,7 +17,14 @@ exports.obtenerArticulos = async (req, res, next) => {
 exports.crearArticulo = async (req, res, next) => {
     const { nombre, precio, tipo, proveedor_id } = req.body;
     try {
-        const articulo = await Articulo.create({ nombre, precio, tipo, proveedor_id });
+        const articuloData = new ArticuloBuilder()
+            .setNombre(nombre)
+            .setPrecio(precio)
+            .setTipo(tipo)
+            .setProveedorId(proveedor_id)
+            .build();
+        
+        const articulo = await Articulo.create(articuloData);
         const respuesta = ResponseFactory.createSuccessResponse(articulo);
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
@@ -33,7 +39,14 @@ exports.actualizarArticulo = async (req, res, next) => {
     try {
         const articulo = await Articulo.findByPk(articulo_id);
         if (articulo) {
-            await articulo.update({ nombre, precio, tipo, proveedor_id });
+            const articuloData = new ArticuloBuilder()
+                .setNombre(nombre)
+                .setPrecio(precio)
+                .setTipo(tipo)
+                .setProveedorId(proveedor_id)
+                .build();
+
+            await articulo.update(articuloData);
             const respuesta = ResponseFactory.createSuccessResponse(articulo);
             res.status(respuesta.status).json(respuesta.body);
         } else {
@@ -44,7 +57,6 @@ exports.actualizarArticulo = async (req, res, next) => {
         next(error);
     }
 };
-
 // Eliminar un artículo
 exports.eliminarArticulo = async (req, res, next) => {
     const { articulo_id } = req.params;
