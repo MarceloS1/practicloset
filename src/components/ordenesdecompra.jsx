@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../css/base.css';
+import '../css/ordenes.css'; // Importa los estilos de OrdenesCompra
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faCog } from '@fortawesome/free-solid-svg-icons';
-
-
 
 const baseUrl = 'http://25.41.163.224:5000';
 
@@ -218,17 +217,19 @@ const OrdenesCompra = () => {
           </div>
         ))}
         <button type="button" onClick={agregarDetalle}>Agregar Artículo</button>
+        
         <button type="submit">{ordenActual ? 'Guardar Cambios' : 'Crear Orden'}</button>
         {ordenActual && <button type="button" onClick={resetFormulario}>Cancelar</button>}
       </form>
       <h3>Lista de Órdenes</h3>
-      <table>
+      <table className="ordenes-lista">
         <thead>
           <tr>
             <th>Proveedor</th>
             <th>Fecha</th>
             <th>Estado</th>
             <th>Detalles</th>
+            <th>Cantidad</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -241,16 +242,24 @@ const OrdenesCompra = () => {
               <td>
                 {orden.DetalleOrdens.map((detalle, index) => (
                   <div key={index}>
-                    {detalle.Articulo.nombre} - {detalle.cantidad}
+                    {detalle.Articulo.nombre} 
                   </div>
                 ))}
               </td>
               <td>
-                <button className="action-button modify-button" onClick={() => handleModificar(orden)}><FontAwesomeIcon icon={faCog} /></button>
-                <button className="action-button delete-button" onClick={() => handleEliminar(orden.orden_id)}><FontAwesomeIcon icon={faTrash} /></button>
-                {orden.estado === 'En proceso' && (
-                  <button onClick={() => confirmarRecepcion(orden.orden_id)}>Confirmar Recepción</button>
-                )}
+              {orden.DetalleOrdens.map((detalle, index) => (
+                  <div key={index}>
+                    {detalle.cantidad}
+                  </div>
+                ))}</td>
+              <td>
+                <div className="button-container">
+                  <button className="action-button modify-button" onClick={() => handleModificar(orden)}><FontAwesomeIcon icon={faCog} /></button>
+                  <button className="action-button delete-button" onClick={() => handleEliminar(orden.orden_id)}><FontAwesomeIcon icon={faTrash} /></button>
+                  {orden.estado === 'En proceso' && (
+                    <button onClick={() => confirmarRecepcion(orden.orden_id)}>Confirmar Recepción</button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

@@ -95,10 +95,10 @@ const GestionClientes = () => {
   };
 
   return (
-    <div className="form-container" style={{ marginLeft: '10%' }}>
+    <div className="form-container" style={{ marginLeft: '10% ', marginRight: '0%' }}>
       <h2>Gestión de Clientes</h2>
-      <form onSubmit={handleSubmit} className="cliente-form">
-        <div className="form-group">
+      <form onSubmit={handleSubmit} style={{ margin: '20px 0' }} >
+        <div>
           <label htmlFor="nombre">Nombre:</label>
           <input
             id="nombre"
@@ -109,7 +109,7 @@ const GestionClientes = () => {
             required
           />
         </div>
-        <div className="form-group">
+        <div >
           <label htmlFor="apellido">Apellido:</label>
           <input
             id="apellido"
@@ -120,7 +120,7 @@ const GestionClientes = () => {
             required
           />
         </div>
-        <div className="form-group">
+        <div >
           <label htmlFor="cedula">Cédula:</label>
           <input
             id="cedula"
@@ -131,7 +131,7 @@ const GestionClientes = () => {
             required
           />
         </div>
-        <div className="form-group">
+        <div >
           <label htmlFor="email">Email:</label>
           <input
             id="email"
@@ -142,7 +142,7 @@ const GestionClientes = () => {
             required
           />
         </div>
-        <div className="form-group">
+        <div >
           <label htmlFor="telefono">Teléfono:</label>
           <input
             id="telefono"
@@ -153,7 +153,7 @@ const GestionClientes = () => {
             required
           />
         </div>
-        <div className="form-group">
+        <div >
           <label htmlFor="direccion">Dirección:</label>
           <input
             id="direccion"
@@ -164,14 +164,14 @@ const GestionClientes = () => {
             required
           />
         </div>
-        <div className="form-actions">
+        <div >
           <button type="submit" className="btn btn-primary">
             Guardar Cliente
           </button>
         </div>
       </form>
       <h3>Lista de Clientes</h3>
-      <table className="tabla-clientes">
+      <table className="articulos-lista">
         <thead>
           <tr>
             <th>Nombre</th>

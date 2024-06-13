@@ -209,7 +209,7 @@ const FormularioModelo = ({ onReset }) => {
         <button type="submit">Guardar</button>
         <button type="button" onClick={handleReset}>Cancelar</button>
       </form>
-      <div className="modelos-lista">
+      <div className="articulos-lista">
         <h3>Lista de Modelos</h3>
         <table>
           <thead>

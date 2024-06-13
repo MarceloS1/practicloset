@@ -142,7 +142,7 @@ const GestionStock = () => {
             )}
 
             <h3>Lista de Artículos</h3>
-            <table>
+            <table className="articulos-lista">
                 <thead>
                     <tr>
                         <th>Nombre</th>
@@ -178,7 +178,7 @@ const GestionStock = () => {
             </table>
 
             <h3>Lista de Modelos</h3>
-            <table>
+            <table className="articulos-lista">
                 <thead>
                     <tr>
                         <th>Nombre</th>

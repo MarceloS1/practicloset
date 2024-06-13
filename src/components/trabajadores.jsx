@@ -189,7 +189,7 @@ const FormularioTrabajador = ({ onReset }) => {
         <button type="submit" style={{ marginRight: '10px' }}>Guardar</button>
         <button type="button" onClick={handleReset}>Cancelar</button>
       </form>
-      <div>
+      <div className="articulos-lista">
         <h3>Lista de Trabajadores</h3>
         <table>
           <thead>

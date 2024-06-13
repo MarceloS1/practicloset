@@ -220,7 +220,7 @@ const Pedidos = () => {
                 </div>
             </form>
             <h3>Lista de Pedidos</h3>
-            <table>
+            <table className="articulos-lista">
                 <thead>
                     <tr>
                         <th>Cliente</th>

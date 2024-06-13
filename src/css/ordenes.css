@@ -1,0 +1,103 @@
+/* Estilos generales para contenedores de formulario */
+.form-container {
+    border: 1px solid #000;
+    padding: 20px;
+    margin: 20px auto;
+    width: 80%;
+    background-color: #f8f8f8;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Estilos para el formulario */
+  .provider-form,
+  .article-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    align-items: end;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .input-group label {
+    font-weight: bold;
+  }
+  
+  .input-group input,
+  .input-group select,
+  .input-group textarea {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Estilos para botones */
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .button-group .btn {
+    padding: 10px 20px;
+    border: 1px solid #000;
+    background-color: #fff;
+    cursor: pointer;
+  }
+  
+  .button-group .btn:hover {
+    background-color: #e8e8e8;
+  }
+  
+  /* Estilos para las tablas */
+  .ordenes-lista {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .ordenes-lista th,
+  .ordenes-lista td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .ordenes-lista th {
+    background-color: #f2f2f2;
+  }
+  
+  /* Estilos para los botones de acción en las tablas */
+  .action-button {
+    margin: 0 5px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+  }
+  
+  /* Usar FontAwesome para los íconos */
+  .delete-button {
+    color: red;
+  }
+  
+  .modify-button {
+    color: green;
+  }
+  
+  /* Efectos hover para los botones */
+  .action-button:hover {
+    opacity: 0.7;
+  }
+  
+  /* Botones alineados a la derecha dentro de las celdas de la tabla */
+  .ordenes-lista td .button-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  
