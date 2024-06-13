@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../css/dashboard.css'; // Asegúrate de tener estilos para el dashboard
+import { FaUser, FaTruck, FaBox, FaUsers, FaWarehouse, FaCogs, FaClipboardList } from 'react-icons/fa';
 
 const baseUrl = 'http://25.41.163.224:5000/api';
 
@@ -48,30 +49,33 @@ const Dashboard = () => {
   return (
     <div className="dashboard">
       <div className="dashboard-card">
+        <FaUser className="dashboard-icon" />
         <h3>Clientes</h3>
         <p>{data.clientes}</p>
       </div>
       <div className="dashboard-card">
+        <FaTruck className="dashboard-icon" />
         <h3>Proveedores</h3>
         <p>{data.proveedores}</p>
       </div>
       <div className="dashboard-card">
+        <FaBox className="dashboard-icon" />
         <h3>Artículos</h3>
         <p>{data.articulos}</p>
       </div>
       <div className="dashboard-card">
+        <FaUsers className="dashboard-icon" />
         <h3>Trabajadores</h3>
         <p>{data.trabajadores}</p>
       </div>
+     
       <div className="dashboard-card">
-        <h3>Stock</h3>
-        <p>{data.stock}</p>
-      </div>
-      <div className="dashboard-card">
+        <FaCogs className="dashboard-icon" />
         <h3>Modelos</h3>
         <p>{data.modelos}</p>
       </div>
       <div className="dashboard-card">
+        <FaClipboardList className="dashboard-icon" />
         <h3>Pedidos</h3>
         <p>{data.pedidos}</p>
       </div>
