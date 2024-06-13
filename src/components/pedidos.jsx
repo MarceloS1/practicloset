@@ -225,7 +225,7 @@ const Pedidos = () => {
                     <tr>
                         <th>Cliente</th>
                         <th>Fecha de Entrega</th>
-                        <th>Estado de Pago</th>
+                        
                         <th>Modelos</th>
                         <th>Cantidad</th>
                         <th>Gestionar Pago</th>
@@ -237,7 +237,7 @@ const Pedidos = () => {
                         <tr key={pedido.pedido_id}>
                             <td>{clientes.find(c => c.cliente_id === pedido.cliente_id)?.nombre}</td>
                             <td>{pedido.fecha_entrega.split('T')[0]}</td>
-                            <td>{pedido.estado_pago}</td>
+                            
                             <td>{pedido.DetallePedidos.map((detalle, index) => (
                                 <div key={index}>{detalle.Modelo.nombre}</div>
                             ))}</td>

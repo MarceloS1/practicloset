@@ -1,18 +1,19 @@
 .navbar-container {
-    position: fixed; /* Fija el navbar en una posición relativa a la ventana del navegador */
+    position: fixed;
     top: 0;
     left: 0;
-    height: 100vh; /* Altura completa */
-    width: 300px; /* Ancho del menú lateral */
-    background: #f0f0f0; /* Color de fondo */
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* Sombra para dar profundidad */
+    height: 100vh;
+    width: 300px;
+    background: #f0f0f0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     display: flex;
-    flex-direction: column; /* Organiza verticalmente los elementos */
+    flex-direction: column;
     padding: 10px;
+    font-size: 15px; /* Aumenta el tamaño de la letra */
 }
 
 .navbar-logo {
-    width: 400%;
+    width: 100%; /* Ajusta el tamaño del logo */
     margin: 10px 0;
 }
 
@@ -21,6 +22,7 @@
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    font-size: 16px; /* Aumenta el tamaño de la letra en el input */
 }
 
 .navbar-nav {
@@ -30,14 +32,17 @@
 
 .navbar-nav li {
     margin: 10px 0;
+    padding: 10px 0; /* Añade espacio vertical entre los elementos */
+    border-bottom: 1px solid #ccc; /* Añade una línea separadora */
 }
 
 .navbar-nav li a {
     text-decoration: none;
     color: #333;
-    display: block; /* Hace que el enlace llene el espacio del li */
+    display: block;
+    padding: 10px; /* Añade padding para mayor área de clic */
 }
 
 .navbar-nav li a:hover {
-    background-color: #ddd; /* Cambia el fondo al hacer hover */
+    background-color: #ddd;
 }

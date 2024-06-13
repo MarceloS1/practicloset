@@ -1,10 +1,27 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome, faTruck, faBoxOpen, faClipboardList, faUserTie, faUsers, faWarehouse, faCogs, faFileAlt, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import '../css/navbar.css';  // Asegúrate de que la ruta es correcta
-import logo from '../css/logopracticloset.png'
+import logo from '../css/logopracticloset.png';
 
 const NavBar = () => {
     const [searchTerm, setSearchTerm] = useState('');
+
+    const navItems = [
+        { to: "/", text: "Inicio", icon: faHome },
+        { to: "/proveedores", text: "Gestion Proveedores", icon: faTruck },
+        { to: "/articulos", text: "Gestion Artículos", icon: faBoxOpen },
+        { to: "/ordenes-de-compra", text: "Órdenes de Compra", icon: faClipboardList },
+        { to: "/trabajadores", text: "Gestion Trabajadores", icon: faUserTie },
+        { to: "/Clientes", text: "Gestion Clientes", icon: faUsers },
+        { to: "/Stock", text: "Gestionar Stock", icon: faWarehouse },
+        { to: "/Modelos", text: "Gestionar Modelos", icon: faCogs },
+        { to: "/Pedidos", text: "Gestionar Pedidos", icon: faShoppingCart },
+        { to: "/Informes", text: "Gestionar Informes", icon: faFileAlt },
+    ];
+
+    const filteredNavItems = navItems.filter(item => item.text.toLowerCase().includes(searchTerm.toLowerCase()));
 
     return (
         <div className="navbar-container">
@@ -20,16 +37,13 @@ const NavBar = () => {
             </div>
             <nav>
                 <ul className="navbar-nav">
-                    <li><Link to="/">Inicio</Link></li>
-                    <li><Link to="/proveedores">Gestion Proveedores</Link></li>
-                    <li><Link to="/articulos">Gestion Artículos</Link></li>
-                    <li><Link to="/ordenes-de-compra">Órdenes de Compra</Link></li>
-                    <li><Link to="/trabajadores">Gestion Trabajadores</Link></li>
-                    <li><Link to="/Clientes">Gestion Clientes</Link></li>
-                    <li><Link to="/Stock">Gestionar Stock</Link></li>
-                    <li><Link to="/Modelos">Gestionar Modelos</Link></li>
-                    <li><Link to="/Pedidos">Gestionar Pedidos</Link></li>
-                    <li><Link to="/Informes">Gestionar Informes</Link></li>
+                    {filteredNavItems.map(item => (
+                        <li key={item.to}>
+                            <Link to={item.to}>
+                                <FontAwesomeIcon icon={item.icon} /> {item.text}
+                            </Link>
+                        </li>
+                    ))}
                 </ul>
             </nav>
         </div>
