@@ -1,5 +1,5 @@
 const ResponseFactory = require('../helpers/responseFactory');
-const InventoryFacade = require('../facades/InventoryFacade');
+const InventoryFacade = require('../facades/InventoryService');
 
 exports.agregarTransaccionYActualizarStock = async (req, res) => {
     const { modelo_id, tipo_transaccion, cantidad, nota } = req.body;

@@ -1,20 +1,11 @@
-const Cliente = require('../models/Cliente');
 const ResponseFactory = require('../helpers/responseFactory');
-const ClienteBuilder = require('../builders/clienteBuilder');
+const ClienteService = require('../facades/clientesService');
 
 // Crear un nuevo cliente
 exports.agregarCliente = async (req, res, next) => {
     const { nombre, apellido, cedula, email, telefono, direccion } = req.body;
     try {
-        const clienteBuilder = new ClienteBuilder()
-            .setNombre(nombre)
-            .setApellido(apellido)
-            .setCedula(cedula)
-            .setEmail(email)
-            .setTelefono(telefono)
-            .setDireccion(direccion);
-
-        const cliente = await Cliente.create(clienteBuilder.build());
+        const cliente = await ClienteService.agregarCliente({ nombre, apellido, cedula, email, telefono, direccion });
         const respuesta = ResponseFactory.createSuccessResponse(cliente, 'Cliente agregado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
@@ -26,7 +17,7 @@ exports.agregarCliente = async (req, res, next) => {
 // Obtener todos los clientes
 exports.obtenerClientes = async (req, res, next) => {
     try {
-        const clientes = await Cliente.findAll();
+        const clientes = await ClienteService.obtenerClientes();
         const respuesta = ResponseFactory.createSuccessResponse(clientes, 'Clientes obtenidos exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
@@ -40,21 +31,7 @@ exports.actualizarCliente = async (req, res, next) => {
     const { clienteId } = req.params;
     const { nombre, apellido, cedula, email, telefono, direccion } = req.body;
     try {
-        const cliente = await Cliente.findByPk(clienteId);
-        if (!cliente) {
-            const respuesta = ResponseFactory.createNotFoundResponse('Cliente no encontrado');
-            return res.status(respuesta.status).json(respuesta.body);
-        }
-
-        const clienteBuilder = new ClienteBuilder()
-            .setNombre(nombre)
-            .setApellido(apellido)
-            .setCedula(cedula)
-            .setEmail(email)
-            .setTelefono(telefono)
-            .setDireccion(direccion);
-
-        await cliente.update(clienteBuilder.build());
+        const cliente = await ClienteService.actualizarCliente(clienteId, { nombre, apellido, cedula, email, telefono, direccion });
         const respuesta = ResponseFactory.createSuccessResponse(cliente, 'Cliente actualizado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
@@ -67,12 +44,7 @@ exports.actualizarCliente = async (req, res, next) => {
 exports.eliminarCliente = async (req, res, next) => {
     const { clienteId } = req.params;
     try {
-        const cliente = await Cliente.findByPk(clienteId);
-        if (!cliente) {
-            const respuesta = ResponseFactory.createNotFoundResponse('Cliente no encontrado');
-            return res.status(respuesta.status).json(respuesta.body);
-        }
-        await cliente.destroy();
+        await ClienteService.eliminarCliente(clienteId);
         const respuesta = ResponseFactory.createSuccessResponse(null, 'Cliente eliminado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {

@@ -1,11 +1,9 @@
-const Proveedor = require('../models/Proveedor');
+const ProveedorService = require('../facades/proveedorService');
 const ResponseFactory = require('../helpers/responseFactory');
-const ProveedorBuilder = require('../builders/proveedoresBuilder');
 
-// Obtener todos los proveedores
 exports.obtenerProveedores = async (req, res) => {
     try {
-        const proveedores = await Proveedor.findAll();
+        const proveedores = await ProveedorService.obtenerProveedores();
         const respuesta = ResponseFactory.createSuccessResponse(proveedores, 'Proveedores obtenidos exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
@@ -14,21 +12,9 @@ exports.obtenerProveedores = async (req, res) => {
     }
 };
 
-// Crear un nuevo proveedor
 exports.crearProveedor = async (req, res) => {
-    const { nombre, direccion, telefono, email, comentario, tiempo_entrega_estimado } = req.body;
-
     try {
-        const proveedorBuilder = new ProveedorBuilder()
-            .setNombre(nombre)
-            .setDireccion(direccion)
-            .setTelefono(telefono)
-            .setEmail(email)
-            .setComentario(comentario)
-            .setTiempoEntregaEstimado(tiempo_entrega_estimado);
-
-        const proveedor = await Proveedor.create(proveedorBuilder.build());
-
+        const proveedor = await ProveedorService.crearProveedor(req.body);
         const respuesta = ResponseFactory.createSuccessResponse(proveedor, 'Proveedor creado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
@@ -37,28 +23,10 @@ exports.crearProveedor = async (req, res) => {
     }
 };
 
-// Actualizar un proveedor existente
 exports.actualizarProveedor = async (req, res) => {
     const { proveedor_id } = req.params;
-    const { nombre, direccion, telefono, email, comentario, tiempo_entrega_estimado } = req.body;
-
     try {
-        const proveedor = await Proveedor.findByPk(proveedor_id);
-        if (!proveedor) {
-            const respuesta = ResponseFactory.createNotFoundResponse('Proveedor no encontrado');
-            return res.status(respuesta.status).json(respuesta.body);
-        }
-
-        const proveedorBuilder = new ProveedorBuilder()
-            .setNombre(nombre)
-            .setDireccion(direccion)
-            .setTelefono(telefono)
-            .setEmail(email)
-            .setComentario(comentario)
-            .setTiempoEntregaEstimado(tiempo_entrega_estimado);
-
-        await proveedor.update(proveedorBuilder.build());
-
+        const proveedor = await ProveedorService.actualizarProveedor(proveedor_id, req.body);
         const respuesta = ResponseFactory.createSuccessResponse(proveedor, 'Proveedor actualizado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
@@ -67,18 +35,10 @@ exports.actualizarProveedor = async (req, res) => {
     }
 };
 
-// Eliminar un proveedor
 exports.eliminarProveedor = async (req, res) => {
     const { proveedor_id } = req.params;
-
     try {
-        const proveedor = await Proveedor.findByPk(proveedor_id);
-        if (!proveedor) {
-            const respuesta = ResponseFactory.createNotFoundResponse('Proveedor no encontrado');
-            return res.status(respuesta.status).json(respuesta.body);
-        }
-
-        await proveedor.destroy();
+        await ProveedorService.eliminarProveedor(proveedor_id);
         const respuesta = ResponseFactory.createSuccessResponse(null, 'Proveedor eliminado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {

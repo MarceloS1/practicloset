@@ -1,36 +1,10 @@
-const Pago = require('../models/Pago');
-const Pedido = require('../models/Pedido');
-const PagoBuilder = require('../builders/pagoBuilder');
+const PagoService = require('../facades/pagoService');
 const ResponseFactory = require('../helpers/responseFactory');
-const sequelize = require('../sequelize');
 
 // Crear un nuevo pago y actualizar el estado del pedido a "Completado"
 exports.crearPago = async (req, res) => {
-    const { pedido_id, fecha_pago, metodo_pago } = req.body;
-
     try {
-        const result = await sequelize.transaction(async (t) => {
-            // Obtener el precio total del pedido
-            const pedido = await Pedido.findByPk(pedido_id, { transaction: t });
-            if (!pedido) {
-                throw new Error('Pedido no encontrado');
-            }
-            const monto = pedido.precio_total;
-
-            // Construir el pago usando PagoBuilder
-            const pagoBuilder = new PagoBuilder()
-                .setPedidoId(pedido_id)
-                .setFechaPago(fecha_pago)
-                .setMonto(monto)
-                .setMetodoPago(metodo_pago);
-            const pago = await Pago.create(pagoBuilder.build(), { transaction: t });
-
-            // Actualizar el estado del pedido a "Completado"
-            await pedido.update({ estado_pago: 'Completado' }, { transaction: t });
-
-            return { pago, pedido };
-        });
-
+        const result = await PagoService.crearPago(req.body);
         const respuesta = ResponseFactory.createSuccessResponse(result, 'Pago creado y pedido actualizado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
@@ -42,7 +16,7 @@ exports.crearPago = async (req, res) => {
 // Obtener todos los pagos
 exports.obtenerPagos = async (req, res) => {
     try {
-        const pagos = await Pago.findAll();
+        const pagos = await PagoService.obtenerPagos();
         const respuesta = ResponseFactory.createSuccessResponse(pagos, 'Pagos obtenidos exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
@@ -54,22 +28,8 @@ exports.obtenerPagos = async (req, res) => {
 // Actualizar un pago existente
 exports.actualizarPago = async (req, res) => {
     const { pagoId } = req.params;
-    const { pedido_id, fecha_pago, metodo_pago } = req.body;
-
     try {
-        const pago = await Pago.findByPk(pagoId);
-        if (!pago) {
-            const respuesta = ResponseFactory.createNotFoundResponse('Pago no encontrado');
-            return res.status(respuesta.status).json(respuesta.body);
-        }
-
-        // Construir el pago actualizado usando PagoBuilder
-        const pagoBuilder = new PagoBuilder()
-            .setPedidoId(pedido_id)
-            .setFechaPago(fecha_pago)
-            .setMetodoPago(metodo_pago);
-        await pago.update(pagoBuilder.build());
-
+        const pago = await PagoService.actualizarPago(pagoId, req.body);
         const respuesta = ResponseFactory.createSuccessResponse(pago, 'Pago actualizado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
@@ -82,12 +42,7 @@ exports.actualizarPago = async (req, res) => {
 exports.eliminarPago = async (req, res) => {
     const { pagoId } = req.params;
     try {
-        const pago = await Pago.findByPk(pagoId);
-        if (!pago) {
-            const respuesta = ResponseFactory.createNotFoundResponse('Pago no encontrado');
-            return res.status(respuesta.status).json(respuesta.body);
-        }
-        await pago.destroy();
+        await PagoService.eliminarPago(pagoId);
         const respuesta = ResponseFactory.createSuccessResponse(null, 'Pago eliminado exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {

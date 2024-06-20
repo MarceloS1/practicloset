@@ -1,10 +1,11 @@
 const Categoria = require('../models/Categoria');
 const ResponseFactory = require('../helpers/responseFactory');
+const CategoriaService = require('../facades/categoriasService');
 
 // Obtener todas las categorías
 exports.obtenerCategorias = async (req, res, next) => {
     try {
-        const categorias = await Categoria.findAll({ order: [['nombre', 'ASC']] });
+        const categorias = await CategoriaService.obtenerCategorias();
         const respuesta = ResponseFactory.createSuccessResponse(categorias, 'Categorías obtenidas exitosamente');
         res.status(respuesta.status).json(respuesta.body);
     } catch (error) {
