@@ -2,7 +2,7 @@ const { Categoria } = require('../models');
 
 class CategoriaService {
     async obtenerCategorias() {
-        return await Categoria.findAll({ order: [['nombre', 'ASC']] });
+        return await Categoria.findAll();
     }
 }
 
