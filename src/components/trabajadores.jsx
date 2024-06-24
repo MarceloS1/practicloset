@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
-
-const baseUrl = 'http://25.41.163.224:5000';
+const baseUrl = 'https://practicloset.onrender.com';
 
 const FormularioTrabajador = ({ onReset }) => {
   const [nombre, setNombre] = useState('');

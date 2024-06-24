@@ -3,7 +3,7 @@ import axios from 'axios';
 import '../css/dashboard.css'; // Asegúrate de tener estilos para el dashboard
 import { FaUser, FaTruck, FaBox, FaUsers, FaWarehouse, FaCogs, FaClipboardList } from 'react-icons/fa';
 
-const baseUrl = 'http://25.41.163.224:5000/api';
+const baseUrl = 'https://practicloset.onrender.com/api';
 
 const Dashboard = () => {
   const [data, setData] = useState({

@@ -5,7 +5,7 @@ import { faTrash, faCog } from '@fortawesome/free-solid-svg-icons';
 
 import '../css/base.css';
 
-const baseUrl = 'http://25.41.163.224:5000';
+const baseUrl = 'https://practicloset.onrender.com';
 
 const Articulo = () => {
   const [formulario, setFormulario] = useState({

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faCog } from '@fortawesome/free-solid-svg-icons';
 
-const baseUrl = 'http://25.41.163.224:5000';
+const baseUrl = 'https://practicloset.onrender.com';
 
 const FormularioModelo = ({ onReset }) => {
   const [nombre, setNombre] = useState('');

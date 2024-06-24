@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faCog } from '@fortawesome/free-solid-svg-icons';
 
 
-const baseUrl = 'http://25.41.163.224:5000'; // Asegúrate de reemplazar esta URL con la dirección correcta de tu servidor
+const baseUrl = 'https://practicloset.onrender.com';; // Asegúrate de reemplazar esta URL con la dirección correcta de tu servidor
 
 // Funciones para interactuar con el backend usando Axios
 const api = {
