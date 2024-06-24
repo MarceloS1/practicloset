@@ -1,12 +1,18 @@
+require('dotenv').config();
 const { Sequelize } = require('sequelize');
 
 class Database {
   constructor() {
     if (!Database.instance) {
-      this.sequelize = new Sequelize('practicloset_db', 'Marcelo', 'Passw0rd', {
-        host: '25.56.40.70',
+      this.sequelize = new Sequelize(process.env.DATABASEURL, {
         dialect: 'postgres',
-        port: 5433,
+        protocol: 'postgres',
+        dialectOptions: {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false,
+          },
+        },
       });
       Database.instance = this;
     }
