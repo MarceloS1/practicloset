@@ -65,6 +65,26 @@ exports.crearOrden = async (req, res) => {
 
         await DetalleOrden.bulkCreate(detallesOrden, { transaction });
 
+        console.log('Detalles de la orden creados:', detallesOrden);
+
+        // Actualizar el inventario de materias primas
+        for (let detalle of detallesOrden) {
+            console.log('Procesando detalle para stock:', detalle);
+            const stock = await Stock.findOne({ where: { articulo_id: detalle.articulo_id }, transaction });
+            console.log('Stock encontrado:', stock);
+
+            if (stock) {
+                stock.cantidad_disponible += detalle.cantidad;
+                await stock.save({ transaction });
+            } else {
+                await Stock.create({
+                    articulo_id: detalle.articulo_id,
+                    cantidad_disponible: detalle.cantidad,
+                    cantidad_reservada: 0
+                }, { transaction });
+            }
+        }
+
         await transaction.commit();
         console.log('Transacción completada con éxito');
 
