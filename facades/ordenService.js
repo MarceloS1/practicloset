@@ -13,17 +13,15 @@ class OrdenService {
 
         try {
             // Configurar la cadena de responsabilidad
-            const validacionStockHandler = new ValidacionStockHandler();
             const calculoPrecioHandler = new CalculoPrecioHandler();
 
-            validacionStockHandler.setNext(calculoPrecioHandler);
 
             // Crear la solicitud
             const request = { detalles };
 
-            // Procesar la solicitud a través de la cadena
-            await validacionStockHandler.handle(request);
-
+            await calculoPrecioHandler.handle(request);
+            console.log('Precio calculado:', request);
+            
             const ordenBuilder = new OrdenBuilder()
                 .setProveedorId(proveedor_id)
                 .setFecha(fecha)
