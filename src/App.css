@@ -19,17 +19,20 @@ body, html {
 
 /* Estilos para la barra lateral de navegación */
 .sidebar {
-  width: 20%;
+  width: 300px; /* Fija el ancho de la barra lateral */
   background: #f0f0f0;
-  padding: 20px;
+  padding: 10px;
   overflow-y: auto; /* Añade scroll si es necesario */
   height: 100vh; /* Ocupa toda la altura de la ventana */
+  position: fixed; /* Fija la barra lateral */
+  top: 0;
+  left: 0;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
 }
 
-/* Estilos para la barra de búsqueda de módulos */
 .sidebar input {
-  width: calc(100% - 40px); /* Resta el padding para un ancho completo */
-  padding: 10px;
+  width: calc(100% - 20px); /* Resta el padding para un ancho completo */
+  padding: 8px;
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -39,6 +42,13 @@ body, html {
 .sidebar nav ul {
   list-style-type: none;
   padding-left: 0;
+  margin: 0;
+}
+
+.sidebar nav ul li {
+  margin: 10px 0;
+  padding: 10px 0; /* Añade espacio vertical entre los elementos */
+  border-bottom: 1px solid #ccc; /* Añade una línea separadora */
 }
 
 .sidebar nav ul li a {
@@ -46,21 +56,43 @@ body, html {
   color: #333;
   display: block;
   padding: 10px;
-  border-radius: 4px;
   transition: background-color 0.2s;
+}/* Estilos globales */
+* {
+  box-sizing: border-box;
 }
 
-.sidebar nav ul li a:hover {
-  background-color: #ddd;
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  height: 100%;
 }
 
-/* Estilos para el área de contenido principal */
-.main-content {
-  flex-grow: 1; /* Ocupa el espacio restante */
+/* Estilos del contenedor principal de la App */
+.app-container {
+  display: flex;
+  height: 100vh; /* Ocupa toda la altura de la ventana */
+  overflow: hidden;
+}
+
+/* Estilos para la barra lateral de navegación */
+.sidebar {
+  width: 20%;
+  background: #f0f0f0;
   padding: 20px;
   overflow-y: auto; /* Añade scroll si es necesario */
   height: 100vh; /* Ocupa toda la altura de la ventana */
+  position: fixed;
+  transition: transform 0.3s ease;
+}
+
+.main-content {
   margin-left: 20%;
+  padding: 20px;
+  flex-grow: 1; /* Ocupa el espacio restante */
+  overflow-y: auto; /* Añade scroll si es necesario */
+  height: 100vh; /* Ocupa toda la altura de la ventana */
 }
 
 /* Responsive adjustments */
@@ -68,7 +100,71 @@ body, html {
   .sidebar {
     width: 100%;
     height: auto;
+    position: relative;
+  }
+
+  .main-content {
+    margin-left: 0;
     padding: 10px;
+  }
+}
+
+/* Estilos para tablas responsivas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  th, td {
+    padding-left: 50%;
+    position: relative;
+  }
+
+  th {
+    height: 60px; /* Ajusta el tamaño según necesites */
+  }
+
+  td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 50%;
+    padding-left: 10px;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+}
+
+
+.sidebar nav ul li a:hover {
+  background-color: #ddd;
+}
+
+/* Estilos para el área de contenido principal */
+.main-content {
+  margin-left: 300px; /* Añade margen para no sobreponer la barra lateral */
+  padding: 20px;
+  overflow-y: auto; /* Añade scroll si es necesario */
+  height: 100vh; /* Ocupa toda la altura de la ventana */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
   }
 
   .main-content {

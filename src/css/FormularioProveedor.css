@@ -8,7 +8,6 @@
   box-shadow: 0px 4px 8px rgba(0,0,0,0.2); /* Opcional: Agrega sombra para resaltar el formulario */
   display: flex;
   flex-direction: column;
-  
 }
 
 /* Estilos para el formulario */
@@ -62,6 +61,7 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  overflow-x: auto; /* Permite el scroll horizontal */
 }
 
 .proveedores-lista th,
@@ -133,4 +133,20 @@
   font-weight: 900;
 }
 
-/* Puedes agregar otros estilos que consideres necesarios a continuación */
+/* Responsive tables */
+@media (max-width: 768px) {
+  .proveedores-lista, .articulos-lista {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .proveedores-lista th, .proveedores-lista td, .articulos-lista th, .articulos-lista td {
+    display: block;
+    text-align: right;
+  }
+  .proveedores-lista th::before, .proveedores-lista td::before, .articulos-lista th::before, .articulos-lista td::before {
+    content: attr(data-label);
+    float: left;
+    font-weight: bold;
+  }
+}

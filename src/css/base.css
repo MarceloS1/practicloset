@@ -5,11 +5,9 @@
     --color-secundario: #ffffff; /* Blanco para contrastar */
     --fuente-principal: 'Arial', sans-serif;
     --fondo-madera: url('https://cdn.pixabay.com/photo/2014/02/11/01/56/wood-263802_1280.jpg');
-    
-    
-  }
-  
-  body {
+}
+
+body {
     background-image: var(--fondo-madera);
     background-size: cover;
     background-repeat: no-repeat;
@@ -18,86 +16,116 @@
     height: 100vh;
     width: 100vw;
     overflow: auto;
-  }
-  
-  /* Estilo para contenedores de formularios y tablas */
-  .form-container, .table-container {
+}
+
+/* Estilo para contenedores de formularios y tablas */
+.form-container, .table-container {
     background-color: var(--color-secundario); /* Usa un fondo sólido para estos elementos */
     padding: 20px;
     margin: 20px auto;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Opcional: agrega sombra para resaltar los elementos sobre el fondo */
     border-radius: 8px; /* Opcional: bordes redondeados */
-  }
-  
-  /* Encabezados y textos */
-  h1, h2, h3 {
+}
+
+/* Encabezados y textos */
+h1, h2, h3 {
     color: var(--color-primario);
-  }
-  
-  p, li, div {
+}
+
+p, li, div {
     color: var(--color-primario);
-  }
-  
-  /* Menú lateral */
-  .sidebar {
+}
+
+/* Menú lateral */
+.sidebar {
     background-color: var(--color-primario);
     color: var(--color-secundario);
     padding: 20px;
-  }
-  
-  .sidebar a {
+}
+
+.sidebar a {
     color: var(--color-secundario);
     text-decoration: none;
-  }
-  
-  /* Contenedores y tarjetas */
-  .card {
+}
+
+/* Contenedores y tarjetas */
+.card {
     background: var(--fondo-madera);
     border: none;
     padding: 20px;
     margin: 10px 0;
-  }
-  
-  /* Botones y enlaces */
-  button, .button {
+}
+
+/* Botones y enlaces */
+button, .button {
     background-color: #5876ae; /* Un azul más claro para los botones */
     color: white;
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-  }
-  
-  button:hover, .button:hover {
+}
+
+button:hover, .button:hover {
     background-color: #5876ae;
-  }
-  
-  /* Formularios y entradas */
-  input[type="text"], input[type="email"], textarea {
+}
+
+/* Formularios y entradas */
+input[type="text"], input[type="email"], textarea {
     width: 100%;
     padding: 10px;
     margin: 8px 0;
     display: inline-block;
     border: 1px solid #ccc;
     box-sizing: border-box;
-  }
-  
-  /* Ajustes de tabla */
-  table {
+}
+
+/* Ajustes de tabla */
+table {
     width: 100%;
     border-collapse: collapse;
-  }
-  
-  th, td {
+}
+
+th, td {
     padding: 8px;
     text-align: left;
     border-bottom: 1px solid #ddd;
-  }
-  
-  /* Responsive */
-  @media (max-width: 768px) {
+}
+
+/* Responsive */
+@media (max-width: 768px) {
     .sidebar {
-      padding: 10px;
+        padding: 10px;
+        position: relative;
+        width: 100%;
+        height: auto;
     }
-  }
-  
+
+    .main-content {
+        margin-left: 0;
+        padding: 10px;
+    }
+    
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    th, td {
+        padding-left: 50%;
+        position: relative;
+    }
+
+    th {
+        height: 60px; /* Ajusta el tamaño según necesites */
+    }
+
+    td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 50%;
+        padding-left: 10px;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+}
